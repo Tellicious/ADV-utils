@@ -153,6 +153,9 @@ utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position) {
     } else if (position == list->items) {
         list->_rear->next = ptr;
         list->_rear = ptr;
+    } else if (position == 0) {
+        ptr->next = list->_front;
+        list->_front = ptr;
     } else {
         /* search for node at position - 1 */
         listNode_t* prev = list->_front;
