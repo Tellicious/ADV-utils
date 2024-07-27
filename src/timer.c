@@ -38,10 +38,11 @@
 /* Functions -----------------------------------------------------------------*/
 
 void timerProcess(userTimer_t* t, uint32_t currentTick) {
-    uint32_t k;
+    uint32_t k, events;
     if (t->flag && currentTick >= t->target_tick) {
-        t->event_cnt++;
+        events = (currentTick - t->target_tick + t->interval) / t->interval;
+        t->event_cnt += events;
         k = t->target_tick; /* to prevent Warning volatile access in IAR EWARM   */
-        t->target_tick = k + t->interval;
+        t->target_tick = k + t->interval * events;
     }
 }
