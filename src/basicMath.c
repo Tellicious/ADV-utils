@@ -68,6 +68,10 @@ float fastSqrt(float value) {
         float x;
     } u;
 
+    if (value < 0) {
+        return NAN;
+    }
+
     u.x = value;
     u.i = (1 << 29) + (u.i >> 1) - (1 << 22);
 
@@ -90,6 +94,10 @@ float fastInvSqrt(float value) {
         float f;
         uint32_t i;
     } conv = {.f = value};
+
+    if (value < 0) {
+        return NAN;
+    }
 
     conv.i = 0x5f3759df - (conv.i >> 1);
     conv.f *= 1.5f - (value * 0.5f * conv.f * conv.f);
