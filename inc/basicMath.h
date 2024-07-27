@@ -63,20 +63,28 @@ extern "C" {
     ((ABS(value) <= threshold) ? 0 : ((value > 0) ? (value - threshold) : (value + threshold)))
 
 /* Get maximum between 2 values */
+#ifdef __GNUC__
 #define MAX(a, b)                                                                                                      \
-    do {                                                                                                               \
+    ({                                                                                                                 \
         __typeof__(a) _a = (a);                                                                                        \
         __typeof__(b) _b = (b);                                                                                        \
         _a > _b ? _a : _b;                                                                                             \
-    } while (0)
+    })
+#elif
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#endif
 
 /* Get minimum between 2 values */
+#ifdef __GNUC__
 #define MIN(a, b)                                                                                                      \
-    do {                                                                                                               \
+    ({                                                                                                                 \
         __typeof__(a) _a = (a);                                                                                        \
         __typeof__(b) _b = (b);                                                                                        \
         _a < _b ? _a : _b;                                                                                             \
-    } while (0)
+    })
+#elif
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
 
 /* Conversion between rad and deg */
 #define RAD2DEG(x)                     ((x) * 57.29578f)
@@ -136,10 +144,10 @@ extern "C" {
 #define BIT_CLEAR_IN_PLACE(val, mask)  val &= ~(mask)
 
 /* Toggle bits */
-#define BIT_TOGGLE(val, mask)          ((val) ^ (bit_mask))
+#define BIT_TOGGLE(val, mask)          ((val) ^ (mask))
 
 /* Toggle bits in place */
-#define BIT_TOGGLE_IN_PLACE(val, mask) val ^= (bit_mask)
+#define BIT_TOGGLE_IN_PLACE(val, mask) val ^= (mask)
 
 /* Faster math operations */
 #ifdef USE_FAST_MATH
