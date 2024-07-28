@@ -354,7 +354,6 @@ void matrixInversedStatic_rob(matrix_t* lhs, matrix_t* result) {
     matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
     LinSolveLUPStatic(lhs, &Eye, result);
-    matrixDelete(&Eye);
     return;
 }
 
