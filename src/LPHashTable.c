@@ -268,25 +268,4 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     return UTILS_STATUS_SUCCESS;
 }
 
-void lpHashTableIt(lpHashTableIterator_t* it, lpHashTable_t* lpht) {
-    it->_lpht = lpht;
-    it->_index = 0;
-    return;
-}
-
-utilsStatus_t lpHashTableItNext(lpHashTableIterator_t* it) {
-    while (it->_index < it->_lpht->size) {
-        if (it->_lpht->entries[it->_index].key != NULL) {
-            /* Found next non-empty item, update iterator key and value. */
-            lpHashTableEntry_t entry = it->_lpht->entries[it->_index];
-            it->key = entry.key;
-            it->value = entry.value;
-
-            return UTILS_STATUS_SUCCESS;
-        }
-        it->_index++;
-    }
-    return UTILS_STATUS_ERROR;
-}
-
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

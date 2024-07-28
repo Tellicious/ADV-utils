@@ -149,23 +149,6 @@ static inline void lpHashTableInfo(lpHashTable_t* lpht, uint32_t* size, uint32_t
  * \return          UTILS_STATUS_SUCCESS if list is flushed correctly, UTILS_STATUS_ERROR if data cannot be flushed
  */
 utilsStatus_t lpHashTableFlush(lpHashTable_t* lpht);
-
-/**
- * \brief           Create new iterator
- *
- * \param[in]       it: pointer to iterator object
- * \param[in]       lpht: pointer to hash-table object
- */
-void lpHashTableIt(lpHashTableIterator_t* it, lpHashTable_t* lpht);
-
-/**
- * \brief           Move iterator to next item in hash table
- *
- * \param[in]       it: pointer to iterator object
- *
- * \return          UTILS_STATUS_SUCCESS if iterator is moved to next value, UTILS_STATUS_ERROR if there are no more items
- */
-utilsStatus_t lpHashTableItNext(lpHashTableIterator_t* it);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef __cplusplus
