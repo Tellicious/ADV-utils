@@ -40,5 +40,15 @@ jobs:
     
     - name: Test
       run: ctest --test-dir ${{github.workspace}}/build --output-on-failure --verbose
+
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+          plugin: gcov
+          dry_run: true
+          disable_search: true
+          working-directory: ${{github.workspace}}/build/CMakeFiles/src/
+          files: button.c, queue.c
+          token: ${{ secrets.CODECOV_TOKEN }}
   
 
