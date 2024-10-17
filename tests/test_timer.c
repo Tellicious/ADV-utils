@@ -99,6 +99,11 @@ static void test_timerProcess(void** state) {
     timerProcess(&timer, 3500);
     assert_int_equal(timer.event_cnt, 3);
     assert_int_equal(timer.target_tick, 4500);
+
+    // Process stopped timer
+    timerStop(&timer);
+    timerProcess(&timer, 4502);
+    assert_int_equal(timer.event_cnt, 0);
 }
 
 static void test_timerEventExists(void** state) {
@@ -110,10 +115,43 @@ static void test_timerEventExists(void** state) {
     assert_int_equal(timerEventExists(&timer), 5);
 }
 
+static void test_timerWrapAround(void** state) {
+    (void)state; /* unused */
+    userTimer_t timer;
+    timerInit(&timer, 500);
+    timerStart(&timer, UINT32_MAX - 900);
+
+    // Process timer not wrapping-around
+    timerProcess(&timer, UINT32_MAX - 399);
+    assert_int_equal(timer.event_cnt, 1);
+    assert_int_equal(timer.target_tick, 100);
+
+    // Process timer once it has wrapped-around
+    timerProcess(&timer, 101);
+    assert_int_equal(timer.event_cnt, 1);
+    assert_int_equal(timer.target_tick, 600);
+
+    // Test timer with initial wrap-around
+    timerStop(&timer);
+    timerStart(&timer, UINT32_MAX - 400);
+    timerProcess(&timer, 101);
+    assert_int_equal(timer.event_cnt, 1);
+    assert_int_equal(timer.target_tick, 600);
+
+    // Test timer wrapping-around with multiple events
+    timerStop(&timer);
+    timerStart(&timer, UINT32_MAX - 900);
+    timerProcess(&timer, 601);
+    assert_int_equal(timer.event_cnt, 3);
+    assert_int_equal(timer.target_tick, 1100);
+}
+
 int main(void) {
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(test_timerInit),  cmocka_unit_test(test_timerStart),   cmocka_unit_test(test_timerStop),
-        cmocka_unit_test(test_timerClear), cmocka_unit_test(test_timerProcess), cmocka_unit_test(test_timerEventExists),
+        cmocka_unit_test(test_timerInit),       cmocka_unit_test(test_timerStart),
+        cmocka_unit_test(test_timerStop),       cmocka_unit_test(test_timerClear),
+        cmocka_unit_test(test_timerProcess),    cmocka_unit_test(test_timerEventExists),
+        cmocka_unit_test(test_timerWrapAround),
     };
 
     return cmocka_run_group_tests(tests, NULL, NULL);
