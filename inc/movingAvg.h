@@ -109,7 +109,7 @@ MOVAVG_TYPE movingAvgCalc(movingAvg_t* movingAvg, MOVAVG_TYPE value);
 static inline MOVAVG_TYPE movingAvgGetLatest(movingAvg_t* movingAvg) { return (movingAvg->sum * movingAvg->inv_size); }
 
 /**
- * \brief           Flush queue setting all values to 0
+ * \brief           Flush moving average setting all values to 0
  *
  * \param[in]       movingAvg: pointer to moving average object
  */
