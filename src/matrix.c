@@ -150,8 +150,8 @@ void matrixMult(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
     /* 		for (j = 0; j < rhs->cols; j++) */
     /* 			for (k = 0; k < lhs->cols; k++) */
     /* 				ELEMP(result, i, j) += ELEMP(lhs, i, k) * ELEMP(rhs, k, j); */
-    float* pIn1 = lhs->data;    /* input data matrix pointer A */
-    float* pIn2 = rhs->data;    /* input data matrix pointer B */
+    float* pIn1;                /* input data matrix pointer A */
+    float* pIn2;                /* input data matrix pointer B */
     float* pInA = lhs->data;    /* input data matrix pointer A  */
     float* pOut = result->data; /* output data matrix pointer */
     float* px;                  /* Temporary output data matrix pointer */
