@@ -17,6 +17,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_C_STANDARD_REQUIRED ON)
     set(CMAKE_C_EXTENSIONS ON)
+    option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
     # Set user definitions
     set(user_DEFS
