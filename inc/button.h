@@ -75,15 +75,15 @@ typedef enum {
 /**
  * Button struct
  */
-typedef struct __attribute__((packed)) {
+typedef struct {
     buttonType_t type       : 1;
     buttonStatus_t status   : 1;
-    buttonPressType_t press : 4;
+    buttonPressType_t press : 5;
     uint8_t event           : 1;
+    uint8_t pulses;
     uint16_t debounceTicks, resetTicks, longPressTicks, veryLongPressTicks;
     uint32_t validTick[2], lastTick[2];
-    uint8_t pulses;
-} button_t;
+} __attribute__((packed)) button_t;
 
 /* Function prototypes -------------------------------------------------------*/
 
@@ -130,7 +130,7 @@ buttonPressType_t buttonGetPress(button_t* button, uint32_t ticks);
 static inline buttonStatus_t buttonGetStatus(button_t* button, uint32_t ticks) {
     return (((button->validTick[button->status] > button->validTick[!button->status]) || (ticks - button->lastTick[button->status] > button->debounceTicks))
                 ? button->status
-                : !button->status);
+                : (buttonStatus_t)!button->status);
 }
 
 #ifdef __cplusplus
