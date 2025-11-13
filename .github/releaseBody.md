@@ -1,14 +1,10 @@
-## Various fixes and improvements
+## basicMath bugfix
 
 **Improvements:**
 - Updated GitHub actions
-- Reduced `button_t` size
+- Updated submodules
   
 **Bugfix:**
-- Fixed comment in `movingAvg.h`
-- Removed unnecessary initial data assignement in `matrix.c`
-- Added a static cast to `buttonGetStatus` to avoid compiler warnings
-- Fixed CMake configuration to compile under Windows
-- Fixed dependabot configuration
+- Fixed a bug in `basicMath.h` and in its unit tests, as it was not being detected
 
 See [Changelog](Changelog.md)

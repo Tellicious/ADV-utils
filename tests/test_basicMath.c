@@ -66,9 +66,9 @@ static void test_macros(void** state) {
     assert_int_equal(CONSTRAIN(0, 0, 0), 0);
 
     // Test MAP macro
-    assert_int_equal(MAP(5, 0, 10, 0, 100), 50);
-    assert_int_equal(MAP(0, 0, 10, 0, 100), 0);
-    assert_int_equal(MAP(10, 0, 10, 0, 100), 100);
+    assert_int_equal(MAP(5, 0, 10, 100, 200), 150);
+    assert_int_equal(MAP(0, 0, 10, 100, 200), 100);
+    assert_int_equal(MAP(10, 0, 10, 100, 200), 200);
 
     // Test DEADBAND macro
     assert_int_equal(DEADBAND(5, 2), 3);
