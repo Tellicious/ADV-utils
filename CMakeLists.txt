@@ -30,6 +30,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     # Compiler options
     set(compiler_OPTS
         -fdiagnostics-color=always
+        -fstack-protector-all
         -fno-builtin
         -Wall
         -Wextra
