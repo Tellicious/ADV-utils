@@ -2,7 +2,7 @@
 
 # Collection of useful C utilities
 
-[![Unit tests](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml/badge.svg?branch=main&event=push&event=workflow_dispatch)](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml)
+[![Unit tests](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml/badge.svg?event=push)](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml)
 [![Codecov](https://codecov.io/gh/Tellicious/ADV-utils/graph/badge.svg?token=OJG3076HXJ)](https://codecov.io/gh/Tellicious/ADV-utils)
 
 ## Libraries included:
