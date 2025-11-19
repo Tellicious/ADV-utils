@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.17.8
+
+**Improvements:**
+- Added stack protector compiler flag
+
+**Bugfix:**
+- Minor fix to status badge in `Readme.md`
+
 ## v1.17.7
 
 **Improvements:**

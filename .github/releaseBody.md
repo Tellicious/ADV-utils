@@ -1,10 +1,9 @@
-## basicMath bugfix
+## Minor fixes
 
 **Improvements:**
-- Updated GitHub actions
-- Updated submodules
-  
+- Added stack protector compiler flag
+
 **Bugfix:**
-- Fixed a bug in `basicMath.h` and in its unit tests, as it was not being detected
+- Minor fix to status badge in `Readme.md`
 
 See [Changelog](Changelog.md)
