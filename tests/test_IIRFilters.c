@@ -159,6 +159,27 @@ static void test_IIRFilterProcess(void** state) {
     }
 }
 
+static void test_IIRFilterReset(void** state) {
+    (void)state; /* unused */
+    IIRFilterGeneric_t filter;
+    IIRFilterInit(&filter, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+    IIRFilterReset(&filter);
+    assert_float_equal(filter.i1, 0.0, 1e-5);
+    assert_float_equal(filter.i2, 0.0, 1e-5);
+    assert_float_equal(filter.i3, 0.0, 1e-5);
+    assert_float_equal(filter.o1, 0.0, 1e-5);
+    assert_float_equal(filter.o2, 0.0, 1e-5);
+    assert_float_equal(filter.o3, 0.0, 1e-5);
+
+    IIRFilterSetValue(&filter, 10.0);
+    assert_float_equal(filter.i1, 10.0, 1e-5);
+    assert_float_equal(filter.i2, 10.0, 1e-5);
+    assert_float_equal(filter.i3, 10.0, 1e-5);
+    assert_float_equal(filter.o1, 10.0, 1e-5);
+    assert_float_equal(filter.o2, 10.0, 1e-5);
+    assert_float_equal(filter.o3, 10.0, 1e-5);
+}
+
 static void test_IIRFilterDerivative(void** state) {
     (void)state; /* unused */
     IIRFilterDerivative_t filter;
@@ -178,6 +199,14 @@ static void test_IIRFilterDerivative(void** state) {
     for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
         assert_float_equal(IIRFilterDerivativeProcess(&filter, input[ii]), diff_true[ii], 1e-5);
     }
+
+    IIRFilterDerivativeSetValue(&filter, 2.0);
+    assert_float_equal(filter.i1, 2.0, 1e-5);
+    assert_float_equal(filter.output, 2.0, 1e-5);
+
+    IIRFilterDerivativeReset(&filter);
+    assert_float_equal(filter.i1, 0.0, 1e-5);
+    assert_float_equal(filter.output, 0.0, 1e-5);
 }
 
 static void test_IIRFilterIntegrator(void** state) {
@@ -199,13 +228,21 @@ static void test_IIRFilterIntegrator(void** state) {
     for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
         assert_float_equal(IIRFilterIntegratorProcess(&filter, input[ii]), int_true[ii], 1e-5);
     }
+
+    IIRFilterIntegratorSetValue(&filter, 5.0);
+    assert_float_equal(filter.i1, 5.0, 1e-5);
+    assert_float_equal(filter.output, 5.0, 1e-5);
+
+    IIRFilterIntegratorReset(&filter);
+    assert_float_equal(filter.i1, 0.0, 1e-5);
+    assert_float_equal(filter.output, 0.0, 1e-5);
 }
 
 int main(void) {
     const struct CMUnitTest test_IIRFilters[] = {
-        cmocka_unit_test(test_IIRFilterInit),       cmocka_unit_test(test_IIRFilterInitLP),     cmocka_unit_test(test_IIRFilterInitHP),
-        cmocka_unit_test(test_IIRFilterInitBP),     cmocka_unit_test(test_IIRFilterInitBS),     cmocka_unit_test(test_IIRFilterProcess),
-        cmocka_unit_test(test_IIRFilterDerivative), cmocka_unit_test(test_IIRFilterIntegrator),
+        cmocka_unit_test(test_IIRFilterInit),   cmocka_unit_test(test_IIRFilterInitLP),     cmocka_unit_test(test_IIRFilterInitHP),
+        cmocka_unit_test(test_IIRFilterInitBP), cmocka_unit_test(test_IIRFilterInitBS),     cmocka_unit_test(test_IIRFilterProcess),
+        cmocka_unit_test(test_IIRFilterReset),  cmocka_unit_test(test_IIRFilterDerivative), cmocka_unit_test(test_IIRFilterIntegrator),
     };
 
     return cmocka_run_group_tests(test_IIRFilters, NULL, NULL);

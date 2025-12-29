@@ -135,6 +135,18 @@ void IIRFilterInitBS(IIRFilterGeneric_t* filter, float centerFreq, float bandwid
 float IIRFilterProcess(IIRFilterGeneric_t* filter, float input);
 
 /**
+ * \brief           Set generic IIR filter state variables to provided value
+ *
+ *
+ * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       value: value to set the filter state variables to
+ */
+static inline void IIRFilterSetValue(IIRFilterGeneric_t* filter, float value) {
+    /* Initialize state variables */
+    filter->i1 = filter->i2 = filter->i3 = filter->o1 = filter->o2 = filter->o3 = value;
+}
+
+/**
  * \brief           Reset generic IIR filter
  *
  *
@@ -142,7 +154,7 @@ float IIRFilterProcess(IIRFilterGeneric_t* filter, float input);
  */
 static inline void IIRFilterReset(IIRFilterGeneric_t* filter) {
     /* Initialize state variables */
-    filter->i1 = filter->i2 = filter->i3 = filter->o1 = filter->o2 = filter->o3 = 0.f;
+    IIRFilterSetValue(filter, 0.0f);
 }
 
 /**
@@ -178,6 +190,18 @@ static inline float IIRFilterDerivativeProcess(IIRFilterDerivative_t* filter, fl
 }
 
 /**
+ * \brief           Set derivative IIR filter state variables to provided value
+ *
+ *
+ * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       value: value to set the filter state variables to
+ */
+static inline void IIRFilterDerivativeSetValue(IIRFilterDerivative_t* filter, float value) {
+    /* Initialize state variables */
+    filter->i1 = filter->output = value;
+}
+
+/**
  * \brief           Reset derivative IIR filter
  *
  *
@@ -185,7 +209,7 @@ static inline float IIRFilterDerivativeProcess(IIRFilterDerivative_t* filter, fl
  */
 static inline void IIRFilterDerivativeReset(IIRFilterDerivative_t* filter) {
     /* Initialize state variables */
-    filter->i1 = filter->output = 0.0;
+    IIRFilterDerivativeSetValue(filter, 0.0f);
 }
 
 /**
@@ -219,6 +243,18 @@ static inline float IIRFilterIntegratorProcess(IIRFilterIntegrator_t* filter, fl
 }
 
 /**
+ * \brief           Set integrator IIR filter state variables to provided value
+ *
+ *
+ * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       value: value to set the filter state variables to
+ */
+static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, float value) {
+    /* Initialize state variables */
+    filter->i1 = filter->output = value;
+}
+
+/**
  * \brief           Reset integrator IIR filter
  *
  *
@@ -226,7 +262,7 @@ static inline float IIRFilterIntegratorProcess(IIRFilterIntegrator_t* filter, fl
  */
 static inline void IIRFilterIntegratorReset(IIRFilterIntegrator_t* filter) {
     /* Initialize state variables */
-    filter->i1 = filter->output = 0.0;
+    IIRFilterIntegratorSetValue(filter, 0.0f);
 }
 
 #ifdef __cplusplus
