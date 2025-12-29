@@ -152,10 +152,7 @@ static inline void IIRFilterSetValue(IIRFilterGeneric_t* filter, float value) {
  *
  * \param[in]       filter: pointer to IIR filter structure
  */
-static inline void IIRFilterReset(IIRFilterGeneric_t* filter) {
-    /* Initialize state variables */
-    IIRFilterSetValue(filter, 0.0f);
-}
+#define IIRFilterReset(filter) IIRFilterSetValue(filter, 0.0f)
 
 /**
  * \brief           Initialize derivative IIR filter
@@ -207,10 +204,7 @@ static inline void IIRFilterDerivativeSetValue(IIRFilterDerivative_t* filter, fl
  *
  * \param[in]       filter: pointer to IIR filter structure
  */
-static inline void IIRFilterDerivativeReset(IIRFilterDerivative_t* filter) {
-    /* Initialize state variables */
-    IIRFilterDerivativeSetValue(filter, 0.0f);
-}
+#define IIRFilterDerivativeReset(filter) IIRFilterDerivativeSetValue(filter, 0.0f);
 
 /**
  * \brief           Initialize integrator IIR filter
@@ -260,10 +254,7 @@ static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, fl
  *
  * \param[in]       filter: pointer to IIR filter structure
  */
-static inline void IIRFilterIntegratorReset(IIRFilterIntegrator_t* filter) {
-    /* Initialize state variables */
-    IIRFilterIntegratorSetValue(filter, 0.0f);
-}
+#define IIRFilterIntegratorReset(filter) IIRFilterIntegratorSetValue(filter, 0.0f)
 
 #ifdef __cplusplus
 }
