@@ -1,9 +1,6 @@
 ## Minor improvement to IIRFilter
 
 **Improvements:**
-- Add functions to set state variables for IIR filters
-
-**Bugfix:**
-- Removed CMocka from test target link libraries to avoid warning
+- Converted `IIRFilter*Reset` to macro
 
 See [Changelog](Changelog.md)
