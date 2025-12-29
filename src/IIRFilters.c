@@ -54,10 +54,12 @@ void IIRFilterInit(IIRFilterGeneric_t* filter, float n0, float n1, float n2, flo
     filter->i1 = filter->i2 = filter->i3 = filter->o1 = filter->o2 = filter->o3 = 0.0;
 }
 
-void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms) {
+void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float q, float dT_ms) {
     ADVUTILS_ASSERT(lpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / ADVUTILS_TAN(ADVUTILS_constPI * (lpFreq * dT_ms * 1e-3f));
-    const float q = ADVUTILS_SQRT(2.f);
+    if (q <= 0.f) {
+        q = ADVUTILS_SQRT(2.f); // Butterworth Q
+    }
     float n0 = 1.f / (1.f + q * lambda + lambda * lambda);
     float n1 = 2.f * n0;
     float d1 = 2.f * (1.f - lambda * lambda) * n0;
@@ -65,10 +67,12 @@ void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms) {
     IIRFilterInit(filter, n0, n1, n0, 0, d1, d2, 0);
 }
 
-void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float dT_ms) {
+void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float q, float dT_ms) {
     ADVUTILS_ASSERT(hpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / ADVUTILS_TAN(ADVUTILS_constPI * (hpFreq * dT_ms * 1e-3f));
-    const float q = ADVUTILS_SQRT(2.f);
+    if (q <= 0) {
+        q = ADVUTILS_SQRT(2.f); // Butterworth Q
+    }
     float n0 = 1.f / (1.f + q * lambda + lambda * lambda);
     float n1 = -2.f * n0 * lambda * lambda;
     float d1 = 2.f * (1.f - lambda * lambda) * n0;

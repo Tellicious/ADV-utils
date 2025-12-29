@@ -33,6 +33,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 
+#include <math.h>
 #include <setjmp.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -88,7 +89,7 @@ static void test_IIRFilterInit(void** state) {
 static void test_IIRFilterInitLP(void** state) {
     (void)state; /* unused */
     IIRFilterGeneric_t filter;
-    IIRFilterInitLP(&filter, 100.0, 1.0);
+    IIRFilterInitLP(&filter, 100.0, 0, 1.0);
     assert_float_equal(filter.n0, 6.74552e-2f, 1e-7); //b1
     assert_float_equal(filter.n1, 1.34911e-1, 1e-6);  //b2
     assert_float_equal(filter.n2, 6.74552e-2, 1e-7);  //b3
@@ -101,7 +102,7 @@ static void test_IIRFilterInitLP(void** state) {
 static void test_IIRFilterInitHP(void** state) {
     (void)state; /* unused */
     IIRFilterGeneric_t filter;
-    IIRFilterInitHP(&filter, 100.0, 1.0);
+    IIRFilterInitHP(&filter, 100.0, 0, 1.0);
     assert_float_equal(filter.n0, 6.38946e-1, 1e-6);
     assert_float_equal(filter.n1, -1.277891, 1e-6);
     assert_float_equal(filter.n2, 6.38946e-1, 1e-6);
@@ -152,7 +153,7 @@ static void test_IIRFilterProcess(void** state) {
         -12.92048, -12.97567, -13.02456, -12.99569, -12.99678, -13.00203, -12.99988, -12.99965, -13.00015, -13.00001, -12.99997, -13.00001, -13.00000,
         -13.00000, -13.00000, -13.00000, -13.00000, -13.00000, -13.00000, -2.82527};
 
-    IIRFilterInitLP(&filter, 3.0, 100);
+    IIRFilterInitLP(&filter, 3.0, 0, 100);
 
     for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
         assert_float_equal(IIRFilterProcess(&filter, input[ii]), filt_true[ii], 1e-5);

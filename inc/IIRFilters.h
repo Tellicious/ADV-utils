@@ -90,18 +90,20 @@ void IIRFilterInit(IIRFilterGeneric_t* filter, float n0, float n1, float n2, flo
  *
  * \param[in]       filter: pointer to IIR filter structure
  * \param[in]       lpFreq: low-pass cutoff frequency in Hz
+ * \param[in]       q: 2 * Q factor of the filter (if 0, it will be set to Butterworth value)
  * \param[in]       dT_ms: sampling time in ms
  */
-void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms);
+void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float q, float dT_ms);
 
 /**
  * \brief           Initialize second-order Butterworth high-pass IIR filter
  *
  * \param[in]       filter: pointer to IIR filter structure
  * \param[in]       hpFreq: high-pass cutoff frequency in Hz
+ * \param[in]       q: 2 * Q factor of the filter (if 0, it will be set to Butterworth value)
  * \param[in]       dT_ms: sampling time in ms
  */
-void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float dT_ms);
+void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float q, float dT_ms);
 
 /**
  * \brief           Initialize second-order Butterworth band-pass IIR filter
