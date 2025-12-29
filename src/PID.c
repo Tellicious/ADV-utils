@@ -56,7 +56,7 @@ void PID_calc(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
     PID->DuI += PID->ki * e;
     PID->DuD += PID->kd * e;
-    PID->output = CONSTRAIN(PID->kp * e + PID->DuI + PID->DuD, PID->satMin, PID->satMax);
+    PID->output = ADVUTILS_CONSTRAIN(PID->kp * e + PID->DuI + PID->DuD, PID->satMin, PID->satMax);
     PID->DuI += PID->ki * e;
     PID->DuD = PID->kf * PID->DuD - PID->kd * e;
 }
@@ -64,7 +64,7 @@ void PID_calc(PID_t* PID, float setPoint, float measure) {
 utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
     PID->DuI += PID->ki * e;
-    PID->DuI = CONSTRAIN(PID->DuI, PID->satMin, PID->satMax);
+    PID->DuI = ADVUTILS_CONSTRAIN(PID->DuI, PID->satMin, PID->satMax);
     PID->DuD += PID->kd * e;
     PID->output = PID->kp * e + PID->DuI + PID->DuD;
     /* Prepare variables for next step */
@@ -88,7 +88,7 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure) {
     } else {
         PID->DuI += PID->ki * e;
     }
-    PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
+    PID->output = ADVUTILS_CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
     PID->DuD = PID->kf * PID->DuD - PID->kd * e;
     return (((PID->output == PID->satMax) || (PID->output == PID->satMin)) ? UTILS_STATUS_FULL : UTILS_STATUS_SUCCESS);
@@ -108,7 +108,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure) {
     }
     PID->DuI += PID->ki * e + PID->kb * bcVal;
     PID->output = PID->kp * e + PID->DuI + PID->DuD;
-    PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
+    PID->output = ADVUTILS_CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
     PID->DuI += PID->ki * e + PID->kb * bcVal;
     PID->DuD = PID->kf * PID->DuD - PID->kd * e;

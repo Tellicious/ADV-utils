@@ -38,14 +38,14 @@
 
 /* Macros --------------------------------------------------------------------*/
 
-#define PI_2 constPI * 0.5f
+#define PI_2 ADVUTILS_constPI * 0.5f
 
 /* Functions -----------------------------------------------------------------*/
 
 void quaternionNorm(quaternion_t* q) {
     float inv_norm;
 
-    inv_norm = INVSQRT(q->q0 * q->q0 + q->q1 * q->q1 + q->q2 * q->q2 + q->q3 * q->q3);
+    inv_norm = ADVUTILS_INVSQRT(q->q0 * q->q0 + q->q1 * q->q1 + q->q2 * q->q2 + q->q3 * q->q3);
     if (isnan(inv_norm) || isinf(inv_norm)) {
         inv_norm = 1.f;
     }

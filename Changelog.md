@@ -176,7 +176,7 @@
 ## v1.10.1
 
 **Improvements:**
-- Changed `quaternion.c` to give the user the possiblity to choose whether to use fast or standard math functions through the addition of `USE_FAST_MATH` to compile definitions
+- Changed `quaternion.c` to give the user the possiblity to choose whether to use fast or standard math functions through the addition of `ADVUTILS_USE_FAST_MATH` to compile definitions
 
 ## v1.10.0
 

@@ -37,7 +37,7 @@
     - `ADVUTILS_MALLOC`
     - `ADVUTILS_CALLOC`
     - `ADVUTILS_FREE`
-- User can select to use faster (and less precise) math functions from `basicMath` by adding `USE_FAST_MATH` to compile definitions
+- User can select to use faster (and less precise) math functions from `basicMath` by adding `ADVUTILS_USE_FAST_MATH` to compile definitions
 - Library implements an infinite loop assert to check for input parameters when `DEBUG` is defined. User can override it by defining `ADVUTILS_ASSERT` as any function that checks for the input value to be true. User can also define `ADVUTILS_ASSERT_HEADER` to include the file where the preferred assert is declared.
 
 ## Specific configurations (via defines):

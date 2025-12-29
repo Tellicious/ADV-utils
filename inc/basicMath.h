@@ -46,132 +46,132 @@ extern "C" {
 /* Macros --------------------------------------------------------------------*/
 
 /* Absolute value */
-#define ABS(value)                               (((value) >= 0) ? (value) : (-value))
+#define ADVUTILS_ABS(value)                               (((value) >= 0) ? (value) : (-value))
 
 /* Get sign of value */
-#define SIGN(x)                                  (((x) >= 0) ? 1 : -1)
+#define ADVUTILS_SIGN(x)                                  (((x) >= 0) ? 1 : -1)
 
 /* Constrain value between low and high */
-#define CONSTRAIN(value, low, high)              ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
+#define ADVUTILS_CONSTRAIN(value, low, high)              ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
 
 /* Re-map value according to new scale */
-#define MAP(x, fromLow, fromHigh, toLow, toHigh) (((x) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow)) + (toLow))
+#define ADVUTILS_MAP(x, fromLow, fromHigh, toLow, toHigh) (((x) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow)) + (toLow))
 
 /* Apply a deadband to value */
-#define DEADBAND(value, threshold)               ((ABS(value) <= threshold) ? 0 : ((value > 0) ? (value - threshold) : (value + threshold)))
+#define ADVUTILS_DEADBAND(value, threshold)               ((ADVUTILS_ABS(value) <= threshold) ? 0 : ((value > 0) ? (value - threshold) : (value + threshold)))
 
 /* Get maximum between 2 values */
 #ifdef __GNUC__
-#define MAX(a, b)                                                                                                                                              \
+#define ADVUTILS_MAX(a, b)                                                                                                                                     \
     ({                                                                                                                                                         \
         __typeof__(a) _a = (a);                                                                                                                                \
         __typeof__(b) _b = (b);                                                                                                                                \
         _a > _b ? _a : _b;                                                                                                                                     \
     })
 #else
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define ADVUTILS_MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
 /* Get minimum between 2 values */
 #ifdef __GNUC__
-#define MIN(a, b)                                                                                                                                              \
+#define ADVUTILS_MIN(a, b)                                                                                                                                     \
     ({                                                                                                                                                         \
         __typeof__(a) _a = (a);                                                                                                                                \
         __typeof__(b) _b = (b);                                                                                                                                \
         _a < _b ? _a : _b;                                                                                                                                     \
     })
 #else
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#define ADVUTILS_MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
 /* Conversion between rad and deg */
-#define RAD2DEG(x)                     ((x) * 57.29578f)
+#define ADVUTILS_RAD2DEG(x)                     ((x) * 57.29578f)
 
 /* Conversion between deg and rad */
-#define DEG2RAD(x)                     ((x) * 0.0174533f)
+#define ADVUTILS_DEG2RAD(x)                     ((x) * 0.0174533f)
 
 /* Conversion between rad/s and milliDegrees-per-second */
-#define RADPS2MDPS(x)                  ((x) * 57295.779513f)
+#define ADVUTILS_RADPS2MDPS(x)                  ((x) * 57295.779513f)
 
 /* Conversion between milliDegrees-per-second and rad/s */
-#define MDPS2RADPS(x)                  ((x) * 1.745329252e-5f)
+#define ADVUTILS_MDPS2RADPS(x)                  ((x) * 1.745329252e-5f)
 
 /* Conversion between C and K */
-#define C2K(x)                         ((x) + 273.15f)
+#define ADVUTILS_C2K(x)                         ((x) + 273.15f)
 
 /* Conversion between K and C */
-#define K2C(x)                         ((x) - 273.15f)
+#define ADVUTILS_K2C(x)                         ((x) - 273.15f)
 
 /* Conversion between milliG and m/s^2 */
-#define MG2MS2(x)                      ((x) * 0.00980665f)
+#define ADVUTILS_MG2MS2(x)                      ((x) * 0.00980665f)
 
 /* Conversion between m/s^2 and milliG  */
-#define MS22MG(x)                      ((x) * 101.9716212978f)
+#define ADVUTILS_MS22MG(x)                      ((x) * 101.9716212978f)
 
 /* Bit shift left */
-#define SHIFT(val, shift)              ((val) << (shift))
+#define ADVUTILS_SHIFT(val, shift)              ((val) << (shift))
 
 /* Bit shift left in place */
-#define SHIFT_IN_PLACE(val, shift)     val <<= (shift)
+#define ADVUTILS_SHIFT_IN_PLACE(val, shift)     val <<= (shift)
 
 /* Bit shift right */
-#define UNSHIFT(val, shift)            ((val) >> (shift))
+#define ADVUTILS_UNSHIFT(val, shift)            ((val) >> (shift))
 
 /* Bit shift right in place */
-#define UNSHIFT_IN_PLACE(val, shift)   val >>= (shift)
+#define ADVUTILS_UNSHIFT_IN_PLACE(val, shift)   val >>= (shift)
 
 /* Check if all bit are set */
-#define IS_BIT_SET_ALL(val, mask)      (((val) & (mask)) == (mask))
+#define ADVUTILS_IS_BIT_SET_ALL(val, mask)      (((val) & (mask)) == (mask))
 
 /* Check if any bit is set */
-#define IS_BIT_SET_ANY(val, mask)      (((val) & (mask)) != 0)
+#define ADVUTILS_IS_BIT_SET_ANY(val, mask)      (((val) & (mask)) != 0)
 
 /* Mask bits */
-#define BIT_MASK(val, mask)            ((val) & (mask))
+#define ADVUTILS_BIT_MASK(val, mask)            ((val) & (mask))
 
 /* Set bits */
-#define BIT_SET(val, mask)             ((val) | (mask))
+#define ADVUTILS_BIT_SET(val, mask)             ((val) | (mask))
 
 /* Set bits in place */
-#define BIT_SET_IN_PLACE(val, mask)    val |= (mask)
+#define ADVUTILS_BIT_SET_IN_PLACE(val, mask)    val |= (mask)
 
 /* Clear bits */
-#define BIT_CLEAR(val, mask)           ((val) & ~(mask))
+#define ADVUTILS_BIT_CLEAR(val, mask)           ((val) & ~(mask))
 
 /* Clear bits in place */
-#define BIT_CLEAR_IN_PLACE(val, mask)  val &= ~(mask)
+#define ADVUTILS_BIT_CLEAR_IN_PLACE(val, mask)  val &= ~(mask)
 
 /* Toggle bits */
-#define BIT_TOGGLE(val, mask)          ((val) ^ (mask))
+#define ADVUTILS_BIT_TOGGLE(val, mask)          ((val) ^ (mask))
 
 /* Toggle bits in place */
-#define BIT_TOGGLE_IN_PLACE(val, mask) val ^= (mask)
+#define ADVUTILS_BIT_TOGGLE_IN_PLACE(val, mask) val ^= (mask)
 
 /* Faster math operations */
-#ifdef USE_FAST_MATH
-#define SIN(x)     fastSin(x)
-#define COS(x)     fastCos(x)
-#define SQRT(x)    fastSqrt(x)
-#define INVSQRT(x) fastInvSqrt(x)
-#define TAN(x)     (SIN(x) / COS(x))
+#ifdef ADVUTILS_USE_FAST_MATH
+#define ADVUTILS_SIN(x)     fastSin(x)
+#define ADVUTILS_COS(x)     fastCos(x)
+#define ADVUTILS_SQRT(x)    fastSqrt(x)
+#define ADVUTILS_INVSQRT(x) fastInvSqrt(x)
+#define ADVUTILS_TAN(x)     (ADVUTILS_SIN(x) / ADVUTILS_COS(x))
 #else
-#define SIN(x)     sinf(x)
-#define COS(x)     cosf(x)
-#define SQRT(x)    sqrtf(x)
-#define INVSQRT(x) 1.0f / sqrtf(x)
-#define TAN(x)     tanf(x)
-#endif /* USE_FAST_MATH */
+#define ADVUTILS_SIN(x)     sinf(x)
+#define ADVUTILS_COS(x)     cosf(x)
+#define ADVUTILS_SQRT(x)    sqrtf(x)
+#define ADVUTILS_INVSQRT(x) 1.0f / sqrtf(x)
+#define ADVUTILS_TAN(x)     tanf(x)
+#endif /* ADVUTILS_USE_FAST_MATH */
 
 /* Constants -----------------------------------------------------------------*/
 
 /* Pi value */
-#define constPI 3.141592654f
+#define ADVUTILS_constPI 3.141592654f
 
 /* G value in m/s^2 */
-#define constG  9.80665f
+#define ADVUTILS_constG  9.80665f
 
 /* e value */
-#define constE  2.71828182845904523536028747135266249f
+#define ADVUTILS_constE  2.71828182845904523536028747135266249f
 
 /* Functions -----------------------------------------------------------------*/
 

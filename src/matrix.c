@@ -499,7 +499,7 @@ float matrixNorm(matrix_t* matrix) {
     for (i = 0; i < (matrix->rows * matrix->cols); i++) {
         result += matrix->data[i] * matrix->data[i];
     }
-    result = SQRT(result);
+    result = ADVUTILS_SQRT(result);
     return result;
 }
 
