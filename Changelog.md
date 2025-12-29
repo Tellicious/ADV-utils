@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.18.0
+
+**Improvements:**
+- Add functions to set state variables for IIR filters
+
+**Bugfix:**
+- Removed CMocka from test target link libraries to avoid warning
+  
 ## v1.17.8
 
 **Improvements:**

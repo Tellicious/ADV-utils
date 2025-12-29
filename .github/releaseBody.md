@@ -1,9 +1,9 @@
-## Minor fixes
+## Minor improvement to IIRFilter
 
 **Improvements:**
-- Added stack protector compiler flag
+- Add functions to set state variables for IIR filters
 
 **Bugfix:**
-- Minor fix to status badge in `Readme.md`
+- Removed CMocka from test target link libraries to avoid warning
 
 See [Changelog](Changelog.md)
