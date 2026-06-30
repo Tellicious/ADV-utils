@@ -50,25 +50,28 @@ void PID_init(PID_t* PID, float kpVal, float kiVal, float kdVal, float ndVal, fl
     PID_setIntegralSaturation(PID, satMin, satMax);
     PID->DuD = 0;
     PID->DuI = 0;
+    PID->derivMode = PID_DERIV_ON_ERROR;
 }
 
 void PID_calc(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
+    float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuI += PID->ki * e;
-    PID->DuD += PID->kd * e;
+    PID->DuD += PID->kd * dErr;
     PID->output = CONSTRAIN(PID->kp * e + PID->DuI + PID->DuD, PID->satMin, PID->satMax);
     PID->DuI += PID->ki * e;
-    PID->DuD = PID->kf * PID->DuD - PID->kd * e;
+    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
 }
 
 utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
+    float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuI += PID->ki * e;
     PID->DuI = CONSTRAIN(PID->DuI, PID->satMin, PID->satMax);
-    PID->DuD += PID->kd * e;
+    PID->DuD += PID->kd * dErr;
     PID->output = PID->kp * e + PID->DuI + PID->DuD;
     /* Prepare variables for next step */
-    PID->DuD = PID->kf * PID->DuD - PID->kd * e;
+    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
     if ((PID->DuI == PID->satMin) || (PID->DuI == PID->satMax)) {
         return UTILS_STATUS_FULL;
     } else {
@@ -79,8 +82,9 @@ utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure) {
 
 utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
+    float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuI += PID->ki * e;
-    PID->DuD += PID->kd * e;
+    PID->DuD += PID->kd * dErr;
     PID->output = PID->kp * e + PID->DuI + PID->DuD;
     if (((e * PID->output) > 0) && ((PID->output < PID->satMin) || (PID->output > PID->satMax))) {
         PID->DuI -= PID->ki * e;
@@ -90,14 +94,15 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure) {
     }
     PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
-    PID->DuD = PID->kf * PID->DuD - PID->kd * e;
+    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
     return (((PID->output == PID->satMax) || (PID->output == PID->satMin)) ? UTILS_STATUS_FULL : UTILS_STATUS_SUCCESS);
 }
 
 utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure) {
     float bcVal;
     float e = setPoint - measure;
-    PID->DuD += PID->kd * e;
+    float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
+    PID->DuD += PID->kd * dErr;
     PID->output = PID->kp * e + PID->DuI + PID->DuD;
     if (PID->output > PID->satMax) {
         bcVal = PID->satMax - PID->output;
@@ -111,6 +116,6 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure) {
     PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
     PID->DuI += PID->ki * e + PID->kb * bcVal;
-    PID->DuD = PID->kf * PID->DuD - PID->kd * e;
+    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
     return (((PID->output == PID->satMax) || (PID->output == PID->satMin)) ? UTILS_STATUS_FULL : UTILS_STATUS_SUCCESS);
 }

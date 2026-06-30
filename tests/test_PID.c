@@ -167,6 +167,115 @@ static void test_PID_calcBackCalc(void** state) {
     }
 }
 
+static void test_PID_calc_derivMeasure(void** state) {
+    (void)state; /* unused */
+    PID_t pid;
+
+    float PID_true[NUM_DATA] = {
+         0.00000,  0.00000,  0.00000, -3.13083, -3.03694, -3.13565, -3.29855, -3.48285, -3.67428, -3.86809,  1.33230,  1.52743,  1.72248,
+         1.91749,  2.11250,  2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,
+         4.45250,  4.64750, 11.10417, 11.11139, 11.50380, 12.02460, 12.58820, 13.16607, 13.74869,  3.54290,  3.34763,  3.15254,  2.95752,
+         2.76251,  2.56750,  2.37250,  2.17750,  1.98250,  1.78750,  1.59250,  1.39750,  1.20250,  1.00750,  0.81250,  0.61750,  0.42250,
+         0.22750, -6.22916, -6.23639, -6.62879, -7.14960, -7.71320, -8.29107, -8.87369,  1.33211,  1.52737,  1.72246,  1.91749,  2.11250,
+         2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,  4.45250,  4.64750,
+        11.10417, 11.11139, 11.50380, 12.02460, 12.58820, 13.16607, 13.74869,  3.54290,  3.34763,  3.15255,  2.95752,  2.76251,  2.56751,
+         2.37250,  2.17750,  1.98250,  1.78750,  1.59251,  1.39751,  1.20251,  1.00750,  0.81250,  0.61750,  0.42250,  0.22750, -6.22916,
+        -3.10555, -3.59185, -4.01395, -4.41465, -4.80821, -5.19940,  5.20020
+    };
+
+    PID_init(&pid, 0.4f, 0.3f, 0.01f, 10.0f, 0.0f, 100.0f, -100.0f, 100.0f);
+    PID_setDerivativeMode(&pid, PID_DERIV_ON_MEASURE);
+
+    for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
+        PID_calc(&pid, input[ii], 0.5f * input[(ii + 7) % NUM_DATA]);
+        assert_float_equal(PID_getOutput(&pid), PID_true[ii], 1e-5);
+    }
+}
+
+static void test_PID_calcAeroClamp_derivMeasure(void** state) {
+    (void)state; /* unused */
+    PID_t pid;
+
+    float PID_true[NUM_DATA] = {
+         0.00000,  0.00000,  0.00000, -3.13083, -3.03694, -3.13565, -3.29855, -3.48285, -3.67428, -3.86809,  1.33230,  1.52743,  1.72248,
+         1.91749,  2.11250,  2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,
+         4.45250,  4.64750, 11.10417, 11.11139, 11.50380, 12.02460, 12.58820, 13.16607, 13.74869,  3.54290,  3.34763,  3.15254,  2.95752,
+         2.76251,  2.56750,  2.37250,  2.17750,  1.98250,  1.78750,  1.59250,  1.39750,  1.20250,  1.00750,  0.81250,  0.61750,  0.42250,
+         0.22750, -6.22916, -6.23639, -6.62879, -7.14960, -7.71320, -8.29107, -8.87369,  1.33211,  1.52737,  1.72246,  1.91749,  2.11250,
+         2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,  4.45250,  4.64750,
+        11.10417, 11.11139, 11.50380, 12.02460, 12.58820, 13.16607, 13.74869,  3.54290,  3.34763,  3.15255,  2.95752,  2.76251,  2.56751,
+         2.37250,  2.17750,  1.98250,  1.78750,  1.59251,  1.39751,  1.20251,  1.00750,  0.81250,  0.61750,  0.42250,  0.22750, -6.22916,
+        -3.10555, -3.59185, -4.01395, -4.41465, -4.80821, -5.19940,  5.20020
+    };
+
+    PID_init(&pid, 0.4f, 0.3f, 0.01f, 10.0f, 0.0f, 100.0f, -7.0f, 7.0f);
+    PID_setDerivativeMode(&pid, PID_DERIV_ON_MEASURE);
+
+    for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
+        utilsStatus_t retVal = PID_calcAeroClamp(&pid, input[ii], 0.5f * input[(ii + 7) % NUM_DATA]);
+        if ((PID_getOutput(&pid) == 7.0) || (PID_getOutput(&pid) == -7.0)) {
+            assert_int_equal(retVal, UTILS_STATUS_FULL);
+        }
+        assert_float_equal(PID_getOutput(&pid), PID_true[ii], 1e-5);
+    }
+}
+
+static void test_PID_calcIntegralClamp_derivMeasure(void** state) {
+    (void)state; /* unused */
+    PID_t pid;
+
+    float PID_true[NUM_DATA] = {
+         0.00000,  0.00000,  0.00000, -3.13083, -3.03694, -3.13565, -3.29855, -3.48285, -3.67428, -3.86809,  1.33230,  1.52743,  1.72248,
+         1.91749,  2.11250,  2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,
+         4.45250,  4.64750,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000, -0.55210, -0.74737, -0.94246, -1.13749,
+        -1.33250, -1.52750, -1.72250, -1.91750, -2.11250, -2.30750, -2.50250, -2.69750, -2.89250, -3.08750, -3.28250, -3.47750, -3.67250,
+        -3.86750, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000,  1.33210,  1.52737,  1.72246,  1.91749,  2.11250,
+         2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,  4.45250,  4.64750,
+         7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000, -0.55210, -0.74737, -0.94246, -1.13749, -1.33250, -1.52750,
+        -1.72250, -1.91750, -2.11250, -2.30750, -2.50250, -2.69750, -2.89250, -3.08750, -3.28250, -3.47750, -3.67250, -3.86750, -7.00000,
+        -6.61556, -6.90685, -6.93895, -6.94965, -6.95322, -6.95441,  3.64020
+    };
+
+    PID_init(&pid, 0.4f, 0.3f, 0.01f, 10.0f, 0.0f, 100.0f, -7.0f, 7.0f);
+    PID_setDerivativeMode(&pid, PID_DERIV_ON_MEASURE);
+
+    for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
+        utilsStatus_t retVal = PID_calcIntegralClamp(&pid, input[ii], 0.5f * input[(ii + 7) % NUM_DATA]);
+        if ((PID_getOutput(&pid) == 7.0) || (PID_getOutput(&pid) == -7.0)) {
+            assert_int_equal(retVal, UTILS_STATUS_FULL);
+        }
+        assert_float_equal(PID_getOutput(&pid), PID_true[ii], 1e-5);
+    }
+}
+
+static void test_PID_calcBackCalc_derivMeasure(void** state) {
+    (void)state; /* unused */
+    PID_t pid;
+
+    float PID_true[NUM_DATA] = {
+         0.00000,  0.00000,  0.00000, -3.13083, -3.03694, -3.13565, -3.29855, -3.48285, -3.67428, -3.86809,  1.33230,  1.52743,  1.72248,
+         1.91749,  2.11250,  2.30750,  2.50250,  2.69750,  2.89250,  3.08750,  3.28250,  3.47750,  3.67250,  3.86750,  4.06250,  4.25750,
+         4.45250,  4.64750,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000, -1.52323, -1.71850, -1.91359, -2.10862,
+        -2.30363, -2.49863, -2.69363, -2.88863, -3.08363, -3.27863, -3.47363, -3.66863, -3.86363, -4.05863, -4.25363, -4.44863, -4.64363,
+        -4.83863, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000,  1.50749,  1.70276,  1.89785,  2.09288,  2.28789,
+         2.48289,  2.67789,  2.87289,  3.06789,  3.26289,  3.45789,  3.65289,  3.84789,  4.04289,  4.23789,  4.43289,  4.62789,  4.82289,
+         7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000,  7.00000, -1.50879, -1.70405, -1.89914, -2.09417, -2.28918, -2.48418,
+        -2.67919, -2.87419, -3.06919, -3.26419, -3.45919, -3.65419, -3.84919, -4.04419, -4.23919, -4.43419, -4.62919, -4.82419, -7.00000,
+        -6.96074, -7.00000, -7.00000, -7.00000, -7.00000, -7.00000,  2.45678
+    };
+
+    PID_init(&pid, 0.4f, 0.3f, 0.01f, 10.0f, 3.0f, 100.0f, -7.0f, 7.0f);
+    PID_setDerivativeMode(&pid, PID_DERIV_ON_MEASURE);
+
+    for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
+        utilsStatus_t retVal = PID_calcBackCalc(&pid, input[ii], 0.5f * input[(ii + 7) % NUM_DATA]);
+        if ((PID_getOutput(&pid) == 7.0) || (PID_getOutput(&pid) == -7.0)) {
+            assert_int_equal(retVal, UTILS_STATUS_FULL);
+        }
+        assert_float_equal(PID_getOutput(&pid), PID_true[ii], 1e-5);
+    }
+}
+
 static void test_PID_setGet(void** state) {
     (void)state; /* unused */
     PID_t pid;
@@ -186,6 +295,10 @@ static void test_PID_setGet(void** state) {
     PID_setKd(&pid, 4.4f, 3.2f);
     assert_float_equal(pid.kd, (2 * 4.4f * 3.2f) / (2 + 3.2f * 100.0f * 1e-3), 1e-5);
     assert_float_equal(pid.kf, (2 - 3.2f * 100.0f * 1e-3) / (2 + 3.2f * 100.0f * 1e-3), 1e-5);
+    /* Derivative mode */
+    assert_int_equal(PID_getDerivativeMode(&pid), PID_DERIV_ON_ERROR);
+    PID_setDerivativeMode(&pid, PID_DERIV_ON_MEASURE);
+    assert_int_equal(pid.derivMode, PID_DERIV_ON_MEASURE);
     /* Saturation */
     PID_setIntegralSaturation(&pid, -12, 12);
     assert_float_equal(pid.satMax, 12, 1e-5);
@@ -203,9 +316,16 @@ static void test_PID_setGet(void** state) {
 
 int main(void) {
     const struct CMUnitTest test_PID[] = {
-        cmocka_unit_test(test_PID_init),          cmocka_unit_test(test_PID_calc),
-        cmocka_unit_test(test_PID_calcAeroClamp), cmocka_unit_test(test_PID_calcIntegralClamp),
-        cmocka_unit_test(test_PID_calcBackCalc),  cmocka_unit_test(test_PID_setGet),
+        cmocka_unit_test(test_PID_init),
+        cmocka_unit_test(test_PID_calc),
+        cmocka_unit_test(test_PID_calcAeroClamp),
+        cmocka_unit_test(test_PID_calcIntegralClamp),
+        cmocka_unit_test(test_PID_calcBackCalc),
+        cmocka_unit_test(test_PID_calc_derivMeasure),
+        cmocka_unit_test(test_PID_calcAeroClamp_derivMeasure),
+        cmocka_unit_test(test_PID_calcIntegralClamp_derivMeasure),
+        cmocka_unit_test(test_PID_calcBackCalc_derivMeasure),
+        cmocka_unit_test(test_PID_setGet),
     };
 
     return cmocka_run_group_tests(test_PID, NULL, NULL);

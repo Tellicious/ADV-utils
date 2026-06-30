@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.19.0
+
+**Improvements:**
+- Added selectable derivative term source to `PID` via `PID_setDerivativeMode`/`PID_getDerivativeMode`
+
 ## v1.18.1
 
 **Improvements:**

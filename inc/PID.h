@@ -47,19 +47,28 @@ extern "C" {
 
 /* Typedefs ------------------------------------------------------------------*/
 
+/**
+ * \brief   Derivative term source
+ */
+typedef enum {
+    PID_DERIV_ON_ERROR = 0, /* derivative computed on the error e = setPoint - measure */
+    PID_DERIV_ON_MEASURE,   /* derivative computed on -measure */
+} PID_DerivMode_t;
+
 typedef struct {
-    float output; /* output value */
-    float kp;     /* proportional gain */
-    float ki;     /* integral gain */
-    float kd;     /* derivative gain */
-    float nd;     /* derivative filter constant N: derivative in Laplace=s/(1+s/N) */
-    float dT;     /* loop time in s */
-    float kb;     /* back-calculation coefficient */
-    float kf;     /* derivative filter constant */
-    float satMin; /* lower integral saturation limit */
-    float satMax; /* upper integral saturation limit */
-    float DuD;    /* derivative action contribution */
-    float DuI;    /* integral action contribution */
+    float output;              /* output value */
+    float kp;                  /* proportional gain */
+    float ki;                  /* integral gain */
+    float kd;                  /* derivative gain */
+    float nd;                  /* derivative filter constant N: derivative in Laplace=s/(1+s/N) */
+    float dT;                  /* loop time in s */
+    float kb;                  /* back-calculation coefficient */
+    float kf;                  /* derivative filter constant */
+    float satMin;              /* lower integral saturation limit */
+    float satMax;              /* upper integral saturation limit */
+    float DuD;                 /* derivative action contribution */
+    float DuI;                 /* integral action contribution */
+    PID_DerivMode_t derivMode; /* derivative term source */
 } PID_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -136,7 +145,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * 
  * \return          output value
  */
-#define PID_getOutput(PID)    ((PID)->output)
+#define PID_getOutput(PID)         ((PID)->output)
 
 /**
  * \brief           Return Kp value
@@ -145,7 +154,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * 
  * \return          Kp value
  */
-#define PID_getKp(PID)        ((PID)->kp)
+#define PID_getKp(PID)             ((PID)->kp)
 
 /**
  * \brief           Return Ki value
@@ -154,7 +163,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * 
  * \return          Ki value
  */
-#define PID_getKi(PID)        (2.f * (PID)->ki / (PID)->dT)
+#define PID_getKi(PID)             (2.f * (PID)->ki / (PID)->dT)
 
 /**
  * \brief           Return Kd value
@@ -163,7 +172,16 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * 
  * \return          Kd value
  */
-#define PID_getKd(PID)        (0.5f * (2.f + (PID)->nd * (PID)->dT) * (PID)->kd / (PID)->nd)
+#define PID_getKd(PID)             (0.5f * (2.f + (PID)->nd * (PID)->dT) * (PID)->kd / (PID)->nd)
+
+/**
+ * \brief           Return derivative term source
+ *
+ * \param[in]       PID: pointer to PID object
+ * 
+ * \return          derivative source (see \ref PID_DerivMode_t)
+ */
+#define PID_getDerivativeMode(PID) ((PID)->derivMode)
 
 /**
  * \brief           Set proportional gain value
@@ -171,7 +189,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * \param[in]       PID: pointer to PID object
  * \param[in]       kpVal: proportional gain value
  */
-#define PID_setKp(PID, kpVal) (PID)->kp = kpVal
+#define PID_setKp(PID, kpVal)      (PID)->kp = kpVal
 
 /**
  * \brief           Set integral gain value
@@ -179,7 +197,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * \param[in]       PID: pointer to PID object
  * \param[in]       kiVal: integral gain value
  */
-#define PID_setKi(PID, kiVal) (PID)->ki = 0.5f * kiVal * (PID)->dT
+#define PID_setKi(PID, kiVal)      (PID)->ki = 0.5f * kiVal * (PID)->dT
 
 /**
  * \brief           Set derivative gain value
@@ -201,6 +219,16 @@ static inline void PID_setKd(PID_t* PID, float kdVal, float ndVal) {
  * \param[in]       kbVal: back-calculation coefficient value
  */
 #define PID_setKb(PID, kbVal)            (PID)->kb = 0.5f * kbVal * (PID)->dT
+
+/**
+ * \brief           Set derivative term source
+ *
+ * \param[in]       PID: pointer to PID object
+ * \param[in]       mode: derivative source. \ref PID_DERIV_ON_ERROR (default) reacts to set-point changes; \ref PID_DERIV_ON_MEASURE differentiates only the measurement
+ * 
+ * \attention       Intended to be set once after PID_init()
+ */
+#define PID_setDerivativeMode(PID, mode) (PID)->derivMode = (mode)
 
 /**
  * \brief           Set integral component value
