@@ -1,6 +1,6 @@
-## New bit-checking macros
+## MISRA compliance
 
-**New features:**
-- Added `IS_BIT_NOT_SET_ALL` and `IS_BIT_NOT_SET_ANY` to `basicMath.h`
+**Improvements:**
+- Improved compliance to MISRA guidelines
   
 See [Changelog](Changelog.md)

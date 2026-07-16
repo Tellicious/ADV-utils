@@ -93,9 +93,8 @@ void matrixInitStatic(matrix_t* matrix, float* data, uint8_t rows, uint8_t cols)
 
 /* ---------------------Identity Matrix---------------------- */
 void matrixIdentity(matrix_t* matrix) {
-    uint16_t ii;
     matrixZeros(matrix);
-    for (ii = 0; ii < ((matrix->cols < matrix->rows) ? matrix->cols : matrix->rows); ii++) {
+    for (uint16_t ii = 0; ii < ((matrix->cols < matrix->rows) ? matrix->cols : matrix->rows); ii++) {
         ELEMP(matrix, ii, ii) = 1.0f;
     }
     return;
@@ -103,44 +102,41 @@ void matrixIdentity(matrix_t* matrix) {
 
 /* ==========================================Operations============================================= */
 /* --------------------matrix_t addition---------------------- */
-void matrixAdd(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
+void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->cols == rhs->cols);
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    uint16_t ii;
-    for (ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
+    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
         result->data[ii] = lhs->data[ii] + rhs->data[ii];
     }
     return;
 }
 
 /* --------------------Scalar addition---------------------- */
-void matrixAddScalar(matrix_t* lhs, float sc, matrix_t* result) {
+void matrixAddScalar(const matrix_t* lhs, float sc, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    uint16_t ii;
-    for (ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
+    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
         result->data[ii] = lhs->data[ii] + sc;
     }
     return;
 }
 
 /* ------------------matrix_t subtraction-------------------- */
-void matrixSub(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
+void matrixSub(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->cols == rhs->cols);
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    uint16_t ii;
-    for (ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
+    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
         result->data[ii] = lhs->data[ii] - rhs->data[ii];
     }
     return;
 }
 
 /* ---------------matrix_t multiplication------------------ */
-void matrixMult(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
+void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result) {
     ADVUTILS_ASSERT(lhs->cols == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == rhs->cols);
@@ -151,108 +147,102 @@ void matrixMult(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
     /* 			for (k = 0; k < lhs->cols; k++) */
     /* 				ELEMP(result, i, j) += ELEMP(lhs, i, k) * ELEMP(rhs, k, j); */
     float* pIn1;                /* input data matrix pointer A */
-    float* pIn2;                /* input data matrix pointer B */
     float* pInA = lhs->data;    /* input data matrix pointer A  */
+    float* pInB = rhs->data;    /* input data matrix pointer B */
     float* pOut = result->data; /* output data matrix pointer */
-    float* px;                  /* Temporary output data matrix pointer */
-    float sum;                  /* Accumulator */
 
     /* Run the below code for Cortex-M4 and Cortex-M3 */
 
-    float in1, in2, in3, in4;
-    uint16_t col, i = 0u, j, row = lhs->rows, colCnt; /* loop counters */
+    uint16_t i = 0u, row = lhs->rows;
+    /* The following loop performs the dot-product of each row in lhs with each column in rhs */
+    /* row loop */
+    do {
+        /* Output pointer is set to starting address of the row being processed */
+        float* px = pOut + i;
 
-    {
-        /* The following loop performs the dot-product of each row in lhs with each column in rhs */
-        /* row loop */
-        do {
-            /* Output pointer is set to starting address of the row being processed */
-            px = pOut + i;
+        /* For every row wise process, the column loop counter is to be initiated */
+        uint16_t col = rhs->cols;
 
-            /* For every row wise process, the column loop counter is to be initiated */
-            col = rhs->cols;
-
-            /* For every row wise process, the pIn2 pointer is set
+        /* For every row wise process, the pIn2 pointer is set
              * to the starting address of the rhs data */
-            pIn2 = rhs->data;
+        float* pIn2 = pInB;
 
-            j = 0u;
+        uint16_t j = 0u;
 
-            /* column loop */
-            do {
-                /* Set the variable sum, that acts as accumulator, to zero */
-                sum = 0.0f;
+        /* column loop */
+        do {
+            /* Set the variable sum, that acts as accumulator, to zero */
+            float sum = 0.0f;
 
-                /* Initiate the pointer pIn1 to point to the starting address of the column being processed */
-                pIn1 = pInA;
+            /* Initiate the pointer pIn1 to point to the starting address of the column being processed */
+            pIn1 = pInA;
 
-                /* Apply loop unrolling and compute 4 MACs simultaneously. */
-                colCnt = lhs->cols >> 2u;
+            /* Apply loop unrolling and compute 4 MACs simultaneously. */
+            uint16_t colCnt = lhs->cols >> 2u;
 
-                /* matrix multiplication        */
-                while (colCnt > 0u) {
-                    /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
-                    in3 = *pIn2;
-                    pIn2 += rhs->cols;
-                    in1 = pIn1[0];
-                    in2 = pIn1[1];
-                    sum += in1 * in3;
-                    in4 = *pIn2;
-                    pIn2 += rhs->cols;
-                    sum += in2 * in4;
+            /* matrix multiplication        */
+            while (colCnt > 0u) {
+                /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
+                float in3 = *pIn2;
+                pIn2 += rhs->cols;
+                float in1 = pIn1[0];
+                float in2 = pIn1[1];
+                sum += in1 * in3;
+                float in4 = *pIn2;
+                pIn2 += rhs->cols;
+                sum += in2 * in4;
 
-                    in3 = *pIn2;
-                    pIn2 += rhs->cols;
-                    in1 = pIn1[2];
-                    in2 = pIn1[3];
-                    sum += in1 * in3;
-                    in4 = *pIn2;
-                    pIn2 += rhs->cols;
-                    sum += in2 * in4;
-                    pIn1 += 4u;
+                in3 = *pIn2;
+                pIn2 += rhs->cols;
+                in1 = pIn1[2];
+                in2 = pIn1[3];
+                sum += in1 * in3;
+                in4 = *pIn2;
+                pIn2 += rhs->cols;
+                sum += in2 * in4;
+                pIn1 += 4u;
 
-                    /* Decrement the loop count */
-                    colCnt--;
-                }
+                /* Decrement the loop count */
+                colCnt--;
+            }
 
-                /* If the columns of lhs is not a multiple of 4, compute any remaining MACs here.
+            /* If the columns of lhs is not a multiple of 4, compute any remaining MACs here.
                  * No loop unrolling is used. */
-                colCnt = lhs->cols % 0x4u;
+            colCnt = lhs->cols % 0x4u;
 
-                while (colCnt > 0u) {
-                    /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
-                    sum += *pIn1++ * (*pIn2);
-                    pIn2 += rhs->cols;
+            while (colCnt > 0u) {
+                /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
+                sum += *pIn1++ * (*pIn2);
+                pIn2 += rhs->cols;
 
-                    /* Decrement the loop counter */
-                    colCnt--;
-                }
+                /* Decrement the loop counter */
+                colCnt--;
+            }
 
-                /* Store the result in the destination buffer */
-                *px++ = sum;
+            /* Store the result in the destination buffer */
+            *px++ = sum;
 
-                /* Update the pointer pIn2 to point to the  starting address of the next column */
-                j++;
-                pIn2 = rhs->data + j;
+            /* Update the pointer pIn2 to point to the  starting address of the next column */
+            j++;
+            pIn2 = rhs->data + j;
 
-                /* Decrement the column loop counter */
-                col--;
+            /* Decrement the column loop counter */
+            col--;
 
-            } while (col > 0u);
-            /* Update the pointer pInA to point to the  starting address of the next row */
-            i = i + rhs->cols;
-            pInA = pInA + lhs->cols;
+        } while (col > 0u);
+        /* Update the pointer pInA to point to the  starting address of the next row */
+        i = i + rhs->cols;
+        pInA = pInA + lhs->cols;
 
-            /* Decrement the row loop counter */
-            row--;
+        /* Decrement the row loop counter */
+        row--;
 
-        } while (row > 0u);
-    }
+    } while (row > 0u);
     return;
 }
 
 /* ------matrix_t multiplication with lhs transposed------ */
-void matrixMult_lhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
+void matrixMult_lhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == rhs->cols);
@@ -269,7 +259,7 @@ void matrixMult_lhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
 }
 
 /* ------matrix_t multiplication with rhs transposed------ */
-void matrixMult_rhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
+void matrixMult_rhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->cols == rhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == rhs->rows);
@@ -286,11 +276,10 @@ void matrixMult_rhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result) {
 }
 
 /* ---------------Scalar multiplication------------------ */
-void matrixMultScalar(matrix_t* lhs, float sc, matrix_t* result) {
+void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    uint16_t ii;
-    for (ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
+    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
         result->data[ii] = lhs->data[ii] * sc;
     }
     return;
@@ -360,9 +349,8 @@ void matrixInversedStatic_rob(matrix_t* lhs, matrix_t* result) {
 void matrixTrans(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
-    uint8_t ii, jj;
-    for (ii = 0; ii < lhs->rows; ii++) {
-        for (jj = 0; jj < lhs->cols; jj++) {
+    for (uint8_t ii = 0; ii < lhs->rows; ii++) {
+        for (uint8_t jj = 0; jj < lhs->cols; jj++) {
             ELEMP(result, jj, ii) = ELEMP(lhs, ii, jj);
         }
     }
@@ -370,7 +358,7 @@ void matrixTrans(matrix_t* lhs, matrix_t* result) {
 }
 
 /* -----------------Nomalized-------------------- */
-void matrixNormalized(matrix_t* lhs, matrix_t* result) {
+void matrixNormalized(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     float k = 1.0f / matrixNorm(lhs);
@@ -429,19 +417,17 @@ float matrixDet(matrix_t* matrix) {
     matrixInit(&L, matrix->rows, matrix->rows);
     matrixInit(&U, matrix->rows, matrix->rows);
     matrixInit(&P, matrix->rows, 1);
-    int16_t ii;
-    int8_t det_f;
     float determinant = 1.0f;
 
     if (LU_Cormen(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (ii = 0; ii < matrix->rows; ii++) {
+        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
             determinant *= ELEM(U, ii, ii);
         }
     }
 
     else {
-        det_f = LUP_Cormen(matrix, &L, &U, &P);
-        for (ii = 0; ii < matrix->rows; ii++) {
+        int8_t det_f = LUP_Cormen(matrix, &L, &U, &P);
+        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
             determinant *= ELEM(U, ii, ii);
         }
         determinant *= det_f;
@@ -470,19 +456,17 @@ float matrixDetStatic(matrix_t* matrix) {
     matrixInitStatic(&L, _LData, matrix->rows, matrix->rows);
     matrixInitStatic(&U, _UData, matrix->rows, matrix->rows);
     matrixInitStatic(&P, _PData, matrix->rows, 1);
-    int16_t ii;
-    int8_t det_f;
     float determinant = 1.0f;
 
     if (LU_CormenStatic(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (ii = 0; ii < matrix->rows; ii++) {
+        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
             determinant *= ELEM(U, ii, ii);
         }
     }
 
     else {
-        det_f = LUP_CormenStatic(matrix, &L, &U, &P);
-        for (ii = 0; ii < matrix->rows; ii++) {
+        int8_t det_f = LUP_CormenStatic(matrix, &L, &U, &P);
+        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
             determinant *= ELEM(U, ii, ii);
         }
         determinant *= det_f;
@@ -493,11 +477,10 @@ float matrixDetStatic(matrix_t* matrix) {
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /* -------------Returns the norm-------------- */
-float matrixNorm(matrix_t* matrix) {
+float matrixNorm(const matrix_t* matrix) {
     float result = 0.0f;
-    uint16_t i;
-    for (i = 0; i < (matrix->rows * matrix->cols); i++) {
-        result += matrix->data[i] * matrix->data[i];
+    for (uint16_t ii = 0; ii < (matrix->rows * matrix->cols); ii++) {
+        result += matrix->data[ii] * matrix->data[ii];
     }
     result = SQRT(result);
     return result;

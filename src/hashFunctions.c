@@ -46,7 +46,7 @@
  * Return 32-bit FNV-1a hash for key (NUL-terminated). See description:
  * https://en.wikipedia.org/wiki/Fowler–Noll–Vo_hash_function
  */
-uint32_t hash_FNV1A(char* key) {
+uint32_t hash_FNV1A(const char* key) {
 
     uint64_t hash = FNV_OFFSET;
     uint8_t p;
@@ -69,7 +69,7 @@ uint32_t hash_FNV1A(char* key) {
 * This algorithm (k=33) was first reported by dan bernstein many years ago in comp.lang.c. another version of this algorithm (now favored by bernstein) uses xor: hash(i) = 
 * hash(i - 1 * 33 ^ str[i]; the magic of number 33 (why it works better than many other constants, prime or not) has never been adequately explained.
 */
-uint32_t hash_djb(char* key) {
+uint32_t hash_djb(const char* key) {
     uint32_t hash = 5381;
     uint8_t p;
 
@@ -88,7 +88,7 @@ uint32_t hash_djb(char* key) {
 * is the faster version used in gawk. [there is even a faster, duff-device version] the magic constant 65599 was picked out of thin air while experimenting with different constants,
 * and turns out to be a prime. this is one of the algorithms used in berkeley db (see sleepycat) and elsewhere.
 */
-uint32_t hash_sdbm(char* key) {
+uint32_t hash_sdbm(const char* key) {
     uint32_t hash = 0;
     uint8_t p;
 

@@ -45,8 +45,11 @@
 
 /* Support functions ---------------------------------------------------------*/
 
+static uint8_t mallocFail = 0;
+static uint8_t callocFail = 0;
+
 void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size) {
-    if (number_of_elements > 0) {
+    if ((number_of_elements > 0) && !callocFail) {
         return test_calloc(number_of_elements, size);
     } else {
         return NULL;
@@ -54,7 +57,7 @@ void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size) {
 }
 
 void* ADVUtils_testMalloc(const size_t size) {
-    if (size > 0) {
+    if ((size > 0) && !mallocFail) {
         return test_malloc(size);
     } else {
         return NULL;
@@ -98,6 +101,42 @@ static void test_listPush(void** state) {
     listFlush(&list);
 }
 
+static void test_listPushNullGuards(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+    assert_int_equal(listPush(NULL, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(listPush(&list, NULL), UTILS_STATUS_ERROR);
+    assert_int_equal(listPush(NULL, NULL), UTILS_STATUS_ERROR);
+    listFlush(&list);
+}
+
+static void test_listPushMemoryFail(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+
+    skipAssert = 1;
+    mallocFail = 1;
+    assert_int_equal(listPush(&list, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    mallocFail = 0;
+
+    callocFail = 1;
+    assert_int_equal(listPush(&list, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    callocFail = 0;
+    skipAssert = 0;
+
+    listFlush(&list);
+}
+
 static void test_listPushFull(void** state) {
     (void)state; /* unused */
     list_t list;
@@ -121,6 +160,42 @@ static void test_listPushFront(void** state) {
     int out_value;
     memcpy(&out_value, list._front->data, sizeof(int));
     assert_int_equal(out_value, value2);
+    listFlush(&list);
+}
+
+static void test_listPushFrontNullGuards(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+    assert_int_equal(listPushFront(NULL, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(listPushFront(&list, NULL), UTILS_STATUS_ERROR);
+    assert_int_equal(listPushFront(NULL, NULL), UTILS_STATUS_ERROR);
+    listFlush(&list);
+}
+
+static void test_listPushFrontMemoryFail(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+
+    skipAssert = 1;
+    mallocFail = 1;
+    assert_int_equal(listPushFront(&list, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    mallocFail = 0;
+
+    callocFail = 1;
+    assert_int_equal(listPushFront(&list, &value), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    callocFail = 0;
+    skipAssert = 0;
+
     listFlush(&list);
 }
 
@@ -163,6 +238,42 @@ static void test_listInsert(void** state) {
     assert_int_equal(out_value, value3);
     memcpy(&out_value, list._front->next->next->next->next->data, sizeof(int));
     assert_int_equal(out_value, value4);
+    listFlush(&list);
+}
+
+static void test_listInsertNullGuards(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+    assert_int_equal(listInsert(NULL, &value, 0), UTILS_STATUS_ERROR);
+    assert_int_equal(listInsert(&list, NULL, 0), UTILS_STATUS_ERROR);
+    assert_int_equal(listInsert(NULL, NULL, 0), UTILS_STATUS_ERROR);
+    listFlush(&list);
+}
+
+static void test_listInsertMemoryFail(void** state) {
+    (void)state; /* unused */
+    list_t list;
+    listInit(&list, sizeof(int), 10);
+    int value = 42;
+
+    skipAssert = 1;
+    mallocFail = 1;
+    assert_int_equal(listInsert(&list, &value, 0), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    mallocFail = 0;
+
+    callocFail = 1;
+    assert_int_equal(listInsert(&list, &value, 0), UTILS_STATUS_ERROR);
+    assert_int_equal(list.items, 0);
+    assert_null(list._front);
+    assert_null(list._rear);
+    callocFail = 0;
+    skipAssert = 0;
+
     listFlush(&list);
 }
 
@@ -399,12 +510,30 @@ static void test_listIterator(void** state) {
 
 int main(void) {
     const struct CMUnitTest test_list[] = {
-        cmocka_unit_test(test_listInit),      cmocka_unit_test(test_listPush),          cmocka_unit_test(test_listPushFull),
-        cmocka_unit_test(test_listPushFront), cmocka_unit_test(test_listPushFrontFull), cmocka_unit_test(test_listInsert),
-        cmocka_unit_test(test_listUpdate),    cmocka_unit_test(test_listPop),           cmocka_unit_test(test_listPopEmpty),
-        cmocka_unit_test(test_listPopBack),   cmocka_unit_test(test_listPopBackEmpty),  cmocka_unit_test(test_listRemove),
-        cmocka_unit_test(test_listPeek),      cmocka_unit_test(test_listPeekBack),      cmocka_unit_test(test_listPeekAtPos),
-        cmocka_unit_test(test_listInfo),      cmocka_unit_test(test_listFlush),         cmocka_unit_test(test_listIterator),
+        cmocka_unit_test(test_listInit),
+        cmocka_unit_test(test_listPush),
+        cmocka_unit_test(test_listPushFull),
+        cmocka_unit_test(test_listPushFront),
+        cmocka_unit_test(test_listPushFrontFull),
+        cmocka_unit_test(test_listInsert),
+        cmocka_unit_test(test_listUpdate),
+        cmocka_unit_test(test_listPop),
+        cmocka_unit_test(test_listPopEmpty),
+        cmocka_unit_test(test_listPopBack),
+        cmocka_unit_test(test_listPopBackEmpty),
+        cmocka_unit_test(test_listRemove),
+        cmocka_unit_test(test_listPeek),
+        cmocka_unit_test(test_listPeekBack),
+        cmocka_unit_test(test_listPeekAtPos),
+        cmocka_unit_test(test_listInfo),
+        cmocka_unit_test(test_listFlush),
+        cmocka_unit_test(test_listIterator),
+        cmocka_unit_test(test_listPushNullGuards),
+        cmocka_unit_test(test_listPushMemoryFail),
+        cmocka_unit_test(test_listPushFrontNullGuards),
+        cmocka_unit_test(test_listPushFrontMemoryFail),
+        cmocka_unit_test(test_listInsertNullGuards),
+        cmocka_unit_test(test_listInsertMemoryFail),
     };
 
     return cmocka_run_group_tests(test_list, NULL, NULL);

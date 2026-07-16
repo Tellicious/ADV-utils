@@ -75,7 +75,7 @@ void quaternionNorm(quaternion_t* q);
  *
  * \attention       qo can be different from qa/qb, or the same as qa/qb
  */
-void quaternionMult(quaternion_t* qa, quaternion_t* qb, quaternion_t* qo);
+void quaternionMult(const quaternion_t* qa, const quaternion_t* qb, quaternion_t* qo);
 
 /**
  * \brief           Quaternion rotation
@@ -84,7 +84,7 @@ void quaternionMult(quaternion_t* qa, quaternion_t* qb, quaternion_t* qo);
  * \param[in]       qv: pointer to quaternion object to rotate
  * \param[out]      qo: pointer to resulting quaternion object qo = qr' * qv * qr
  */
-void quaternionRotation(quaternion_t* qr, quaternion_t* qv, quaternion_t* qo);
+void quaternionRotation(const quaternion_t* qr, const quaternion_t* qv, quaternion_t* qo);
 
 /**
  * \brief           Quaternion conjugate
@@ -92,7 +92,7 @@ void quaternionRotation(quaternion_t* qr, quaternion_t* qv, quaternion_t* qo);
  * \param[in]       qa: pointer to left-hand side quaternion object
  * \param[out]      qo: pointer to resulting quaternion object
  */
-void quaternionConj(quaternion_t* qa, quaternion_t* qo);
+void quaternionConj(const quaternion_t* qa, quaternion_t* qo);
 
 /**
  * \brief           Convert quaternion to Euler angles
@@ -100,7 +100,7 @@ void quaternionConj(quaternion_t* qa, quaternion_t* qo);
  * \param[in]       qr: pointer to input quaternion object
  * \param[out]      ea: pointer to resulting euler angles
  */
-void quaternionToEuler(quaternion_t* qr, axis3f_t* ea);
+void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea);
 
 #ifdef __cplusplus
 }

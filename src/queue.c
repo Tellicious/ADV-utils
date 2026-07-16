@@ -97,7 +97,7 @@ void queueInitStatic(queue_t* queue, uint8_t* data, size_t itemSize, QUEUE_STYPE
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
-utilsStatus_t queuePush(queue_t* queue, void* value) {
+utilsStatus_t queuePush(queue_t* queue, const void* value) {
     if (queue->items == queue->size) {
         return UTILS_STATUS_FULL;
     }
@@ -140,7 +140,7 @@ utilsStatus_t queuePushArr(queue_t* queue, void* data, QUEUE_STYPE num) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t queuePushFront(queue_t* queue, void* value) {
+utilsStatus_t queuePushFront(queue_t* queue, const void* value) {
     if (queue->items == queue->size) {
         return UTILS_STATUS_FULL;
     }

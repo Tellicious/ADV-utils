@@ -71,7 +71,11 @@ void listInit(list_t* list, size_t itemSize, LIST_STYPE size) {
     list->items = 0;
 }
 
-utilsStatus_t listPush(list_t* list, void* value) {
+utilsStatus_t listPush(list_t* list, const void* value) {
+    if ((list == NULL) || (value == NULL)) {
+        return UTILS_STATUS_ERROR;
+    }
+
     if (list->items >= list->size) {
         return UTILS_STATUS_FULL;
     }
@@ -79,8 +83,15 @@ utilsStatus_t listPush(list_t* list, void* value) {
     listNode_t* ptr;
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
+    if (ptr == NULL) {
+        return UTILS_STATUS_ERROR;
+    }
     ptr->data = ADVUTILS_CALLOC(1, list->itemSize);
     ADVUTILS_ASSERT(ptr->data != NULL);
+    if (ptr->data == NULL) {
+        ADVUTILS_FREE(ptr);
+        return UTILS_STATUS_ERROR;
+    }
     memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
@@ -94,7 +105,11 @@ utilsStatus_t listPush(list_t* list, void* value) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listPushFront(list_t* list, void* value) {
+utilsStatus_t listPushFront(list_t* list, const void* value) {
+    if ((list == NULL) || (value == NULL)) {
+        return UTILS_STATUS_ERROR;
+    }
+
     if (list->items >= list->size) {
         return UTILS_STATUS_FULL;
     }
@@ -102,8 +117,15 @@ utilsStatus_t listPushFront(list_t* list, void* value) {
     listNode_t* ptr;
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
+    if (ptr == NULL) {
+        return UTILS_STATUS_ERROR;
+    }
     ptr->data = ADVUTILS_CALLOC(1, list->itemSize);
     ADVUTILS_ASSERT(ptr->data != NULL);
+    if (ptr->data == NULL) {
+        ADVUTILS_FREE(ptr);
+        return UTILS_STATUS_ERROR;
+    }
     memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
@@ -118,8 +140,10 @@ utilsStatus_t listPushFront(list_t* list, void* value) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position) {
-    LIST_STYPE ii;
+utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position) {
+    if ((list == NULL) || (value == NULL)) {
+        return UTILS_STATUS_ERROR;
+    }
 
     if (list->items >= list->size) {
         return UTILS_STATUS_FULL;
@@ -132,8 +156,15 @@ utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position) {
     listNode_t* ptr;
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
+    if (ptr == NULL) {
+        return UTILS_STATUS_ERROR;
+    }
     ptr->data = ADVUTILS_CALLOC(1, list->itemSize);
     ADVUTILS_ASSERT(ptr->data != NULL);
+    if (ptr->data == NULL) {
+        ADVUTILS_FREE(ptr);
+        return UTILS_STATUS_ERROR;
+    }
     memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
@@ -148,7 +179,7 @@ utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position) {
     } else {
         /* search for node at position - 1 */
         listNode_t* prev = list->_front;
-        for (ii = 1; ii < position; ii++) {
+        for (LIST_STYPE ii = 1; ii < position; ii++) {
             prev = prev->next;
         }
         ptr->next = prev->next;
@@ -159,9 +190,7 @@ utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listUpdate(list_t* list, void* value, LIST_STYPE position) {
-    LIST_STYPE ii;
-
+utilsStatus_t listUpdate(list_t* list, const void* value, LIST_STYPE position) {
     if ((position + 1) > list->items) {
         return UTILS_STATUS_ERROR;
     }
@@ -169,7 +198,7 @@ utilsStatus_t listUpdate(list_t* list, void* value, LIST_STYPE position) {
     listNode_t* ptr = list->_front;
 
     /* search for node at position */
-    for (ii = 0; ii < position; ii++) {
+    for (LIST_STYPE ii = 0; ii < position; ii++) {
         ptr = ptr->next;
     }
 
@@ -197,8 +226,6 @@ utilsStatus_t listPop(list_t* list, void* value) {
 }
 
 utilsStatus_t listPopBack(list_t* list, void* value) {
-    LIST_STYPE ii;
-
     if (!list->items) {
         return UTILS_STATUS_EMPTY;
     }
@@ -207,7 +234,7 @@ utilsStatus_t listPopBack(list_t* list, void* value) {
 
     /* search for node at end - 1 */
     listNode_t* prev = list->_front;
-    for (ii = 2; ii < list->items; ii++) {
+    for (LIST_STYPE ii = 2; ii < list->items; ii++) {
         prev = prev->next;
     }
     prev->next = NULL;
@@ -224,8 +251,6 @@ utilsStatus_t listPopBack(list_t* list, void* value) {
 }
 
 utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
-    LIST_STYPE ii;
-
     if (!list->items) {
         return UTILS_STATUS_EMPTY;
     }
@@ -238,7 +263,7 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
     listNode_t* ptr = list->_front;
 
     /* search for node at position - 1 and node at position */
-    for (ii = 0; ii < position; ii++) {
+    for (LIST_STYPE ii = 0; ii < position; ii++) {
         prev = ptr;
         ptr = ptr->next;
     }
@@ -263,7 +288,7 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listPeek(list_t* list, void* value) {
+utilsStatus_t listPeek(const list_t* list, void* value) {
     if (list->items == 0) {
         return UTILS_STATUS_EMPTY;
     }
@@ -273,7 +298,7 @@ utilsStatus_t listPeek(list_t* list, void* value) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listPeekBack(list_t* list, void* value) {
+utilsStatus_t listPeekBack(const list_t* list, void* value) {
     if (list->items == 0) {
         return UTILS_STATUS_EMPTY;
     }
@@ -283,9 +308,7 @@ utilsStatus_t listPeekBack(list_t* list, void* value) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t listPeekAtPos(list_t* list, void* value, LIST_STYPE position) {
-    LIST_STYPE ii;
-
+utilsStatus_t listPeekAtPos(const list_t* list, void* value, LIST_STYPE position) {
     if (list->items == 0) {
         return UTILS_STATUS_EMPTY;
     }
@@ -294,10 +317,10 @@ utilsStatus_t listPeekAtPos(list_t* list, void* value, LIST_STYPE position) {
         return UTILS_STATUS_ERROR;
     }
 
-    listNode_t* ptr = list->_front;
+    const listNode_t* ptr = list->_front;
 
     /* search for node at position */
-    for (ii = 0; ii < position; ii++) {
+    for (LIST_STYPE ii = 0; ii < position; ii++) {
         ptr = ptr->next;
     }
 

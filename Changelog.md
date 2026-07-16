@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.21.0 
+
+**Improvements:**
+- Improved compliance to MISRA guidelines
+  
 ## v1.20.0 
 
 **New features:**

@@ -92,7 +92,7 @@ utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t siz
  * 
  * \return          UTILS_STATUS_SUCCESS if data is written correctly, UTILS_STATUS_ERROR otherwise
  */
-utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, void* value);
+utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value);
 
 /**
  * \brief           Get item with given key from hash table

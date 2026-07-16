@@ -87,7 +87,6 @@ static inline char* lkHashTableStrdup(const char* s) {
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t size) {
-    uint32_t ii;
     lkht->items = 0;
     lkht->size = size;
     lkht->itemSize = itemSize;
@@ -98,14 +97,14 @@ utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t siz
         return UTILS_STATUS_ERROR;
     }
 
-    for (ii = 0; ii < lkht->size; ii++) {
+    for (uint32_t ii = 0; ii < lkht->size; ii++) {
         listInit(&(lkht->entries[ii]), sizeof(lkHashTableEntry_t), LKHT_LIST_SIZE);
     }
 
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, void* value) {
+utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) {
     if ((value == NULL) || (key == NULL)) {
         return UTILS_STATUS_ERROR;
     }
@@ -190,17 +189,14 @@ utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, char* key, void* value, lkHash
 }
 
 utilsStatus_t lkHashTableFlush(lkHashTable_t* lkht) {
-    uint32_t ii;
-
     if (!lkht->items) {
         return UTILS_STATUS_SUCCESS;
     }
 
     lkHashTableEntry_t entry;
-    LIST_STYPE idx;
 
-    for (ii = 0; ii < lkht->size; ii++) {
-        idx = lkht->entries[ii].items;
+    for (uint32_t ii = 0; ii < lkht->size; ii++) {
+        LIST_STYPE idx = lkht->entries[ii].items;
 
         while (idx--) {
             listPop(&(lkht->entries[ii]), &entry);

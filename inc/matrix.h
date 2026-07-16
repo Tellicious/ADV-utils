@@ -107,7 +107,7 @@ static inline void matrixZeros(matrix_t* matrix) { memset(matrix->data, 0x00, ma
  * \param[in]       input: pointer to input matrix object
  * \param[out]      output: pointer to output matrix object
  */
-static inline void matrixCopy(matrix_t* input, matrix_t* output) { memcpy(output->data, input->data, output->cols * output->rows * sizeof(float)); }
+static inline void matrixCopy(const matrix_t* input, matrix_t* output) { memcpy(output->data, input->data, output->cols * output->rows * sizeof(float)); }
 
 /**
  * \brief           Matrix addition
@@ -116,7 +116,7 @@ static inline void matrixCopy(matrix_t* input, matrix_t* output) { memcpy(output
  * \param[in]       rhs: pointer to right-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixAdd(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
+void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
 /**
  * \brief           Matrix addition with scalar
@@ -125,7 +125,7 @@ void matrixAdd(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
  * \param[in]       sc: scalar value
  * \param[out]      result: pointer to result matrix object
  */
-void matrixAddScalar(matrix_t* lhs, float sc, matrix_t* result);
+void matrixAddScalar(const matrix_t* lhs, float sc, matrix_t* result);
 
 /**
  * \brief           Matrix subtraction
@@ -134,7 +134,7 @@ void matrixAddScalar(matrix_t* lhs, float sc, matrix_t* result);
  * \param[in]       rhs: pointer to right-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixSub(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
+void matrixSub(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
 /**
  * \brief           Matrix multiplication
@@ -143,7 +143,7 @@ void matrixSub(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
  * \param[in]       rhs: pointer to right-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixMult(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
+void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result);
 
 /**
  * \brief           Matrix multiplication with transposed left-hand side matrix
@@ -152,7 +152,7 @@ void matrixMult(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
  * \param[in]       rhs: pointer to right-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixMult_lhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
+void matrixMult_lhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
 /**
  * \brief           Matrix multiplication with transposed right-hand side matrix
@@ -161,7 +161,7 @@ void matrixMult_lhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
  * \param[in]       rhs: pointer to right-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixMult_rhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
+void matrixMult_rhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
 /**
  * \brief           Matrix multiplication with scalar
@@ -170,7 +170,7 @@ void matrixMult_rhsT(matrix_t* lhs, matrix_t* rhs, matrix_t* result);
  * \param[in]       sc: scalar value
  * \param[out]      result: pointer to result matrix object
  */
-void matrixMultScalar(matrix_t* lhs, float sc, matrix_t* result);
+void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result);
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**
@@ -222,7 +222,7 @@ void matrixTrans(matrix_t* lhs, matrix_t* result);
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixNormalized(matrix_t* lhs, matrix_t* result);
+void matrixNormalized(const matrix_t* lhs, matrix_t* result);
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**
@@ -263,7 +263,7 @@ static inline void matrixSet(matrix_t* matrix, uint8_t i, uint8_t j, float value
  *
  * \return          matrix element
  */
-static inline float matrixGet(matrix_t* matrix, uint8_t i, uint8_t j) { return ELEMP(matrix, i, j); }
+static inline float matrixGet(const matrix_t* matrix, uint8_t i, uint8_t j) { return ELEMP(matrix, i, j); }
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**
@@ -294,7 +294,7 @@ float matrixDetStatic(matrix_t* matrix);
  *
  * \return          norm
  */
-float matrixNorm(matrix_t* matrix);
+float matrixNorm(const matrix_t* matrix);
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**

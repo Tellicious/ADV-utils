@@ -38,9 +38,8 @@
 /* Functions -----------------------------------------------------------------*/
 
 void timerProcess(userTimer_t* t, uint32_t currentTick) {
-    uint32_t events;
     if (t->flag && (currentTick - t->lastTick) >= t->interval) {
-        events = (currentTick - t->lastTick) / t->interval;
+        uint32_t events = (currentTick - t->lastTick) / t->interval;
         t->eventCnt += events;
         t->lastTick = currentTick;
     }

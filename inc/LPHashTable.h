@@ -108,7 +108,7 @@ utilsStatus_t lpHashTableInit(lpHashTable_t* lpht, size_t itemSize, uint32_t ini
  * 
  * \return          UTILS_STATUS_SUCCESS if data is written correctly, UTILS_STATUS_ERROR otherwise 
  */
-utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, void* value);
+utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value);
 
 /**
  * \brief           Get item with given key from hash table

@@ -97,9 +97,9 @@ void listInit(list_t* list, size_t itemSize, LIST_STYPE size);
  * \param[in]       list: pointer to list object
  * \param[in]       value: pointer to value to be pushed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_FULL if list is full
+ * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if pointer is NULL
  */
-utilsStatus_t listPush(list_t* list, void* value);
+utilsStatus_t listPush(list_t* list, const void* value);
 
 /**
  * \brief           Add data to beginning of list
@@ -107,9 +107,9 @@ utilsStatus_t listPush(list_t* list, void* value);
  * \param[in]       list: pointer to list object
  * \param[in]       value: pointer to value to be pushed to front
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_FULL if list is full
+ * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if pointer is NULL
  */
-utilsStatus_t listPushFront(list_t* list, void* value);
+utilsStatus_t listPushFront(list_t* list, const void* value);
 
 /**
  * \brief           Add data to a specific position within list
@@ -118,9 +118,9 @@ utilsStatus_t listPushFront(list_t* list, void* value);
  * \param[in]       value: pointer to value to be pushed to front
  * \param[in]       position: position where to add data
  *
- * \return          UTILS_STATUS_SUCCESS if data can be added correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if position is invalid
+ * \return          UTILS_STATUS_SUCCESS if data can be added correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if position is invalid or pointer is NULL
  */
-utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position);
+utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position);
 
 /**
  * \brief           Update data at a specific position in the list
@@ -131,7 +131,7 @@ utilsStatus_t listInsert(list_t* list, void* value, LIST_STYPE position);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be updated correctly, UTILS_STATUS_ERROR if position is invalid
  */
-utilsStatus_t listUpdate(list_t* list, void* value, LIST_STYPE position);
+utilsStatus_t listUpdate(list_t* list, const void* value, LIST_STYPE position);
 
 /**
  * \brief           Read data from beginning of list, removing it
@@ -172,7 +172,7 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty
  */
-utilsStatus_t listPeek(list_t* list, void* value);
+utilsStatus_t listPeek(const list_t* list, void* value);
 
 /**
  * \brief           Read data from end of list, without removing it
@@ -182,7 +182,7 @@ utilsStatus_t listPeek(list_t* list, void* value);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty
  */
-utilsStatus_t listPeekBack(list_t* list, void* value);
+utilsStatus_t listPeekBack(const list_t* list, void* value);
 
 /**
  * \brief           Read data from a specific position within list, without removing it
@@ -193,7 +193,7 @@ utilsStatus_t listPeekBack(list_t* list, void* value);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty, UTILS_STATUS_ERROR if position is invalid
  */
-utilsStatus_t listPeekAtPos(list_t* list, void* value, LIST_STYPE position);
+utilsStatus_t listPeekAtPos(const list_t* list, void* value, LIST_STYPE position);
 
 /**
  * \brief           Returns list info
@@ -202,7 +202,7 @@ utilsStatus_t listPeekAtPos(list_t* list, void* value, LIST_STYPE position);
  * \param[out]      size: pointer to size
  * \param[out]      items: pointer to number of items currently in the list
  */
-static inline void listInfo(list_t* list, LIST_STYPE* size, LIST_STYPE* items) {
+static inline void listInfo(const list_t* list, LIST_STYPE* size, LIST_STYPE* items) {
     if (size != NULL) {
         *size = list->size;
     }

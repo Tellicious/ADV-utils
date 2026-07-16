@@ -87,8 +87,8 @@
 
 /* Function prototypes -------------------------------------------------------*/
 
-static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, void* value);
-static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, void* value);
+static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, const void* value);
+static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, const void* value);
 static void lpHashTableReplaceEntries(lpHashTable_t* lpht, uint32_t startIndex);
 static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase);
 
@@ -123,7 +123,7 @@ utilsStatus_t lpHashTableInit(lpHashTable_t* lpht, size_t itemSize, uint32_t ini
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, void* value) {
+utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value) {
     if ((value == NULL) || (key == NULL)) {
         return UTILS_STATUS_ERROR;
     }
@@ -196,13 +196,11 @@ utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, char* key, void* value, lpHash
 }
 
 utilsStatus_t lpHashTableFlush(lpHashTable_t* lpht) {
-    uint32_t ii;
-
     if (!lpht->items) {
         return UTILS_STATUS_EMPTY;
     }
 
-    for (ii = 0; ii < lpht->size; ii++) {
+    for (uint32_t ii = 0; ii < lpht->size; ii++) {
         ADVUTILS_FREE(lpht->entries[ii].key);
         ADVUTILS_FREE(lpht->entries[ii].value);
         lpht->entries[ii].key = NULL;
@@ -228,7 +226,7 @@ utilsStatus_t lpHashTableDelete(lpHashTable_t* lpht) {
     return UTILS_STATUS_SUCCESS;
 }
 
-static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, void* value) {
+static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, const void* value) {
     /* limit hash to current memory size */
     uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1);
 
@@ -259,7 +257,7 @@ static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, void* v
     return UTILS_STATUS_SUCCESS;
 }
 
-static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, void* value) {
+static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, const void* value) {
     /* limit hash to current memory size */
     uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1);
     uint32_t cnt = 0;
@@ -310,7 +308,6 @@ static void lpHashTableReplaceEntries(lpHashTable_t* lpht, uint32_t startIndex) 
 
 static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     /* Allocate new entries array. */
-    uint32_t ii;
     uint32_t old_size = lpht->size;
 
     /* hash is currently a uint32_t so Hash-table size should not exceed that */
@@ -346,7 +343,7 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     /* Iterate entries, move all non-empty ones to new table's entries. */
     lpht->items = 0;
 
-    for (ii = 0; ii < old_size; ii++) {
+    for (uint32_t ii = 0; ii < old_size; ii++) {
         if (old_entries[ii].key != NULL) {
             /* limit hash to current memory size */
             uint32_t jj = LPHT_HASHFUN(old_entries[ii].key) & (lpht->size - 1);

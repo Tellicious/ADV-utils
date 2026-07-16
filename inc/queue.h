@@ -99,7 +99,7 @@ void queueInitStatic(queue_t* queue, uint8_t* data, size_t itemSize, QUEUE_STYPE
  *
  * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_FULL if queue is full
  */
-utilsStatus_t queuePush(queue_t* queue, void* value);
+utilsStatus_t queuePush(queue_t* queue, const void* value);
 
 /**
  * \brief           Add an array of data to end of queue
@@ -120,7 +120,7 @@ utilsStatus_t queuePushArr(queue_t* queue, void* data, QUEUE_STYPE num);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_FULL if queue is full
  */
-utilsStatus_t queuePushFront(queue_t* queue, void* value);
+utilsStatus_t queuePushFront(queue_t* queue, const void* value);
 
 /**
  * \brief           Add an array of data to beginning of queue

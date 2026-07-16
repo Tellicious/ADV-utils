@@ -92,12 +92,13 @@ float fastInvSqrt(float value) {
     union {
         float f;
         uint32_t i;
-    } conv = {.f = value};
+    } conv;
 
     if (value < 0) {
         return NAN;
     }
 
+    conv.f = value;
     conv.i = 0x5f3759df - (conv.i >> 1);
     conv.f *= 1.5f - (value * 0.5f * conv.f * conv.f);
     return conv.f;

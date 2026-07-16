@@ -56,7 +56,7 @@ extern "C" {
  * \return          hash
  */
 
-uint32_t hash_FNV1A(char* key);
+uint32_t hash_FNV1A(const char* key);
 
 /**
  * \brief           Dan Bernstein hash for key (from comp.lang.c)
@@ -65,7 +65,7 @@ uint32_t hash_FNV1A(char* key);
  * 
  * \return          hash
  */
-uint32_t hash_djb(char* key);
+uint32_t hash_djb(const char* key);
 
 /**
  * \brief           sdbm hash for key (from sdbm database library)
@@ -74,7 +74,7 @@ uint32_t hash_djb(char* key);
  * 
  * \return          hash
  */
-uint32_t hash_sdbm(char* key);
+uint32_t hash_sdbm(const char* key);
 
 #ifdef __cplusplus
 }

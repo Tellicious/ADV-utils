@@ -56,7 +56,7 @@ void quaternionNorm(quaternion_t* q) {
     q->q3 *= inv_norm;
 }
 
-void quaternionMult(quaternion_t* qa, quaternion_t* qb, quaternion_t* qo) {
+void quaternionMult(const quaternion_t* qa, const quaternion_t* qb, quaternion_t* qo) {
     float q0, q1, q2, q3;
 
     q0 = qa->q0 * qb->q0 - qa->q1 * qb->q1 - qa->q2 * qb->q2 - qa->q3 * qb->q3;
@@ -69,7 +69,7 @@ void quaternionMult(quaternion_t* qa, quaternion_t* qb, quaternion_t* qo) {
     qo->q3 = q3;
 }
 
-void quaternionRotation(quaternion_t* qr, quaternion_t* qv, quaternion_t* qo) {
+void quaternionRotation(const quaternion_t* qr, const quaternion_t* qv, quaternion_t* qo) {
     float q0q0, q1q1, q2q2, q3q3;
     float dq0, dq1, dq2;
     float dq1q2, dq1q3, dq0q2, dq0q3;
@@ -95,14 +95,14 @@ void quaternionRotation(quaternion_t* qr, quaternion_t* qv, quaternion_t* qo) {
     qo->q3 = (dq0q2 + dq1q3) * qv->q1 + (dq2q3 - dq0q1) * qv->q2 + (q0q0 + q3q3 - q1q1 - q2q2) * qv->q3;
 }
 
-void quaternionConj(quaternion_t* qa, quaternion_t* qo) {
+void quaternionConj(const quaternion_t* qa, quaternion_t* qo) {
     qo->q0 = qa->q0;
     qo->q1 = -qa->q1;
     qo->q2 = -qa->q2;
     qo->q3 = -qa->q3;
 }
 
-void quaternionToEuler(quaternion_t* qr, axis3f_t* ea) {
+void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
     float q0q0, q1q1, q2q2, q3q3;
     float dq0, dq1, dq2;
     float dq1q3, dq0q2;
