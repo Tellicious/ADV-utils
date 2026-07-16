@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.20.0 
+
+**New features:**
+- Added `IS_BIT_NOT_SET_ALL` and `IS_BIT_NOT_SET_ANY` to `basicMath.h`
+
 ## v1.19.0
 
 **Improvements:**

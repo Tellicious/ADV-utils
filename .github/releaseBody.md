@@ -1,6 +1,6 @@
-## New PID feature to select derivative mode
+## New bit-checking macros
 
-**Improvements:**
-- Added selectable derivative term source to `PID` via `PID_setDerivativeMode`/`PID_getDerivativeMode`
+**New features:**
+- Added `IS_BIT_NOT_SET_ALL` and `IS_BIT_NOT_SET_ANY` to `basicMath.h`
   
 See [Changelog](Changelog.md)

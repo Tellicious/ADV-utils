@@ -126,6 +126,12 @@ extern "C" {
 /* Check if any bit is set */
 #define IS_BIT_SET_ANY(val, mask)      (((val) & (mask)) != 0)
 
+/* Check if all bit are not set */
+#define IS_BIT_NOT_SET_ALL(val, mask)  (((val) & (mask)) != (mask))
+
+/* Check if none bit is set */
+#define IS_BIT_NOT_SET_ANY(val, mask)  (((val) & (mask)) == 0)
+
 /* Mask bits */
 #define BIT_MASK(val, mask)            ((val) & (mask))
 

@@ -97,6 +97,11 @@ static void test_macros(void** state) {
     assert_false(IS_BIT_SET_ALL(0x0F, 0xF0));
     assert_true(IS_BIT_SET_ANY(0xFF, 0x02));
     assert_false(IS_BIT_SET_ANY(0x00, 0x01));
+    assert_true(IS_BIT_NOT_SET_ALL(0x0F, 0xF0));
+    assert_true(IS_BIT_NOT_SET_ALL(0x0C, 0x0F));
+    assert_false(IS_BIT_NOT_SET_ALL(0xFF, 0x0F));
+    assert_true(IS_BIT_NOT_SET_ANY(0x00, 0x03));
+    assert_false(IS_BIT_NOT_SET_ANY(0xFF, 0x0D));
     assert_int_equal(BIT_MASK(0xFF, 0x0F), 0x0F);
     assert_int_equal(BIT_SET(0x00, 0x0F), 0x0F);
     assert_int_equal(BIT_CLEAR(0xFF, 0x0F), 0xF0);
