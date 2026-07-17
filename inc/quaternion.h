@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __QUATERNION_H__
-#define __QUATERNION_H__
+#ifndef ADVUTILS_QUATERNION_H
+#define ADVUTILS_QUATERNION_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,11 +48,14 @@ extern "C" {
 
 /* Typedefs ------------------------------------------------------------------*/
 
-#ifndef _QUATERNION_TYPEDEF_
-#define _QUATERNION_TYPEDEF_
+#ifndef ADVUTILS_QUATERNION_TYPEDEF
+#define ADVUTILS_QUATERNION_TYPEDEF
 
 typedef struct {
-    float q0, q1, q2, q3;
+    float q0;
+    float q1;
+    float q2;
+    float q3;
 } quaternion_t;
 
 #endif
@@ -106,4 +109,4 @@ void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea);
 }
 #endif
 
-#endif /* __QUATERNION_H__ */
+#endif /* ADVUTILS_QUATERNION_H */

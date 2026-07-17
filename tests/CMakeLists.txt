@@ -51,7 +51,7 @@ file(WRITE ${CMAKE_CURRENT_LIST_DIR}/../inc/cmocka_includes.h
 void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size);
 void* ADVUtils_testMalloc(const size_t size);
 void ADVUtils_testAssert(const int result, const char* const expression, const char* const file, const int line);
-uint32_t ADVUtils_testHash(char* key);
+uint32_t ADVUtils_testHash(const char* key);
 
 #endif /* __CMOCKA_INCLUDES_H__ */
 ")

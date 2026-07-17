@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __QUEUE_H__
-#define __QUEUE_H__
+#ifndef ADVUTILS_QUEUE_H
+#define ADVUTILS_QUEUE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -59,7 +59,10 @@ extern "C" {
 typedef struct {
     uint8_t* data;
     uint8_t itemSize;
-    QUEUE_STYPE size, _front, _rear, items;
+    QUEUE_STYPE size;
+    QUEUE_STYPE _front;
+    QUEUE_STYPE _rear;
+    QUEUE_STYPE items;
 } queue_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -110,7 +113,7 @@ utilsStatus_t queuePush(queue_t* queue, const void* value);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_ERROR if queue cannot hold all elements
  */
-utilsStatus_t queuePushArr(queue_t* queue, void* data, QUEUE_STYPE num);
+utilsStatus_t queuePushArr(queue_t* queue, const void* data, QUEUE_STYPE num);
 
 /**
  * \brief           Add data to beginning of queue
@@ -131,7 +134,7 @@ utilsStatus_t queuePushFront(queue_t* queue, const void* value);
  *
  * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_ERROR if queue cannot hold all elements
  */
-utilsStatus_t queuePushFrontArr(queue_t* queue, void* data, QUEUE_STYPE num);
+utilsStatus_t queuePushFrontArr(queue_t* queue, const void* data, QUEUE_STYPE num);
 
 /**
  * \brief           Read data from beginning of queue, removing it
@@ -202,7 +205,7 @@ utilsStatus_t queuePeekBack(queue_t* queue, void* value);
  * \param[out]      size: pointer to size
  * \param[out]      items: pointer to number of items currently queued
  */
-static inline void queueInfo(queue_t* queue, QUEUE_STYPE* size, QUEUE_STYPE* items) {
+static inline void queueInfo(const queue_t* queue, QUEUE_STYPE* size, QUEUE_STYPE* items) {
     *size = queue->size / queue->itemSize;
     *items = queue->items / queue->itemSize;
 }
@@ -231,4 +234,4 @@ utilsStatus_t queueDelete(queue_t* queue);
 }
 #endif
 
-#endif /* __QUEUE_H__ */
+#endif /* ADVUTILS_QUEUE_H */

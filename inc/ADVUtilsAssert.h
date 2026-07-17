@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __ADVUTILSASSERT_H__
-#define __ADVUTILSASSERT_H__
+#ifndef ADVUTILS_ASSERT_H
+#define ADVUTILS_ASSERT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,4 +62,4 @@ extern "C" {
 }
 #endif
 
-#endif /* __ADVUTILSASSERT_H__ */
+#endif /* ADVUTILS_ASSERT_H */

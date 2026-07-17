@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __HASHFUNCTIONS_H__
-#define __HASHFUNCTIONS_H__
+#ifndef ADVUTILS_HASHFUNCTIONS_H
+#define ADVUTILS_HASHFUNCTIONS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -80,4 +80,4 @@ uint32_t hash_sdbm(const char* key);
 }
 #endif
 
-#endif /* __HASHFUNCTIONS_H__ */
+#endif /* ADVUTILS_HASHFUNCTIONS_H */

@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __TIMER_H__
-#define __TIMER_H__
+#ifndef ADVUTILS_TIMER_H
+#define ADVUTILS_TIMER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,7 +82,10 @@ static inline void timerStart(userTimer_t* t, uint32_t currentTick) {
  *
  * \param[in]       t: pointer to timer object
  */
-static inline void timerStop(userTimer_t* t) { t->flag = t->eventCnt = 0; }
+static inline void timerStop(userTimer_t* t) {
+    t->eventCnt = 0;
+    t->flag = 0;
+}
 
 /**
  * \brief           Reset timer object
@@ -108,10 +111,10 @@ void timerProcess(userTimer_t* t, uint32_t currentTick);
  *
  * \return          number of events for the specified timer
  */
-static inline uint16_t timerEventExists(userTimer_t* t) { return t->eventCnt; }
+static inline uint16_t timerEventExists(const userTimer_t* t) { return t->eventCnt; }
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __TIMER_H__ */
+#endif /* ADVUTILS_TIMER_H */

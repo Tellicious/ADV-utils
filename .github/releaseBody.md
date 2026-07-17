@@ -1,6 +1,8 @@
-## MISRA compliance
+## MISRA compliance extension
 
 **Improvements:**
-- Improved compliance to MISRA guidelines
+- Further improved compliance to MISRA guidelines
+- Added list of deviations to MISRA guidelines
+- Aligned all iterators to `i`, `j`, `k` (from outer to inner loop)
   
 See [Changelog](Changelog.md)

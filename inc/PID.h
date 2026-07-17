@@ -33,8 +33,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __PID_H__
-#define __PID_H__
+#ifndef ADVUTILS_PID_H
+#define ADVUTILS_PID_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -197,7 +197,7 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  * \param[in]       PID: pointer to PID object
  * \param[in]       kiVal: integral gain value
  */
-#define PID_setKi(PID, kiVal)      (PID)->ki = 0.5f * kiVal * (PID)->dT
+#define PID_setKi(PID, kiVal)      (PID)->ki = 0.5f * (kiVal) * (PID)->dT
 
 /**
  * \brief           Set derivative gain value
@@ -208,8 +208,8 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
  */
 static inline void PID_setKd(PID_t* PID, float kdVal, float ndVal) {
     PID->nd = ndVal;
-    PID->kd = (2.f * kdVal * ndVal) / (2.f + ndVal * PID->dT);
-    PID->kf = (2.f - ndVal * PID->dT) / (2.f + ndVal * PID->dT);
+    PID->kd = (2.f * kdVal * ndVal) / (2.f + (ndVal * PID->dT));
+    PID->kf = (2.f - (ndVal * PID->dT)) / (2.f + (ndVal * PID->dT));
 }
 
 /**
@@ -218,7 +218,7 @@ static inline void PID_setKd(PID_t* PID, float kdVal, float ndVal) {
  * \param[in]       PID: pointer to PID object
  * \param[in]       kbVal: back-calculation coefficient value
  */
-#define PID_setKb(PID, kbVal)            (PID)->kb = 0.5f * kbVal * (PID)->dT
+#define PID_setKb(PID, kbVal)            (PID)->kb = 0.5f * ((kbVal) * (PID)->dT)
 
 /**
  * \brief           Set derivative term source
@@ -261,4 +261,4 @@ static inline void PID_setIntegralSaturation(PID_t* PID, float satMin, float sat
 }
 #endif
 
-#endif /* __PID_H__ */
+#endif /* ADVUTILS_PID_H */

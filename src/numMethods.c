@@ -45,18 +45,18 @@
 /* -------------------Forward substitution---------------------- */
 /* assumes that the matrix A is already a lower triangular one. No check! */
 
-void fwsub(matrix_t* A, matrix_t* B, matrix_t* result) {
+void fwsub(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
-    for (uint8_t k = 0; k < B->cols; k++) {
-        ELEMP(result, 0, k) = ELEMP(B, 0, k) / ELEMP(A, 0, 0);
-        for (uint8_t i = 1; i < A->rows; i++) {
+    for (uint8_t i = 0; i < B->cols; i++) {
+        ELEMP(result, 0, i) = ELEMP(B, 0, i) / ELEMP(A, 0, 0);
+        for (uint8_t j = 1; j < A->rows; j++) {
             float tmp = 0.0;
-            for (uint8_t j = 0; j < i; j++) {
-                tmp += ELEMP(A, i, j) * (ELEMP(result, j, k));
+            for (uint8_t k = 0; k < j; k++) {
+                tmp += ELEMP(A, j, k) * (ELEMP(result, k, i));
             }
-            ELEMP(result, i, k) = (ELEMP(B, i, k) - tmp) / ELEMP(A, i, i);
+            ELEMP(result, j, i) = (ELEMP(B, j, i) - tmp) / ELEMP(A, j, j);
         }
     }
     return;
@@ -65,20 +65,20 @@ void fwsub(matrix_t* A, matrix_t* B, matrix_t* result) {
 /* ---------------Forward substitution with permutation------------------- */
 /* assumes that the matrix A is already a lower triangular one. No check! */
 
-void fwsubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result) {
+void fwsubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
     ADVUTILS_ASSERT(P->cols == 1);
-    for (uint8_t k = 0; k < B->cols; k++) {
-        ELEMP(result, 0, k) = ELEMP(B, (uint8_t)ELEMP(P, 0, 0), k) / ELEMP(A, 0, 0);
-        for (uint8_t i = 1; i < A->rows; i++) {
+    for (uint8_t i = 0; i < B->cols; i++) {
+        ELEMP(result, 0, i) = ELEMP(B, (uint8_t)ELEMP(P, 0, 0), i) / ELEMP(A, 0, 0);
+        for (uint8_t j = 1; j < A->rows; j++) {
             float tmp = 0.0;
-            for (uint8_t j = 0; j < i; j++) {
-                tmp += ELEMP(A, i, j) * ELEMP(result, j, k);
+            for (uint8_t k = 0; k < j; k++) {
+                tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
-            ELEMP(result, i, k) = (ELEMP(B, (uint8_t)ELEMP(P, i, 0), k) - tmp) / ELEMP(A, i, i);
+            ELEMP(result, j, i) = (ELEMP(B, (uint8_t)ELEMP(P, j, 0), i) - tmp) / ELEMP(A, j, j);
         }
     }
     return;
@@ -87,18 +87,18 @@ void fwsubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result) {
 /* -------------------Backward substitution---------------------- */
 /* assumes that the matrix A is already an upper triangular one. No check! */
 
-void bksub(matrix_t* A, matrix_t* B, matrix_t* result) {
+void bksub(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
-    for (uint8_t k = 0; k < B->cols; k++) {
-        ELEMP(result, A->cols - 1, k) = ELEMP(B, A->cols - 1, k) / ELEMP(A, A->cols - 1, A->cols - 1);
-        for (int16_t i = A->rows - 2; i >= 0; i--) {
+    for (uint8_t i = 0; i < B->cols; i++) {
+        ELEMP(result, (A->cols - 1U), i) = ELEMP(B, (A->cols - 1U), i) / ELEMP(A, (A->cols - 1U), (A->cols - 1U));
+        for (int16_t j = (int16_t)((int32_t)A->rows - 2); j >= 0; j--) {
             float tmp = 0.0;
-            for (uint8_t j = A->cols - 1; j > i; j--) {
-                tmp += ELEMP(A, i, j) * ELEMP(result, j, k);
+            for (uint8_t k = (uint8_t)((uint32_t)A->cols - 1U); (int16_t)k > j; k--) {
+                tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
-            ELEMP(result, i, k) = (ELEMP(B, i, k) - tmp) / ELEMP(A, i, i);
+            ELEMP(result, j, i) = (ELEMP(B, j, i) - tmp) / ELEMP(A, j, j);
         }
     }
     return;
@@ -107,20 +107,20 @@ void bksub(matrix_t* A, matrix_t* B, matrix_t* result) {
 /* --------------Backward substitution with permutation----------------- */
 /* assumes that the matrix A is already an upper triangular one. No check! */
 
-void bksubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result) {
+void bksubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
     ADVUTILS_ASSERT(P->cols == 1);
-    for (uint8_t k = 0; k < B->cols; k++) {
-        ELEMP(result, A->cols - 1, k) = ELEMP(B, (uint8_t)ELEMP(P, A->cols - 1, 0), k) / ELEMP(A, A->cols - 1, A->cols - 1);
-        for (int16_t i = A->rows - 2; i >= 0; i--) {
+    for (uint8_t i = 0; i < B->cols; i++) {
+        ELEMP(result, (A->cols - 1U), i) = ELEMP(B, (uint8_t)ELEMP(P, (A->cols - 1U), 0), i) / ELEMP(A, (A->cols - 1U), (A->cols - 1U));
+        for (int16_t j = (int16_t)((int32_t)A->rows - 2); j >= 0; j--) {
             float tmp = 0.0;
-            for (uint8_t j = A->cols - 1; j > i; j--) {
-                tmp += ELEMP(A, i, j) * ELEMP(result, j, k);
+            for (uint8_t k = (uint8_t)((uint32_t)A->cols - 1U); (int16_t)k > j; k--) {
+                tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
-            ELEMP(result, i, k) = (ELEMP(B, (uint8_t)ELEMP(P, i, 0), k) - tmp) / ELEMP(A, i, i);
+            ELEMP(result, j, i) = (ELEMP(B, (uint8_t)ELEMP(P, j, 0), i) - tmp) / ELEMP(A, j, j);
         }
     }
     return;
@@ -129,7 +129,7 @@ void bksubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result) {
 /* ------------------Quadratic form (sort of)---------------------- */
 /* returns matrix C=A*B*(~A) */
 
-void QuadProd(matrix_t* A, matrix_t* B, matrix_t* result) {
+void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == B->rows);
     ADVUTILS_ASSERT(B->cols == A->cols);
     ADVUTILS_ASSERT(result->rows == A->rows);
@@ -141,8 +141,8 @@ void QuadProd(matrix_t* A, matrix_t* B, matrix_t* result) {
             for (uint8_t j = 0; j < A->cols; j++) {
                 tmp += ELEMP(A, n, j) * ELEMP(B, i, j);
             }
-            for (uint8_t ii = 0; ii < A->rows; ii++) {
-                ELEMP(result, ii, n) += ELEMP(A, ii, i) * tmp;
+            for (uint8_t j = 0; j < A->rows; j++) {
+                ELEMP(result, j, n) += ELEMP(A, j, i) * tmp;
             }
         }
     }
@@ -152,7 +152,7 @@ void QuadProd(matrix_t* A, matrix_t* B, matrix_t* result) {
 /* -------------------------LU factorization using Crout's Method-------------------------------- */
 /* factorizes the A matrix as the product of a unit upper triangular matrix U and a lower triangular matrix L */
 
-utilsStatus_t LU_Crout(matrix_t* A, matrix_t* L, matrix_t* U) {
+utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U) {
     ADVUTILS_ASSERT(A->cols == A->rows);
     ADVUTILS_ASSERT(L->rows == A->rows);
     ADVUTILS_ASSERT(L->cols == A->cols);
@@ -160,24 +160,24 @@ utilsStatus_t LU_Crout(matrix_t* A, matrix_t* L, matrix_t* U) {
     ADVUTILS_ASSERT(U->cols == A->cols);
     matrixIdentity(U);
     matrixZeros(L);
-    for (uint8_t jj = 0; jj < A->rows; jj++) {
-        for (uint8_t ii = jj; ii < A->rows; ii++) {
+    for (uint8_t i = 0; i < A->rows; i++) {
+        for (uint8_t j = i; j < A->rows; j++) {
             float sum = 0.0f;
-            for (uint8_t kk = 0; kk < jj; kk++) {
-                sum += ELEMP(L, ii, kk) * ELEMP(U, kk, jj);
+            for (uint8_t k = 0; k < i; k++) {
+                sum += ELEMP(L, j, k) * ELEMP(U, k, i);
             }
-            ELEMP(L, ii, jj) = ELEMP(A, ii, jj) - sum;
+            ELEMP(L, j, i) = ELEMP(A, j, i) - sum;
         }
 
-        for (uint8_t ii = jj; ii < A->rows; ii++) {
+        for (uint8_t j = i; j < A->rows; j++) {
             float sum = 0.0f;
-            for (uint8_t kk = 0; kk < jj; kk++) {
-                sum += ELEMP(L, jj, kk) * ELEMP(U, kk, ii);
+            for (uint8_t k = 0; k < i; k++) {
+                sum += ELEMP(L, i, k) * ELEMP(U, k, j);
             }
-            if (ELEMP(L, jj, jj) == 0) {
+            if (ELEMP(L, i, i) == 0) {
                 return UTILS_STATUS_ERROR;
             }
-            ELEMP(U, jj, ii) = (ELEMP(A, jj, ii) - sum) / ELEMP(L, jj, jj);
+            ELEMP(U, i, j) = (ELEMP(A, i, j) - sum) / ELEMP(L, i, i);
         }
     }
     return UTILS_STATUS_SUCCESS;
@@ -188,36 +188,36 @@ utilsStatus_t LU_Crout(matrix_t* A, matrix_t* L, matrix_t* U) {
 /* -------------------------LU factorization using Cormen's Method-------------------------------- */
 /* factorizes the A matrix as the product of a unit upper triangular matrix U and a lower triangular matrix L */
 
-utilsStatus_t LU_Cormen(matrix_t* A, matrix_t* L, matrix_t* U) {
+utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U) {
     ADVUTILS_ASSERT(A->cols == A->rows);
     ADVUTILS_ASSERT(L->rows == A->rows);
     ADVUTILS_ASSERT(L->cols == A->cols);
     ADVUTILS_ASSERT(U->rows == A->cols);
     ADVUTILS_ASSERT(U->cols == A->cols);
     matrix_t A_cp;
-    matrixInit(&A_cp, A->rows, A->cols);
+    (void)matrixInit(&A_cp, A->rows, A->cols);
     matrixCopy(A, &A_cp);
     matrixZeros(U);
     matrixIdentity(L);
 
-    for (uint8_t k = 0; k < A_cp.rows; k++) {
-        ELEMP(U, k, k) = ELEM(A_cp, k, k);
-        if (ELEM(A_cp, k, k) == 0) {
-            matrixDelete(&A_cp);
+    for (uint8_t i = 0; i < A_cp.rows; i++) {
+        ELEMP(U, i, i) = ELEM(A_cp, i, i);
+        if (ELEM(A_cp, i, i) == 0) {
+            (void)matrixDelete(&A_cp);
             return UTILS_STATUS_ERROR;
         }
-        float tmp = 1.0 / ELEMP(U, k, k);
-        for (uint8_t i = k + 1; i < A_cp.rows; i++) {
-            ELEMP(L, i, k) = ELEM(A_cp, i, k) * tmp;
-            ELEMP(U, k, i) = ELEM(A_cp, k, i);
+        float tmp = 1.0 / ELEMP(U, i, i);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            ELEMP(L, j, i) = ELEM(A_cp, j, i) * tmp;
+            ELEMP(U, i, j) = ELEM(A_cp, i, j);
         }
-        for (uint8_t i = k + 1; i < A_cp.rows; i++) {
-            for (uint8_t j = k + 1; j < A_cp.rows; j++) {
-                ELEM(A_cp, i, j) -= ELEMP(L, i, k) * ELEMP(U, k, j);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.rows; k++) {
+                ELEM(A_cp, j, k) -= ELEMP(L, j, i) * ELEMP(U, i, k);
             }
         }
     }
-    matrixDelete(&A_cp);
+    (void)matrixDelete(&A_cp);
     return UTILS_STATUS_SUCCESS;
 }
 
@@ -225,7 +225,7 @@ utilsStatus_t LU_Cormen(matrix_t* A, matrix_t* L, matrix_t* U) {
 /* factorizes the A matrix as the product of a upper triangular matrix U and a unit lower triangular matrix L */
 /* returns the factor that has to be multiplied to the determinant of U in order to obtain the correct value */
 
-int8_t LUP_Cormen(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
+int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     ADVUTILS_ASSERT(A->cols == A->rows);
     ADVUTILS_ASSERT(L->rows == A->rows);
     ADVUTILS_ASSERT(L->cols == A->cols);
@@ -235,7 +235,7 @@ int8_t LUP_Cormen(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     ADVUTILS_ASSERT(P->cols == 1);
     int8_t d_mult = 1; /* determinant multiplying factor */
     matrix_t A_cp;
-    matrixInit(&A_cp, A->rows, A->cols);
+    (void)matrixInit(&A_cp, A->rows, A->cols);
     matrixCopy(A, &A_cp);
     matrixZeros(U);
     matrixIdentity(L);
@@ -245,178 +245,189 @@ int8_t LUP_Cormen(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     }
 
     /* outer loop over diagonal pivots */
-    for (uint8_t k = 0; k < A_cp.rows - 1; k++) {
+    for (uint8_t i = 0; (int32_t)i < ((int32_t)A_cp.rows - 1); i++) {
 
         /* inner loop to find the largest pivot */
-        uint8_t pivrow = k;
-        float tmp = fabsf(ELEM(A_cp, k, k));
-        for (uint8_t i = k + 1; i < A_cp.rows; i++) {
-            float tmp2 = fabsf(ELEM(A_cp, i, k));
+        uint8_t pivrow = (uint8_t)i;
+        float tmp = fabsf(ELEM(A_cp, i, i));
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            float tmp2 = fabsf(ELEM(A_cp, j, i));
             if (tmp2 > tmp) {
                 tmp = tmp2;
-                pivrow = i;
+                pivrow = (uint8_t)j;
             }
         }
         /* check for singularity */
-        if (ELEM(A_cp, pivrow, k) == 0) {
-            matrixDelete(&A_cp);
+        if (ELEM(A_cp, pivrow, i) == 0) {
+            (void)matrixDelete(&A_cp);
             return 0;
         }
 
         /* swap rows */
-        if (pivrow != k) {
-            tmp = ELEMP(P, k, 0);
-            ELEMP(P, k, 0) = ELEMP(P, pivrow, 0);
+        if (pivrow != i) {
+            tmp = ELEMP(P, i, 0);
+            ELEMP(P, i, 0) = ELEMP(P, pivrow, 0);
             ELEMP(P, pivrow, 0) = tmp;
             d_mult *= -1;
 
             for (uint8_t j = 0; j < A_cp.rows; j++) {
-                tmp = ELEM(A_cp, k, j);
-                ELEM(A_cp, k, j) = ELEM(A_cp, pivrow, j);
+                tmp = ELEM(A_cp, i, j);
+                ELEM(A_cp, i, j) = ELEM(A_cp, pivrow, j);
                 ELEM(A_cp, pivrow, j) = tmp;
             }
         }
-        tmp = 1.0 / ELEM(A_cp, k, k);
+        tmp = 1.0 / ELEM(A_cp, i, i);
         /* Gaussian elimination */
-        for (uint8_t i = k + 1; i < A_cp.rows; i++) { /* iterate down rows */
-            ELEM(A_cp, i, k) *= tmp;
-            for (uint8_t j = k + 1; j < A_cp.rows; j++) { /* iterate across rows */
-                ELEM(A_cp, i, j) -= ELEM(A_cp, i, k) * ELEM(A_cp, k, j);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) { /* iterate down rows */
+            ELEM(A_cp, j, i) *= tmp;
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.rows; k++) { /* iterate across rows */
+                ELEM(A_cp, j, k) -= ELEM(A_cp, j, i) * ELEM(A_cp, i, k);
             }
         }
     }
-    for (uint8_t k = 0; k < A_cp.rows; k++) {
-        ELEMP(U, k, k) = ELEM(A_cp, k, k);
-        for (uint8_t j = k + 1; j < A_cp.rows; j++) {
-            ELEMP(L, j, k) = ELEM(A_cp, j, k);
-            ELEMP(U, k, j) = ELEM(A_cp, k, j);
+    for (uint8_t i = 0; i < A_cp.rows; i++) {
+        ELEMP(U, i, i) = ELEM(A_cp, i, i);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            ELEMP(L, j, i) = ELEM(A_cp, j, i);
+            ELEMP(U, i, j) = ELEM(A_cp, i, j);
         }
     }
-    matrixDelete(&A_cp);
+    (void)matrixDelete(&A_cp);
     return d_mult;
 }
 
 /* -----------------------Linear system solver using LU factorization--------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLU(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
-    matrix_t L, U;
-    matrixInit(&L, A->rows, A->cols);
-    matrixInit(&U, A->cols, A->cols);
+    matrix_t L;
+    matrix_t U;
+    (void)matrixInit(&L, A->rows, A->cols);
+    (void)matrixInit(&U, A->cols, A->cols);
     /* matrix_t *tmp1 = matrixInit(A->rows, B->cols); */
-    LU_Cormen(A, &L, &U);
+    (void)LU_Cormen(A, &L, &U);
     /* fwsub(L, B, tmp1); */
     /* bksub(U, tmp1, result); */
     fwsub(&L, B, result);
     bksub(&U, result, result); /* hope it can work in-place */
-    matrixDelete(&L);
-    matrixDelete(&U);
+    (void)matrixDelete(&L);
+    (void)matrixDelete(&U);
     return;
 }
 
 /* ----------------------Linear system solver using LUP factorization-------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUP(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
-    matrix_t L, U, P, tmp;
-    matrixInit(&L, A->rows, A->cols);
-    matrixInit(&U, A->cols, A->cols);
-    matrixInit(&P, A->rows, 1);
-    matrixInit(&tmp, A->rows, B->cols);
+    matrix_t L;
+    matrix_t U;
+    matrix_t P;
+    matrix_t tmp;
+    (void)matrixInit(&L, A->rows, A->cols);
+    (void)matrixInit(&U, A->cols, A->cols);
+    (void)matrixInit(&P, A->rows, 1);
+    (void)matrixInit(&tmp, A->rows, B->cols);
 
-    LUP_Cormen(A, &L, &U, &P);
+    (void)LUP_Cormen(A, &L, &U, &P);
     fwsubPerm(&L, B, &P, &tmp);
     bksub(&U, &tmp, result);
-    matrixDelete(&L);
-    matrixDelete(&U);
-    matrixDelete(&P);
-    matrixDelete(&tmp);
+    (void)matrixDelete(&L);
+    (void)matrixDelete(&U);
+    (void)matrixDelete(&P);
+    (void)matrixDelete(&tmp);
     return;
 }
 
 /* ------------Linear system solver using Gauss elimination with partial pivoting--------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveGauss(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
-    matrix_t A_cp, B_cp;
-    matrixInit(&A_cp, A->rows, A->cols);
-    matrixInit(&B_cp, B->rows, B->cols);
+    matrix_t A_cp;
+    matrix_t B_cp;
+    (void)matrixInit(&A_cp, A->rows, A->cols);
+    (void)matrixInit(&B_cp, B->rows, B->cols);
     matrixCopy(A, &A_cp);
     matrixCopy(B, &B_cp);
 
-    for (uint8_t k = 0; k < (A_cp.cols - 1); k++) {
+    for (uint8_t i = 0; (int32_t)i < ((int32_t)A_cp.cols - 1); i++) {
 
         /* find pivot row, the row with biggest entry in current column */
-        float tmp = fabsf(ELEM(A_cp, k, k));
-        uint8_t pivrow = k;
-        for (uint8_t i = k + 1; i < A_cp.cols; i++) {
-            float tmp2 = fabsf(ELEM(A_cp, i, k)); /* 'Avoid using other functions inside abs()?' */
+        float tmp = fabsf(ELEM(A_cp, i, i));
+        uint8_t pivrow = (uint8_t)i;
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) {
+            float tmp2 = fabsf(ELEM(A_cp, j, i)); /* 'Avoid using other functions inside abs()?' */
             if (tmp2 > tmp) {
                 tmp = tmp2;
-                pivrow = i;
+                pivrow = (uint8_t)j;
             }
         }
 
         /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, k) == 0.0) {
+        if (ELEM(A_cp, pivrow, i) == 0.0) {
             matrixZeros(result);
-            matrixDelete(&A_cp);
-            matrixDelete(&B_cp);
+            (void)matrixDelete(&A_cp);
+            (void)matrixDelete(&B_cp);
             return;
         }
 
         /* Execute pivot (row swap) if needed */
-        if (pivrow != k) {
+        if (pivrow != i) {
             /* swap row k of matrix A with pivrow */
-            for (uint8_t j = k; j < A_cp.cols; j++) {
-                tmp = ELEM(A_cp, k, j);
-                ELEM(A_cp, k, j) = ELEM(A_cp, pivrow, j);
+            for (uint8_t j = i; j < A_cp.cols; j++) {
+                tmp = ELEM(A_cp, i, j);
+                ELEM(A_cp, i, j) = ELEM(A_cp, pivrow, j);
                 ELEM(A_cp, pivrow, j) = tmp;
             }
             /* swap row k of matrix B with pivrow */
             for (uint8_t j = 0; j < B_cp.cols; j++) {
-                tmp = ELEM(B_cp, k, j);
-                ELEM(B_cp, k, j) = ELEM(B_cp, pivrow, j);
+                tmp = ELEM(B_cp, i, j);
+                ELEM(B_cp, i, j) = ELEM(B_cp, pivrow, j);
                 ELEM(B_cp, pivrow, j) = tmp;
             }
         }
 
         /* Row reduction */
-        tmp = 1.0 / ELEM(A_cp, k, k);                 /* invert pivot element */
-        for (uint8_t i = k + 1; i < A_cp.cols; i++) { /* along rows */
-            float tmp2 = ELEM(A_cp, i, k) * tmp;
+        tmp = 1.0 / ELEM(A_cp, i, i);                             /* invert pivot element */
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
+            float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
-            for (uint8_t j = k + 1; j < A_cp.cols; j++) { /* along columns of A */
-                ELEM(A_cp, i, j) -= tmp2 * ELEM(A_cp, k, j);
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.cols; k++) { /* along columns of A */
+                ELEM(A_cp, j, k) -= tmp2 * ELEM(A_cp, i, k);
             }
             /* Perform row reduction of B */
-            for (uint8_t j = 0; j < B_cp.cols; j++) { /* along columns of B */
-                ELEM(B_cp, i, j) -= tmp2 * ELEM(B_cp, k, j);
+            for (uint8_t k = 0; k < B_cp.cols; k++) { /* along columns of B */
+                ELEM(B_cp, j, k) -= tmp2 * ELEM(B_cp, i, k);
             }
         }
     }
     bksub(&A_cp, &B_cp, result);
-    matrixDelete(&A_cp);
-    matrixDelete(&B_cp);
+    (void)matrixDelete(&A_cp);
+    (void)matrixDelete(&B_cp);
     return;
 }
 
 /* -------Iterative solver for discrete-time algebraic Riccati equation--------- */
 /* Solves discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q */
-utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t nmax, float tol, matrix_t* result) {
-    matrix_t _Ak, _G, _IGP, _Ak1, tmp1, tmp2, tmp3;
+utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result) {
+    matrix_t _Ak;
+    matrix_t _G;
+    matrix_t _IGP;
+    matrix_t _Ak1;
+    matrix_t tmp1;
+    matrix_t tmp2;
+    matrix_t tmp3;
 
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(R->rows == R->cols);
@@ -427,24 +438,25 @@ utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t 
     ADVUTILS_ASSERT(result->rows == result->cols);
     ADVUTILS_ASSERT(result->rows == A->cols);
 
-    matrixInit(&_Ak, A->rows, A->cols);
-    matrixInit(&_Ak1, A->rows, A->cols);
-    matrixInit(&_G, B->rows, B->rows);
-    matrixInit(&_IGP, A->rows, A->cols);
-    matrixInit(&tmp1, R->rows, R->cols);
-    matrixInit(&tmp2, A->rows, A->cols);
-    matrixInit(&tmp3, A->rows, A->cols);
+    (void)matrixInit(&_Ak, A->rows, A->cols);
+    (void)matrixInit(&_Ak1, A->rows, A->cols);
+    (void)matrixInit(&_G, B->rows, B->rows);
+    (void)matrixInit(&_IGP, A->rows, A->cols);
+    (void)matrixInit(&tmp1, R->rows, R->cols);
+    (void)matrixInit(&tmp2, A->rows, A->cols);
+    (void)matrixInit(&tmp3, A->rows, A->cols);
 
     matrixCopy(A, &_Ak);
     matrixInversed(R, &tmp1);
     QuadProd(B, &tmp1, &_G);
     matrixCopy(Q, result);
 
-    while (nmax-- > 0) {
+    uint16_t nIter = nmax;
+    while (nIter-- > 0U) {
         /* Calculation of inverse(I+G*H); */
         matrixMult(&_G, result, &tmp2);
-        for (uint8_t ii = 0; ii < tmp2.rows; ii++) {
-            ELEM(tmp2, ii, ii) += 1.f;
+        for (uint8_t i = 0; i < tmp2.rows; i++) {
+            ELEM(tmp2, i, i) += 1.f;
         }
         matrixInversed(&tmp2, &_IGP);
         /* Calculation of Ak1 = Ak*inverse(I+G*H)*Ak */
@@ -461,26 +473,26 @@ utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t 
         matrixAdd(result, &tmp2, result);
         if ((matrixNorm(&tmp2) / matrixNorm(result)) < tol) {
             /* Delete temporary matrices */
-            matrixDelete(&_Ak);
-            matrixDelete(&_Ak1);
-            matrixDelete(&_G);
-            matrixDelete(&_IGP);
-            matrixDelete(&tmp2);
-            matrixDelete(&tmp1);
-            matrixDelete(&tmp3);
+            (void)matrixDelete(&_Ak);
+            (void)matrixDelete(&_Ak1);
+            (void)matrixDelete(&_G);
+            (void)matrixDelete(&_IGP);
+            (void)matrixDelete(&tmp2);
+            (void)matrixDelete(&tmp1);
+            (void)matrixDelete(&tmp3);
             return UTILS_STATUS_SUCCESS;
         }
         matrixCopy(&_Ak1, &_Ak);
     }
 
     /* Delete temporary matrices */
-    matrixDelete(&_Ak);
-    matrixDelete(&_Ak1);
-    matrixDelete(&_G);
-    matrixDelete(&_IGP);
-    matrixDelete(&tmp2);
-    matrixDelete(&tmp1);
-    matrixDelete(&tmp3);
+    (void)matrixDelete(&_Ak);
+    (void)matrixDelete(&_Ak1);
+    (void)matrixDelete(&_G);
+    (void)matrixDelete(&_IGP);
+    (void)matrixDelete(&tmp2);
+    (void)matrixDelete(&tmp1);
+    (void)matrixDelete(&tmp3);
 
     return UTILS_STATUS_TIMEOUT;
 }
@@ -499,20 +511,25 @@ utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t 
  s23=out(7,0);
  s33=out(8,0);*/
 
-utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0, d2 = 0, d3 = 0;
+utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
+    float d1 = 0.0f;
+    float d2 = 0.0f;
+    float d3 = 0.0f;
     float k2;
-    matrix_t Jr, res, delta, tmp1;
-    matrixInit(&Jr, Data->rows, 9);
-    matrixInit(&res, Data->rows, 1);
-    matrixInit(&delta, 9, 1);
-    matrixInit(&tmp1, 9, Data->rows);
+    matrix_t Jr;
+    matrix_t res;
+    matrix_t delta;
+    matrix_t tmp1;
+    (void)matrixInit(&Jr, Data->rows, 9);
+    (void)matrixInit(&res, Data->rows, 1);
+    (void)matrixInit(&delta, 9, 1);
+    (void)matrixInit(&tmp1, 9, Data->rows);
 
-    if ((Data->rows < 9) || (Data->cols != 3)) {
-        matrixDelete(&Jr);
-        matrixDelete(&res);
-        matrixDelete(&delta);
-        matrixDelete(&tmp1);
+    if ((Data->rows < 9U) || (Data->cols != 3U)) {
+        (void)matrixDelete(&Jr);
+        (void)matrixDelete(&res);
+        (void)matrixDelete(&delta);
+        (void)matrixDelete(&tmp1);
         return UTILS_STATUS_ERROR;
     }
 
@@ -521,10 +538,10 @@ utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint
         matrixCopy(X0, result);
     } else {
         matrixZeros(result);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            ELEMP(result, 0, 0) += matrixGet(Data, ii, 0) / Data->rows;
-            ELEMP(result, 1, 0) += matrixGet(Data, ii, 1) / Data->rows;
-            ELEMP(result, 2, 0) += matrixGet(Data, ii, 2) / Data->rows;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            ELEMP(result, 0, 0) += matrixGet(Data, i, 0) / Data->rows;
+            ELEMP(result, 1, 0) += matrixGet(Data, i, 1) / Data->rows;
+            ELEMP(result, 2, 0) += matrixGet(Data, i, 2) / Data->rows;
         }
         matrixSet(result, 3, 0, 1);
         matrixSet(result, 6, 0, 1);
@@ -532,18 +549,20 @@ utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint
     }
 
     /* Set target radius if not given as input */
-    if (k != 0) {
+    if (k != 0.0f) {
         k2 = k * k;
     } else {
         float max = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
         float min = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            for (uint8_t jj = 0; jj < 3; jj++) {
-                float data = matrixGet(Data, ii, jj) - matrixGet(result, jj, 0);
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            for (uint8_t j = 0; j < 3U; j++) {
+                float data = matrixGet(Data, i, j) - matrixGet(result, j, 0);
                 if (data > max) {
                     max = data;
                 } else if (data < min) {
                     min = data;
+                } else {
+                    /* no action required (MISRA 15.7) */
                 }
             }
         }
@@ -552,48 +571,50 @@ utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint
 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
-        for (uint8_t jj = 0; jj < Data->rows; jj++) {
-            d1 = ELEMP(Data, jj, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, jj, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, jj, 2) - ELEMP(result, 2, 0);
-            float rx1 = -2 * (ELEMP(result, 3, 0) * d1 + ELEMP(result, 4, 0) * d2 + ELEMP(result, 5, 0) * d3);
-            float rx2 = -2 * (ELEMP(result, 4, 0) * d1 + ELEMP(result, 6, 0) * d2 + ELEMP(result, 7, 0) * d3);
-            float rx3 = -2 * (ELEMP(result, 5, 0) * d1 + ELEMP(result, 7, 0) * d2 + ELEMP(result, 8, 0) * d3);
-            ELEM(Jr, jj, 0) = ELEMP(result, 3, 0) * rx1 + ELEMP(result, 4, 0) * rx2 + ELEMP(result, 5, 0) * rx3;
-            ELEM(Jr, jj, 1) = ELEMP(result, 4, 0) * rx1 + ELEMP(result, 6, 0) * rx2 + ELEMP(result, 7, 0) * rx3;
-            ELEM(Jr, jj, 2) = ELEMP(result, 5, 0) * rx1 + ELEMP(result, 7, 0) * rx2 + ELEMP(result, 8, 0) * rx3;
-            ELEM(Jr, jj, 3) = -d1 * rx1;
-            ELEM(Jr, jj, 4) = -d2 * rx1 - d1 * rx2;
-            ELEM(Jr, jj, 5) = -d3 * rx1 - d1 * rx3;
-            ELEM(Jr, jj, 6) = -d2 * rx2;
-            ELEM(Jr, jj, 7) = -d3 * rx2 - d2 * rx3;
-            ELEM(Jr, jj, 8) = -d3 * rx3;
-            float t1 = ELEMP(result, 3, 0) * d1 + ELEMP(result, 4, 0) * d2 + ELEMP(result, 5, 0) * d3;
-            float t2 = ELEMP(result, 4, 0) * d1 + ELEMP(result, 6, 0) * d2 + ELEMP(result, 7, 0) * d3;
-            float t3 = ELEMP(result, 5, 0) * d1 + ELEMP(result, 7, 0) * d2 + ELEMP(result, 8, 0) * d3;
-            ELEM(res, jj, 0) = t1 * t1 + t2 * t2 + t3 * t3 - k2;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float rx1 = -2.0f * ((ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3));
+            float rx2 = -2.0f * ((ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3));
+            float rx3 = -2.0f * ((ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3));
+            ELEM(Jr, i, 0) = (ELEMP(result, 3, 0) * rx1) + (ELEMP(result, 4, 0) * rx2) + (ELEMP(result, 5, 0) * rx3);
+            ELEM(Jr, i, 1) = (ELEMP(result, 4, 0) * rx1) + (ELEMP(result, 6, 0) * rx2) + (ELEMP(result, 7, 0) * rx3);
+            ELEM(Jr, i, 2) = (ELEMP(result, 5, 0) * rx1) + (ELEMP(result, 7, 0) * rx2) + (ELEMP(result, 8, 0) * rx3);
+            ELEM(Jr, i, 3) = -d1 * rx1;
+            ELEM(Jr, i, 4) = (-d2 * rx1) - (d1 * rx2);
+            ELEM(Jr, i, 5) = (-d3 * rx1) - (d1 * rx3);
+            ELEM(Jr, i, 6) = -d2 * rx2;
+            ELEM(Jr, i, 7) = (-d3 * rx2) - (d2 * rx3);
+            ELEM(Jr, i, 8) = -d3 * rx3;
+            float t1 = (ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3);
+            float t2 = (ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3);
+            float t3 = (ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3);
+            ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
         matrixPseudoInv(&Jr, &tmp1);
         matrixMult(&tmp1, &res, &delta);
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
-            matrixDelete(&Jr);
-            matrixDelete(&res);
-            matrixDelete(&delta);
-            matrixDelete(&tmp1);
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_SUCCESS;
         } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            matrixDelete(&Jr);
-            matrixDelete(&res);
-            matrixDelete(&delta);
-            matrixDelete(&tmp1);
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_ERROR;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     }
-    matrixDelete(&Jr);
-    matrixDelete(&res);
-    matrixDelete(&delta);
-    matrixDelete(&tmp1);
+    (void)matrixDelete(&Jr);
+    (void)matrixDelete(&res);
+    (void)matrixDelete(&delta);
+    (void)matrixDelete(&tmp1);
     return UTILS_STATUS_TIMEOUT;
 }
 
@@ -608,21 +629,26 @@ utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint
  s22=out(4,0);
  s33=out(5,0);*/
 
-utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0, d2 = 0, d3 = 0;
+utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
+    float d1 = 0.0f;
+    float d2 = 0.0f;
+    float d3 = 0.0f;
     float k2;
 
-    matrix_t Jr, res, delta, tmp1;
-    matrixInit(&Jr, Data->rows, 6);
-    matrixInit(&res, Data->rows, 1);
-    matrixInit(&delta, 6, 1);
-    matrixInit(&tmp1, 6, Data->rows);
+    matrix_t Jr;
+    matrix_t res;
+    matrix_t delta;
+    matrix_t tmp1;
+    (void)matrixInit(&Jr, Data->rows, 6);
+    (void)matrixInit(&res, Data->rows, 1);
+    (void)matrixInit(&delta, 6, 1);
+    (void)matrixInit(&tmp1, 6, Data->rows);
 
-    if ((Data->rows < 6) || (Data->cols != 3)) {
-        matrixDelete(&Jr);
-        matrixDelete(&res);
-        matrixDelete(&delta);
-        matrixDelete(&tmp1);
+    if ((Data->rows < 6U) || (Data->cols != 3U)) {
+        (void)matrixDelete(&Jr);
+        (void)matrixDelete(&res);
+        (void)matrixDelete(&delta);
+        (void)matrixDelete(&tmp1);
         return UTILS_STATUS_ERROR;
     }
 
@@ -631,10 +657,10 @@ utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint
         matrixCopy(X0, result);
     } else {
         matrixZeros(result);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            ELEMP(result, 0, 0) += matrixGet(Data, ii, 0) / Data->rows;
-            ELEMP(result, 1, 0) += matrixGet(Data, ii, 1) / Data->rows;
-            ELEMP(result, 2, 0) += matrixGet(Data, ii, 2) / Data->rows;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            ELEMP(result, 0, 0) += matrixGet(Data, i, 0) / Data->rows;
+            ELEMP(result, 1, 0) += matrixGet(Data, i, 1) / Data->rows;
+            ELEMP(result, 2, 0) += matrixGet(Data, i, 2) / Data->rows;
         }
         matrixSet(result, 3, 0, 1);
         matrixSet(result, 4, 0, 1);
@@ -642,18 +668,20 @@ utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint
     }
 
     /* Set target radius if not given as input */
-    if (k != 0) {
+    if (k != 0.0f) {
         k2 = k * k;
     } else {
         float max = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
         float min = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            for (uint8_t jj = 0; jj < 3; jj++) {
-                float data = matrixGet(Data, ii, jj) - matrixGet(result, jj, 0);
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            for (uint8_t j = 0; j < 3U; j++) {
+                float data = matrixGet(Data, i, j) - matrixGet(result, j, 0);
                 if (data > max) {
                     max = data;
                 } else if (data < min) {
                     min = data;
+                } else {
+                    /* no action required (MISRA 15.7) */
                 }
             }
         }
@@ -662,42 +690,44 @@ utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint
 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
-        for (uint8_t jj = 0; jj < Data->rows; jj++) {
-            d1 = ELEMP(Data, jj, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, jj, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, jj, 2) - ELEMP(result, 2, 0);
-            ELEM(Jr, jj, 0) = -2 * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
-            ELEM(Jr, jj, 1) = -2 * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
-            ELEM(Jr, jj, 2) = -2 * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
-            ELEM(Jr, jj, 3) = 2 * ELEMP(result, 3, 0) * d1 * d1;
-            ELEM(Jr, jj, 4) = 2 * ELEMP(result, 4, 0) * d2 * d2;
-            ELEM(Jr, jj, 5) = 2 * ELEMP(result, 5, 0) * d3 * d3;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            ELEM(Jr, i, 0) = -2.0f * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
+            ELEM(Jr, i, 1) = -2.0f * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
+            ELEM(Jr, i, 2) = -2.0f * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
+            ELEM(Jr, i, 3) = 2 * ELEMP(result, 3, 0) * d1 * d1;
+            ELEM(Jr, i, 4) = 2 * ELEMP(result, 4, 0) * d2 * d2;
+            ELEM(Jr, i, 5) = 2 * ELEMP(result, 5, 0) * d3 * d3;
             float t1 = ELEMP(result, 3, 0) * d1;
             float t2 = ELEMP(result, 4, 0) * d2;
             float t3 = ELEMP(result, 5, 0) * d3;
-            ELEM(res, jj, 0) = t1 * t1 + t2 * t2 + t3 * t3 - k2;
+            ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
         matrixPseudoInv(&Jr, &tmp1);
         matrixMult(&tmp1, &res, &delta);
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
-            matrixDelete(&Jr);
-            matrixDelete(&res);
-            matrixDelete(&delta);
-            matrixDelete(&tmp1);
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_SUCCESS;
         } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            matrixDelete(&Jr);
-            matrixDelete(&res);
-            matrixDelete(&delta);
-            matrixDelete(&tmp1);
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_ERROR;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     }
-    matrixDelete(&Jr);
-    matrixDelete(&res);
-    matrixDelete(&delta);
-    matrixDelete(&tmp1);
+    (void)matrixDelete(&Jr);
+    (void)matrixDelete(&res);
+    (void)matrixDelete(&delta);
+    (void)matrixDelete(&tmp1);
     return UTILS_STATUS_TIMEOUT;
 }
 
@@ -708,13 +738,12 @@ utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint
 /* -------------------------LU factorization using Cormen's Method-------------------------------- */
 /* factorizes the A matrix as the product of a unit upper triangular matrix U and a lower triangular matrix L */
 
-utilsStatus_t LU_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U) {
+utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U) {
     ADVUTILS_ASSERT(A->cols == A->rows);
     ADVUTILS_ASSERT(L->rows == A->rows);
     ADVUTILS_ASSERT(L->cols == A->cols);
     ADVUTILS_ASSERT(U->rows == A->cols);
     ADVUTILS_ASSERT(U->cols == A->cols);
-    int16_t i, j, k;
     float _A_cp_Data[A->rows * A->cols];
     matrix_t A_cp;
     matrixInitStatic(&A_cp, _A_cp_Data, A->rows, A->cols);
@@ -722,19 +751,19 @@ utilsStatus_t LU_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U) {
     matrixZeros(U);
     matrixIdentity(L);
 
-    for (k = 0; k < A_cp.rows; k++) {
-        ELEMP(U, k, k) = ELEM(A_cp, k, k);
-        if (ELEM(A_cp, k, k) == 0) {
+    for (uint8_t i = 0; i < A_cp.rows; i++) {
+        ELEMP(U, i, i) = ELEM(A_cp, i, i);
+        if (ELEM(A_cp, i, i) == 0) {
             return UTILS_STATUS_ERROR;
         }
-        float tmp = 1.0 / ELEMP(U, k, k);
-        for (i = k + 1; i < A_cp.rows; i++) {
-            ELEMP(L, i, k) = ELEM(A_cp, i, k) * tmp;
-            ELEMP(U, k, i) = ELEM(A_cp, k, i);
+        float tmp = 1.0 / ELEMP(U, i, i);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            ELEMP(L, j, i) = ELEM(A_cp, j, i) * tmp;
+            ELEMP(U, i, j) = ELEM(A_cp, i, j);
         }
-        for (i = k + 1; i < A_cp.rows; i++) {
-            for (j = k + 1; j < A_cp.rows; j++) {
-                ELEM(A_cp, i, j) -= ELEMP(L, i, k) * ELEMP(U, k, j);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.rows; k++) {
+                ELEM(A_cp, j, k) -= ELEMP(L, j, i) * ELEMP(U, i, k);
             }
         }
     }
@@ -745,7 +774,7 @@ utilsStatus_t LU_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U) {
 /* factorizes the A matrix as the product of a upper triangular matrix U and a unit lower triangular matrix L */
 /* returns the factor that has to be multiplied to the determinant of U in order to obtain the correct value */
 
-int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
+int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     ADVUTILS_ASSERT(A->cols == A->rows);
     ADVUTILS_ASSERT(L->rows == A->rows);
     ADVUTILS_ASSERT(L->cols == A->cols);
@@ -753,7 +782,6 @@ int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     ADVUTILS_ASSERT(U->cols == A->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
     ADVUTILS_ASSERT(P->cols == 1);
-    int16_t i, j, k;
     int8_t d_mult = 1; /* determinant multiplying factor */
     float _A_cp_Data[A->rows * A->cols];
     matrix_t A_cp;
@@ -762,55 +790,55 @@ int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     matrixZeros(U);
     matrixIdentity(L);
     /* initialization */
-    for (i = 0; i < A_cp.rows; i++) {
+    for (uint8_t i = 0; i < A_cp.rows; i++) {
         ELEMP(P, i, 0) = i;
     }
 
     /* outer loop over diagonal pivots */
-    for (k = 0; k < A_cp.rows - 1; k++) {
+    for (uint8_t i = 0; (int32_t)i < ((int32_t)A_cp.rows - 1); i++) {
 
         /* inner loop to find the largest pivot */
-        uint8_t pivrow = k;
-        float tmp = fabsf(ELEM(A_cp, k, k));
-        for (i = k + 1; i < A_cp.rows; i++) {
-            float tmp2 = fabsf(ELEM(A_cp, i, k));
+        uint8_t pivrow = i;
+        float tmp = fabsf(ELEM(A_cp, i, i));
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            float tmp2 = fabsf(ELEM(A_cp, j, i));
             if (tmp2 > tmp) {
                 tmp = tmp2;
-                pivrow = i;
+                pivrow = j;
             }
         }
         /* check for singularity */
-        if (ELEM(A_cp, pivrow, k) == 0) {
+        if (ELEM(A_cp, pivrow, i) == 0) {
             return 0;
         }
 
         /* swap rows */
-        if (pivrow != k) {
-            tmp = ELEMP(P, k, 0);
-            ELEMP(P, k, 0) = ELEMP(P, pivrow, 0);
+        if (pivrow != i) {
+            tmp = ELEMP(P, i, 0);
+            ELEMP(P, i, 0) = ELEMP(P, pivrow, 0);
             ELEMP(P, pivrow, 0) = tmp;
             d_mult *= -1;
 
-            for (j = 0; j < A_cp.rows; j++) {
-                tmp = ELEM(A_cp, k, j);
-                ELEM(A_cp, k, j) = ELEM(A_cp, pivrow, j);
+            for (uint8_t j = 0; j < A_cp.rows; j++) {
+                tmp = ELEM(A_cp, i, j);
+                ELEM(A_cp, i, j) = ELEM(A_cp, pivrow, j);
                 ELEM(A_cp, pivrow, j) = tmp;
             }
         }
-        tmp = 1.0 / ELEM(A_cp, k, k);
+        tmp = 1.0 / ELEM(A_cp, i, i);
         /* Gaussian elimination */
-        for (i = k + 1; i < A_cp.rows; i++) { /* iterate down rows */
-            ELEM(A_cp, i, k) *= tmp;
-            for (j = k + 1; j < A_cp.rows; j++) { /* iterate across rows */
-                ELEM(A_cp, i, j) -= ELEM(A_cp, i, k) * ELEM(A_cp, k, j);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) { /* iterate down rows */
+            ELEM(A_cp, j, i) *= tmp;
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.rows; k++) { /* iterate across rows */
+                ELEM(A_cp, j, k) -= ELEM(A_cp, j, i) * ELEM(A_cp, i, k);
             }
         }
     }
-    for (k = 0; k < A_cp.rows; k++) {
-        ELEMP(U, k, k) = ELEM(A_cp, k, k);
-        for (j = k + 1; j < A_cp.rows; j++) {
-            ELEMP(L, j, k) = ELEM(A_cp, j, k);
-            ELEMP(U, k, j) = ELEM(A_cp, k, j);
+    for (uint8_t i = 0; i < A_cp.rows; i++) {
+        ELEMP(U, i, i) = ELEM(A_cp, i, i);
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
+            ELEMP(L, j, i) = ELEM(A_cp, j, i);
+            ELEMP(U, i, j) = ELEM(A_cp, i, j);
         }
     }
     return d_mult;
@@ -819,18 +847,19 @@ int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
 /* -----------------------Linear system solver using LU factorization--------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     float _LData[A->rows * A->cols];
     float _UData[A->cols * A->cols];
-    matrix_t L, U;
+    matrix_t L;
+    matrix_t U;
     matrixInitStatic(&L, _LData, A->rows, A->cols);
     matrixInitStatic(&U, _UData, A->cols, A->cols);
     /* matrix_t *tmp1 = matrixInit(A->rows, B->cols); */
-    LU_CormenStatic(A, &L, &U);
+    (void)LU_CormenStatic(A, &L, &U);
     /* fwsub(L, B, tmp1); */
     /* bksub(U, tmp1, result); */
     fwsub(&L, B, result);
@@ -841,7 +870,7 @@ void LinSolveLUStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
 /* ----------------------Linear system solver using LUP factorization-------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUPStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -850,13 +879,16 @@ void LinSolveLUPStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
     float _UData[A->cols * A->cols];
     float _PData[A->rows];
     float _tmpData[A->rows * B->cols];
-    matrix_t L, U, P, tmp;
+    matrix_t L;
+    matrix_t U;
+    matrix_t P;
+    matrix_t tmp;
     matrixInitStatic(&L, _LData, A->rows, A->cols);
     matrixInitStatic(&U, _UData, A->cols, A->cols);
     matrixInitStatic(&P, _PData, A->rows, 1);
     matrixInitStatic(&tmp, _tmpData, A->rows, B->cols);
 
-    LUP_CormenStatic(A, &L, &U, &P);
+    (void)LUP_CormenStatic(A, &L, &U, &P);
     fwsubPerm(&L, B, &P, &tmp);
     bksub(&U, &tmp, result);
     return;
@@ -865,7 +897,7 @@ void LinSolveLUPStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
 /* ------------Linear system solver using Gauss elimination with partial pivoting--------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveGaussStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
+void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -873,58 +905,59 @@ void LinSolveGaussStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
 
     float _A_cp_Data[A->rows * A->cols];
     float _B_cp_Data[B->rows * B->cols];
-    matrix_t A_cp, B_cp;
+    matrix_t A_cp;
+    matrix_t B_cp;
     matrixInitStatic(&A_cp, _A_cp_Data, A->rows, A->cols);
     matrixInitStatic(&B_cp, _B_cp_Data, B->rows, B->cols);
     matrixCopy(A, &A_cp);
     matrixCopy(B, &B_cp);
 
-    for (uint8_t k = 0; k < (A_cp.cols - 1); k++) {
+    for (uint8_t i = 0; (int32_t)i < ((int32_t)A_cp.cols - 1); i++) {
 
         /* find pivot row, the row with biggest entry in current column */
-        float tmp = fabsf(ELEM(A_cp, k, k));
-        uint8_t pivrow = k;
-        for (uint8_t i = k + 1; i < A_cp.cols; i++) {
-            float tmp2 = fabsf(ELEM(A_cp, i, k)); /* 'Avoid using other functions inside abs()?' */
+        float tmp = fabsf(ELEM(A_cp, i, i));
+        uint8_t pivrow = (uint8_t)i;
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) {
+            float tmp2 = fabsf(ELEM(A_cp, j, i)); /* 'Avoid using other functions inside abs()?' */
             if (tmp2 > tmp) {
                 tmp = tmp2;
-                pivrow = i;
+                pivrow = (uint8_t)j;
             }
         }
 
         /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, k) == 0.0) {
+        if (ELEM(A_cp, pivrow, i) == 0.0) {
             matrixZeros(result);
             return;
         }
 
         /* Execute pivot (row swap) if needed */
-        if (pivrow != k) {
+        if (pivrow != i) {
             /* swap row k of matrix A with pivrow */
-            for (uint8_t j = k; j < A_cp.cols; j++) {
-                tmp = ELEM(A_cp, k, j);
-                ELEM(A_cp, k, j) = ELEM(A_cp, pivrow, j);
+            for (uint8_t j = i; j < A_cp.cols; j++) {
+                tmp = ELEM(A_cp, i, j);
+                ELEM(A_cp, i, j) = ELEM(A_cp, pivrow, j);
                 ELEM(A_cp, pivrow, j) = tmp;
             }
             /* swap row k of matrix B with pivrow */
             for (uint8_t j = 0; j < B_cp.cols; j++) {
-                tmp = ELEM(B_cp, k, j);
-                ELEM(B_cp, k, j) = ELEM(B_cp, pivrow, j);
+                tmp = ELEM(B_cp, i, j);
+                ELEM(B_cp, i, j) = ELEM(B_cp, pivrow, j);
                 ELEM(B_cp, pivrow, j) = tmp;
             }
         }
 
         /* Row reduction */
-        tmp = 1.0 / ELEM(A_cp, k, k);                 /* invert pivot element */
-        for (uint8_t i = k + 1; i < A_cp.cols; i++) { /* along rows */
-            float tmp2 = ELEM(A_cp, i, k) * tmp;
+        tmp = 1.0 / ELEM(A_cp, i, i);                             /* invert pivot element */
+        for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
+            float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
-            for (uint8_t j = k + 1; j < A_cp.cols; j++) { /* along columns of A */
-                ELEM(A_cp, i, j) -= tmp2 * ELEM(A_cp, k, j);
+            for (uint8_t k = (uint8_t)(i + 1U); k < A_cp.cols; k++) { /* along columns of A */
+                ELEM(A_cp, j, k) -= tmp2 * ELEM(A_cp, i, k);
             }
             /* Perform row reduction of B */
-            for (uint8_t j = 0; j < B_cp.cols; j++) { /* along columns of B */
-                ELEM(B_cp, i, j) -= tmp2 * ELEM(B_cp, k, j);
+            for (uint8_t k = 0; k < B_cp.cols; k++) { /* along columns of B */
+                ELEM(B_cp, j, k) -= tmp2 * ELEM(B_cp, i, k);
             }
         }
     }
@@ -934,8 +967,14 @@ void LinSolveGaussStatic(matrix_t* A, matrix_t* B, matrix_t* result) {
 
 /* -------Iterative solver for discrete-time algebraic Riccati equation--------- */
 /* Solves discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q */
-utilsStatus_t DAREStatic(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t nmax, float tol, matrix_t* result) {
-    matrix_t _Ak, _G, _IGP, _Ak1, tmp1, tmp2, tmp3;
+utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result) {
+    matrix_t _Ak;
+    matrix_t _G;
+    matrix_t _IGP;
+    matrix_t _Ak1;
+    matrix_t tmp1;
+    matrix_t tmp2;
+    matrix_t tmp3;
 
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(R->rows == R->cols);
@@ -967,11 +1006,12 @@ utilsStatus_t DAREStatic(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uin
     QuadProd(B, &tmp1, &_G);
     matrixCopy(Q, result);
 
-    while (nmax-- > 0) {
+    uint16_t nIter = nmax;
+    while (nIter-- > 0U) {
         /* Calculation of inverse(I+G*H); */
         matrixMult(&_G, result, &tmp2);
-        for (uint8_t ii = 0; ii < tmp2.rows; ii++) {
-            ELEM(tmp2, ii, ii) += 1.f;
+        for (uint8_t i = 0; i < tmp2.rows; i++) {
+            ELEM(tmp2, i, i) += 1.f;
         }
         matrixInversedStatic(&tmp2, &_IGP);
         /* Calculation of Ak1 = Ak*inverse(I+G*H)*Ak */
@@ -1008,20 +1048,25 @@ utilsStatus_t DAREStatic(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uin
  s23=out(7,0);
  s33=out(8,0);*/
 
-utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0, d2 = 0, d3 = 0;
+utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
+    float d1 = 0.0f;
+    float d2 = 0.0f;
+    float d3 = 0.0f;
     float k2;
-    float _JrData[Data->rows * 9];
+    float _JrData[Data->rows * 9U];
     float _resData[Data->rows];
     float _deltaData[9];
-    float _tmp1Data[9 * Data->rows];
-    matrix_t Jr, res, delta, tmp1;
+    float _tmp1Data[9U * Data->rows];
+    matrix_t Jr;
+    matrix_t res;
+    matrix_t delta;
+    matrix_t tmp1;
     matrixInitStatic(&Jr, _JrData, Data->rows, 9);
     matrixInitStatic(&res, _resData, Data->rows, 1);
     matrixInitStatic(&delta, _deltaData, 9, 1);
     matrixInitStatic(&tmp1, _tmp1Data, 9, Data->rows);
 
-    if ((Data->rows < 9) || (Data->cols != 3)) {
+    if ((Data->rows < 9U) || (Data->cols != 3U)) {
         return UTILS_STATUS_ERROR;
     }
 
@@ -1030,10 +1075,10 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
         matrixCopy(X0, result);
     } else {
         matrixZeros(result);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            ELEMP(result, 0, 0) += matrixGet(Data, ii, 0) / Data->rows;
-            ELEMP(result, 1, 0) += matrixGet(Data, ii, 1) / Data->rows;
-            ELEMP(result, 2, 0) += matrixGet(Data, ii, 2) / Data->rows;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            ELEMP(result, 0, 0) += matrixGet(Data, i, 0) / Data->rows;
+            ELEMP(result, 1, 0) += matrixGet(Data, i, 1) / Data->rows;
+            ELEMP(result, 2, 0) += matrixGet(Data, i, 2) / Data->rows;
         }
         matrixSet(result, 3, 0, 1);
         matrixSet(result, 6, 0, 1);
@@ -1041,18 +1086,20 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
     }
 
     /* Set target radius if not given as input */
-    if (k != 0) {
+    if (k != 0.0f) {
         k2 = k * k;
     } else {
         float max = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
         float min = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            for (uint8_t jj = 0; jj < 3; jj++) {
-                float data = matrixGet(Data, ii, jj) - matrixGet(result, jj, 0);
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            for (uint8_t j = 0; j < 3U; j++) {
+                float data = matrixGet(Data, i, j) - matrixGet(result, j, 0);
                 if (data > max) {
                     max = data;
                 } else if (data < min) {
                     min = data;
+                } else {
+                    /* no action required (MISRA 15.7) */
                 }
             }
         }
@@ -1061,26 +1108,26 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
-        for (uint8_t jj = 0; jj < Data->rows; jj++) {
-            d1 = ELEMP(Data, jj, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, jj, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, jj, 2) - ELEMP(result, 2, 0);
-            float rx1 = -2 * (ELEMP(result, 3, 0) * d1 + ELEMP(result, 4, 0) * d2 + ELEMP(result, 5, 0) * d3);
-            float rx2 = -2 * (ELEMP(result, 4, 0) * d1 + ELEMP(result, 6, 0) * d2 + ELEMP(result, 7, 0) * d3);
-            float rx3 = -2 * (ELEMP(result, 5, 0) * d1 + ELEMP(result, 7, 0) * d2 + ELEMP(result, 8, 0) * d3);
-            ELEM(Jr, jj, 0) = ELEMP(result, 3, 0) * rx1 + ELEMP(result, 4, 0) * rx2 + ELEMP(result, 5, 0) * rx3;
-            ELEM(Jr, jj, 1) = ELEMP(result, 4, 0) * rx1 + ELEMP(result, 6, 0) * rx2 + ELEMP(result, 7, 0) * rx3;
-            ELEM(Jr, jj, 2) = ELEMP(result, 5, 0) * rx1 + ELEMP(result, 7, 0) * rx2 + ELEMP(result, 8, 0) * rx3;
-            ELEM(Jr, jj, 3) = -d1 * rx1;
-            ELEM(Jr, jj, 4) = -d2 * rx1 - d1 * rx2;
-            ELEM(Jr, jj, 5) = -d3 * rx1 - d1 * rx3;
-            ELEM(Jr, jj, 6) = -d2 * rx2;
-            ELEM(Jr, jj, 7) = -d3 * rx2 - d2 * rx3;
-            ELEM(Jr, jj, 8) = -d3 * rx3;
-            float t1 = ELEMP(result, 3, 0) * d1 + ELEMP(result, 4, 0) * d2 + ELEMP(result, 5, 0) * d3;
-            float t2 = ELEMP(result, 4, 0) * d1 + ELEMP(result, 6, 0) * d2 + ELEMP(result, 7, 0) * d3;
-            float t3 = ELEMP(result, 5, 0) * d1 + ELEMP(result, 7, 0) * d2 + ELEMP(result, 8, 0) * d3;
-            ELEM(res, jj, 0) = t1 * t1 + t2 * t2 + t3 * t3 - k2;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float rx1 = -2.0f * ((ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3));
+            float rx2 = -2.0f * ((ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3));
+            float rx3 = -2.0f * ((ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3));
+            ELEM(Jr, i, 0) = (ELEMP(result, 3, 0) * rx1) + (ELEMP(result, 4, 0) * rx2) + (ELEMP(result, 5, 0) * rx3);
+            ELEM(Jr, i, 1) = (ELEMP(result, 4, 0) * rx1) + (ELEMP(result, 6, 0) * rx2) + (ELEMP(result, 7, 0) * rx3);
+            ELEM(Jr, i, 2) = (ELEMP(result, 5, 0) * rx1) + (ELEMP(result, 7, 0) * rx2) + (ELEMP(result, 8, 0) * rx3);
+            ELEM(Jr, i, 3) = -d1 * rx1;
+            ELEM(Jr, i, 4) = (-d2 * rx1) - (d1 * rx2);
+            ELEM(Jr, i, 5) = (-d3 * rx1) - (d1 * rx3);
+            ELEM(Jr, i, 6) = -d2 * rx2;
+            ELEM(Jr, i, 7) = (-d3 * rx2) - (d2 * rx3);
+            ELEM(Jr, i, 8) = -d3 * rx3;
+            float t1 = (ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3);
+            float t2 = (ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3);
+            float t3 = (ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3);
+            ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
         matrixPseudoInvStatic(&Jr, &tmp1);
         matrixMult(&tmp1, &res, &delta);
@@ -1089,6 +1136,8 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
             return UTILS_STATUS_SUCCESS;
         } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
             return UTILS_STATUS_ERROR;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     }
     return UTILS_STATUS_TIMEOUT;
@@ -1105,21 +1154,26 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
  s22=out(4,0);
  s33=out(5,0);*/
 
-utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0, d2 = 0, d3 = 0;
+utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
+    float d1 = 0.0f;
+    float d2 = 0.0f;
+    float d3 = 0.0f;
     float k2;
 
-    float _JrData[Data->rows * 6];
+    float _JrData[Data->rows * 6U];
     float _resData[Data->rows];
     float _deltaData[6];
-    float _tmp1Data[6 * Data->rows];
-    matrix_t Jr, res, delta, tmp1;
+    float _tmp1Data[6U * Data->rows];
+    matrix_t Jr;
+    matrix_t res;
+    matrix_t delta;
+    matrix_t tmp1;
     matrixInitStatic(&Jr, _JrData, Data->rows, 6);
     matrixInitStatic(&res, _resData, Data->rows, 1);
     matrixInitStatic(&delta, _deltaData, 6, 1);
     matrixInitStatic(&tmp1, _tmp1Data, 6, Data->rows);
 
-    if ((Data->rows < 6) || (Data->cols != 3)) {
+    if ((Data->rows < 6U) || (Data->cols != 3U)) {
         return UTILS_STATUS_ERROR;
     }
 
@@ -1128,10 +1182,10 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0
         matrixCopy(X0, result);
     } else {
         matrixZeros(result);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            ELEMP(result, 0, 0) += matrixGet(Data, ii, 0) / Data->rows;
-            ELEMP(result, 1, 0) += matrixGet(Data, ii, 1) / Data->rows;
-            ELEMP(result, 2, 0) += matrixGet(Data, ii, 2) / Data->rows;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            ELEMP(result, 0, 0) += matrixGet(Data, i, 0) / Data->rows;
+            ELEMP(result, 1, 0) += matrixGet(Data, i, 1) / Data->rows;
+            ELEMP(result, 2, 0) += matrixGet(Data, i, 2) / Data->rows;
         }
         matrixSet(result, 3, 0, 1);
         matrixSet(result, 4, 0, 1);
@@ -1139,18 +1193,20 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0
     }
 
     /* Set target radius if not given as input */
-    if (k != 0) {
+    if (k != 0.0f) {
         k2 = k * k;
     } else {
         float max = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
         float min = matrixGet(Data, 0, 0) - matrixGet(result, 0, 0);
-        for (uint8_t ii = 0; ii < Data->rows; ii++) {
-            for (uint8_t jj = 0; jj < 3; jj++) {
-                float data = matrixGet(Data, ii, jj) - matrixGet(result, jj, 0);
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            for (uint8_t j = 0; j < 3U; j++) {
+                float data = matrixGet(Data, i, j) - matrixGet(result, j, 0);
                 if (data > max) {
                     max = data;
                 } else if (data < min) {
                     min = data;
+                } else {
+                    /* no action required (MISRA 15.7) */
                 }
             }
         }
@@ -1159,20 +1215,20 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0
 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
-        for (uint8_t jj = 0; jj < Data->rows; jj++) {
-            d1 = ELEMP(Data, jj, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, jj, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, jj, 2) - ELEMP(result, 2, 0);
-            ELEM(Jr, jj, 0) = -2 * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
-            ELEM(Jr, jj, 1) = -2 * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
-            ELEM(Jr, jj, 2) = -2 * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
-            ELEM(Jr, jj, 3) = 2 * ELEMP(result, 3, 0) * d1 * d1;
-            ELEM(Jr, jj, 4) = 2 * ELEMP(result, 4, 0) * d2 * d2;
-            ELEM(Jr, jj, 5) = 2 * ELEMP(result, 5, 0) * d3 * d3;
+        for (uint8_t i = 0; i < Data->rows; i++) {
+            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            ELEM(Jr, i, 0) = -2.0f * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
+            ELEM(Jr, i, 1) = -2.0f * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
+            ELEM(Jr, i, 2) = -2.0f * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
+            ELEM(Jr, i, 3) = 2 * ELEMP(result, 3, 0) * d1 * d1;
+            ELEM(Jr, i, 4) = 2 * ELEMP(result, 4, 0) * d2 * d2;
+            ELEM(Jr, i, 5) = 2 * ELEMP(result, 5, 0) * d3 * d3;
             float t1 = ELEMP(result, 3, 0) * d1;
             float t2 = ELEMP(result, 4, 0) * d2;
             float t3 = ELEMP(result, 5, 0) * d3;
-            ELEM(res, jj, 0) = t1 * t1 + t2 * t2 + t3 * t3 - k2;
+            ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
         matrixPseudoInvStatic(&Jr, &tmp1);
         matrixMult(&tmp1, &res, &delta);
@@ -1181,6 +1237,8 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0
             return UTILS_STATUS_SUCCESS;
         } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
             return UTILS_STATUS_ERROR;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     }
     return UTILS_STATUS_TIMEOUT;

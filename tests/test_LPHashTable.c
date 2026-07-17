@@ -78,7 +78,7 @@ void ADVUtils_testAssert(const int result, const char* const expression, const c
 
 static uint16_t mockHash = 0;
 
-uint32_t ADVUtils_testHash(char* key) {
+uint32_t ADVUtils_testHash(const char* key) {
     if (!mockHash) {
         return hash_FNV1A(key);
     } else {

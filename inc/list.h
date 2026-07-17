@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __LIST_H__
-#define __LIST_H__
+#ifndef ADVUTILS_LIST_H
+#define ADVUTILS_LIST_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,8 +66,10 @@ typedef struct node_str {
  */
 typedef struct {
     uint8_t itemSize;
-    listNode_t *_front, *_rear;
-    LIST_STYPE size, items;
+    listNode_t* _front;
+    listNode_t* _rear;
+    LIST_STYPE size;
+    LIST_STYPE items;
 } list_t;
 
 /**
@@ -75,7 +77,8 @@ typedef struct {
  */
 typedef struct {
     list_t* _list;
-    listNode_t *_prev, *ptr;
+    listNode_t* _prev;
+    listNode_t* ptr;
     LIST_STYPE idx;
 } listIterator_t;
 
@@ -242,4 +245,4 @@ utilsStatus_t listItNext(listIterator_t* it);
 }
 #endif
 
-#endif /* __LIST_H__ */
+#endif /* ADVUTILS_LIST_H */

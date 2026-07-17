@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MATRIX_H__
-#define __MATRIX_H__
+#ifndef ADVUTILS_MATRIX_H
+#define ADVUTILS_MATRIX_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,8 +47,8 @@ extern "C" {
 
 /* Macros --------------------------------------------------------------------*/
 
-#define ELEMP(m, i, j) (m->data[(i) * m->cols + (j)])
-#define ELEM(m, i, j)  (m.data[(i) * m.cols + (j)])
+#define ELEMP(m, i, j) ((m)->data[((uint8_t)(i) * (uint8_t)(m)->cols) + (uint8_t)(j)])
+#define ELEM(m, i, j)  ((m).data[((uint8_t)(i) * (uint8_t)(m).cols) + (uint8_t)(j)])
 
 /* Typedefs ------------------------------------------------------------------*/
 
@@ -57,7 +57,8 @@ extern "C" {
  */
 typedef struct {
     float* data;
-    uint8_t rows, cols;
+    uint8_t rows;
+    uint8_t cols;
 } matrix_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -99,7 +100,7 @@ void matrixIdentity(matrix_t* matrix);
  *
  * \param[in]       matrix: pointer to matrix object
  */
-static inline void matrixZeros(matrix_t* matrix) { memset(matrix->data, 0x00, matrix->cols * matrix->rows * sizeof(float)); }
+static inline void matrixZeros(matrix_t* matrix) { (void)memset(matrix->data, 0x00, matrix->cols * matrix->rows * sizeof(float)); }
 
 /**
  * \brief           Copy data from input matrix to output matrix
@@ -107,7 +108,7 @@ static inline void matrixZeros(matrix_t* matrix) { memset(matrix->data, 0x00, ma
  * \param[in]       input: pointer to input matrix object
  * \param[out]      output: pointer to output matrix object
  */
-static inline void matrixCopy(const matrix_t* input, matrix_t* output) { memcpy(output->data, input->data, output->cols * output->rows * sizeof(float)); }
+static inline void matrixCopy(const matrix_t* input, matrix_t* output) { (void)memcpy(output->data, input->data, output->cols * output->rows * sizeof(float)); }
 
 /**
  * \brief           Matrix addition
@@ -179,7 +180,7 @@ void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result);
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixInversed(matrix_t* lhs, matrix_t* result);
+void matrixInversed(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Robust matrix inversion performed with LUP decomposition
@@ -187,7 +188,7 @@ void matrixInversed(matrix_t* lhs, matrix_t* result);
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixInversed_rob(matrix_t* lhs, matrix_t* result);
+void matrixInversed_rob(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -197,7 +198,7 @@ void matrixInversed_rob(matrix_t* lhs, matrix_t* result);
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixInversedStatic(matrix_t* lhs, matrix_t* result);
+void matrixInversedStatic(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Robust matrix inversion performed with LUP decomposition and static allocation
@@ -205,7 +206,7 @@ void matrixInversedStatic(matrix_t* lhs, matrix_t* result);
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void matrixInversedStatic_rob(matrix_t* lhs, matrix_t* result);
+void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /**
@@ -273,7 +274,7 @@ static inline float matrixGet(const matrix_t* matrix, uint8_t i, uint8_t j) { re
  *
  * \return          determinant
  */
-float matrixDet(matrix_t* matrix);
+float matrixDet(const matrix_t* matrix);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -284,7 +285,7 @@ float matrixDet(matrix_t* matrix);
  *
  * \return          determinant
  */
-float matrixDetStatic(matrix_t* matrix);
+float matrixDetStatic(const matrix_t* matrix);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /**
@@ -311,4 +312,4 @@ utilsStatus_t matrixDelete(matrix_t* matrix);
 }
 #endif
 
-#endif /* __MATRIX_H__ */
+#endif /* ADVUTILS_MATRIX_H */

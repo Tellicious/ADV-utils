@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __IIRFILTER_H__
-#define __IIRFILTER_H__
+#ifndef ADVUTILS_IIRFILTER_H
+#define ADVUTILS_IIRFILTER_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,10 +48,19 @@ extern "C" {
  * Generic IIR filter struct
  */
 typedef struct {
-    float d1, d2, d3;     /* denominator coefficients */
-    float n0, n1, n2, n3; /* numerator coefficients */
-    float i1, i2, i3;     /* previous input values */
-    float o1, o2, o3;     /* previous output values */
+    float d1;
+    float d2;
+    float d3; /* denominator coefficients */
+    float n0;
+    float n1;
+    float n2;
+    float n3; /* numerator coefficients */
+    float i1;
+    float i2;
+    float i3; /* previous input values */
+    float o1;
+    float o2;
+    float o3; /* previous output values */
 } IIRFilterGeneric_t;
 
 /**
@@ -143,7 +152,12 @@ float IIRFilterProcess(IIRFilterGeneric_t* filter, float input);
  */
 static inline void IIRFilterSetValue(IIRFilterGeneric_t* filter, float value) {
     /* Initialize state variables */
-    filter->i1 = filter->i2 = filter->i3 = filter->o1 = filter->o2 = filter->o3 = value;
+    filter->i1 = value;
+    filter->i2 = value;
+    filter->i3 = value;
+    filter->o1 = value;
+    filter->o2 = value;
+    filter->o3 = value;
 }
 
 /**
@@ -164,11 +178,12 @@ static inline void IIRFilterSetValue(IIRFilterGeneric_t* filter, float value) {
  */
 static inline void IIRFilterDerivativeInit(IIRFilterDerivative_t* filter, float ndVal, float dT_ms) {
     /* Store filter coefficients */
-    filter->n0 = (2 * ndVal) / (2 + ndVal * dT_ms * 1e-3f);
-    filter->d1 = (2 - ndVal * dT_ms * 1e-3f) / (2 + ndVal * dT_ms * 1e-3f);
+    filter->n0 = (2.0f * ndVal) / (2.0f + (ndVal * dT_ms * 1e-3f));
+    filter->d1 = (2.0f - (ndVal * dT_ms * 1e-3f)) / (2.0f + (ndVal * dT_ms * 1e-3f));
 
     /* Initialize state variables */
-    filter->i1 = filter->output = 0.0;
+    filter->i1 = 0.0f;
+    filter->output = 0.0f;
 }
 
 /**
@@ -181,7 +196,7 @@ static inline void IIRFilterDerivativeInit(IIRFilterDerivative_t* filter, float 
  * \return		    filtered value
  */
 static inline float IIRFilterDerivativeProcess(IIRFilterDerivative_t* filter, float input) {
-    filter->output = filter->n0 * (input - filter->i1) + filter->d1 * filter->output;
+    filter->output = (filter->n0 * (input - filter->i1)) + (filter->d1 * filter->output);
     filter->i1 = input;
     return filter->output;
 }
@@ -195,7 +210,8 @@ static inline float IIRFilterDerivativeProcess(IIRFilterDerivative_t* filter, fl
  */
 static inline void IIRFilterDerivativeSetValue(IIRFilterDerivative_t* filter, float value) {
     /* Initialize state variables */
-    filter->i1 = filter->output = value;
+    filter->i1 = value;
+    filter->output = value;
 }
 
 /**
@@ -218,7 +234,8 @@ static inline void IIRFilterIntegratorInit(IIRFilterIntegrator_t* filter, float 
     filter->n0 = 0.5 * dT_ms * 1e-3f;
 
     /* Initialize state variables */
-    filter->i1 = filter->output = 0.0;
+    filter->i1 = 0.0f;
+    filter->output = 0.0f;
 }
 
 /**
@@ -245,7 +262,8 @@ static inline float IIRFilterIntegratorProcess(IIRFilterIntegrator_t* filter, fl
  */
 static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, float value) {
     /* Initialize state variables */
-    filter->i1 = filter->output = value;
+    filter->i1 = value;
+    filter->output = value;
 }
 
 /**
@@ -260,4 +278,4 @@ static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, fl
 }
 #endif
 
-#endif /* __IIRFILTER_H__ */
+#endif /* ADVUTILS_IIRFILTER_H */

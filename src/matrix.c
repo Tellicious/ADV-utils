@@ -41,25 +41,9 @@
 #include "matrix.h"
 #include <math.h>
 #include "ADVUtilsAssert.h"
+#include "ADVUtilsMemory.h"
 #include "basicMath.h"
 #include "numMethods.h"
-#ifdef ADVUTILS_MEMORY_MGMT_HEADER
-#if !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE)
-#error ADVUTILS_MALLOC, ADVUTILS_CALLOC and ADVUTILS_FREE must be defined by the user!
-#else
-#include ADVUTILS_MEMORY_MGMT_HEADER
-#endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
-#else
-#include <stdlib.h>
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
-
-/* Macros --------------------------------------------------------------------*/
-
-#ifndef ADVUTILS_MEMORY_MGMT_HEADER
-#define ADVUTILS_MALLOC malloc
-#define ADVUTILS_CALLOC calloc
-#define ADVUTILS_FREE   free
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
 
 /* ==========================================Assignment============================================= */
 
@@ -68,6 +52,7 @@
 utilsStatus_t matrixInit(matrix_t* matrix, uint8_t rows, uint8_t cols) {
     matrix->rows = rows;
     matrix->cols = cols;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     matrix->data = ADVUTILS_CALLOC(rows * cols, sizeof(float));
     ADVUTILS_ASSERT(matrix->data != NULL);
     if (matrix->data == NULL) {
@@ -94,8 +79,8 @@ void matrixInitStatic(matrix_t* matrix, float* data, uint8_t rows, uint8_t cols)
 /* ---------------------Identity Matrix---------------------- */
 void matrixIdentity(matrix_t* matrix) {
     matrixZeros(matrix);
-    for (uint16_t ii = 0; ii < ((matrix->cols < matrix->rows) ? matrix->cols : matrix->rows); ii++) {
-        ELEMP(matrix, ii, ii) = 1.0f;
+    for (uint16_t i = 0; i < ((matrix->cols < matrix->rows) ? matrix->cols : matrix->rows); i++) {
+        ELEMP(matrix, i, i) = 1.0f;
     }
     return;
 }
@@ -107,8 +92,8 @@ void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
-        result->data[ii] = lhs->data[ii] + rhs->data[ii];
+    for (uint16_t i = 0; i < (lhs->cols * lhs->rows); i++) {
+        result->data[i] = lhs->data[i] + rhs->data[i];
     }
     return;
 }
@@ -117,8 +102,8 @@ void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
 void matrixAddScalar(const matrix_t* lhs, float sc, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
-        result->data[ii] = lhs->data[ii] + sc;
+    for (uint16_t i = 0; i < (lhs->cols * lhs->rows); i++) {
+        result->data[i] = lhs->data[i] + sc;
     }
     return;
 }
@@ -129,8 +114,8 @@ void matrixSub(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
-        result->data[ii] = lhs->data[ii] - rhs->data[ii];
+    for (uint16_t i = 0; i < (lhs->cols * lhs->rows); i++) {
+        result->data[i] = lhs->data[i] - rhs->data[i];
     }
     return;
 }
@@ -153,11 +138,13 @@ void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result
 
     /* Run the below code for Cortex-M4 and Cortex-M3 */
 
-    uint16_t i = 0u, row = lhs->rows;
+    uint16_t i = 0U;
+    uint16_t row = lhs->rows;
     /* The following loop performs the dot-product of each row in lhs with each column in rhs */
     /* row loop */
     do {
         /* Output pointer is set to starting address of the row being processed */
+        /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
         float* px = pOut + i;
 
         /* For every row wise process, the column loop counter is to be initiated */
@@ -167,7 +154,7 @@ void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result
              * to the starting address of the rhs data */
         float* pIn2 = pInB;
 
-        uint16_t j = 0u;
+        uint16_t j = 0U;
 
         /* column loop */
         do {
@@ -178,29 +165,34 @@ void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result
             pIn1 = pInA;
 
             /* Apply loop unrolling and compute 4 MACs simultaneously. */
-            uint16_t colCnt = lhs->cols >> 2u;
+            uint16_t colCnt = lhs->cols >> 2U;
 
             /* matrix multiplication        */
-            while (colCnt > 0u) {
+            while (colCnt > 0U) {
                 /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
                 float in3 = *pIn2;
+                /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
                 pIn2 += rhs->cols;
                 float in1 = pIn1[0];
                 float in2 = pIn1[1];
                 sum += in1 * in3;
                 float in4 = *pIn2;
+                /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
                 pIn2 += rhs->cols;
                 sum += in2 * in4;
 
                 in3 = *pIn2;
+                /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
                 pIn2 += rhs->cols;
                 in1 = pIn1[2];
                 in2 = pIn1[3];
                 sum += in1 * in3;
                 in4 = *pIn2;
+                /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
                 pIn2 += rhs->cols;
                 sum += in2 * in4;
-                pIn1 += 4u;
+                /* cppcheck-suppress[misra-c2012-18.4,misra-c2012-10.3] ; deviation: pointer walk in performance-critical kernel (advisory); pointer increment in matrix kernel (advisory) */
+                pIn1 += 4U;
 
                 /* Decrement the loop count */
                 colCnt--;
@@ -210,9 +202,10 @@ void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result
                  * No loop unrolling is used. */
             colCnt = lhs->cols % 0x4u;
 
-            while (colCnt > 0u) {
+            while (colCnt > 0U) {
                 /* c(m,n) = a(1,1)*b(1,1) + a(1,2) * b(2,1) + .... + a(m,p)*b(p,n) */
                 sum += *pIn1++ * (*pIn2);
+                /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
                 pIn2 += rhs->cols;
 
                 /* Decrement the loop counter */
@@ -220,24 +213,27 @@ void matrixMult(const matrix_t* lhs, const matrix_t* rhs, const matrix_t* result
             }
 
             /* Store the result in the destination buffer */
+            /* cppcheck-suppress misra-c2012-13.3 ; deviation: pointer post-increment in matrix kernel (advisory) */
             *px++ = sum;
 
             /* Update the pointer pIn2 to point to the  starting address of the next column */
             j++;
+            /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
             pIn2 = rhs->data + j;
 
             /* Decrement the column loop counter */
             col--;
 
-        } while (col > 0u);
+        } while (col > 0U);
         /* Update the pointer pInA to point to the  starting address of the next row */
         i = i + rhs->cols;
+        /* cppcheck-suppress misra-c2012-18.4 ; deviation: pointer walk in performance-critical kernel (advisory) */
         pInA = pInA + lhs->cols;
 
         /* Decrement the row loop counter */
         row--;
 
-    } while (row > 0u);
+    } while (row > 0U);
     return;
 }
 
@@ -246,11 +242,10 @@ void matrixMult_lhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result)
     ADVUTILS_ASSERT(lhs->rows == rhs->rows);
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == rhs->cols);
-    uint8_t i, j, k;
     matrixZeros(result);
-    for (i = 0; i < lhs->cols; i++) {
-        for (j = 0; j < rhs->cols; j++) {
-            for (k = 0; k < lhs->rows; k++) {
+    for (uint8_t i = 0; i < lhs->cols; i++) {
+        for (uint8_t j = 0; j < rhs->cols; j++) {
+            for (uint8_t k = 0; k < lhs->rows; k++) {
                 ELEMP(result, i, j) += ELEMP(lhs, k, i) * ELEMP(rhs, k, j);
             }
         }
@@ -263,11 +258,10 @@ void matrixMult_rhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result)
     ADVUTILS_ASSERT(lhs->cols == rhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == rhs->rows);
-    uint8_t i, j, k;
     matrixZeros(result);
-    for (i = 0; i < lhs->rows; i++) {
-        for (j = 0; j < rhs->rows; j++) {
-            for (k = 0; k < lhs->cols; k++) {
+    for (uint8_t i = 0; i < lhs->rows; i++) {
+        for (uint8_t j = 0; j < rhs->rows; j++) {
+            for (uint8_t k = 0; k < lhs->cols; k++) {
                 ELEMP(result, i, j) += ELEMP(lhs, i, k) * ELEMP(rhs, j, k);
             }
         }
@@ -279,8 +273,8 @@ void matrixMult_rhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result)
 void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    for (uint16_t ii = 0; ii < (lhs->cols * lhs->rows); ii++) {
-        result->data[ii] = lhs->data[ii] * sc;
+    for (uint16_t i = 0; i < (lhs->cols * lhs->rows); i++) {
+        result->data[i] = lhs->data[i] * sc;
     }
     return;
 }
@@ -288,28 +282,28 @@ void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result) {
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 /* --------------------Inverse LU------------------------ */
-void matrixInversed(matrix_t* lhs, matrix_t* result) {
+void matrixInversed(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     matrix_t Eye;
-    matrixInit(&Eye, lhs->rows, lhs->cols);
+    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
     LinSolveLU(lhs, &Eye, result);
-    matrixDelete(&Eye);
+    (void)matrixDelete(&Eye);
     return;
 }
 
 /* -----------------Robust Inverse LUP------------------- */
-void matrixInversed_rob(matrix_t* lhs, matrix_t* result) {
+void matrixInversed_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     matrix_t Eye;
-    matrixInit(&Eye, lhs->rows, lhs->cols);
+    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
     LinSolveLUP(lhs, &Eye, result);
-    matrixDelete(&Eye);
+    (void)matrixDelete(&Eye);
     return;
 }
 
@@ -318,7 +312,7 @@ void matrixInversed_rob(matrix_t* lhs, matrix_t* result) {
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
 
 /* -----------------Static Inverse LU-------------------- */
-void matrixInversedStatic(matrix_t* lhs, matrix_t* result) {
+void matrixInversedStatic(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
@@ -331,7 +325,7 @@ void matrixInversedStatic(matrix_t* lhs, matrix_t* result) {
 }
 
 /* --------------Static Robust Inverse LUP--------------- */
-void matrixInversedStatic_rob(matrix_t* lhs, matrix_t* result) {
+void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
@@ -349,9 +343,9 @@ void matrixInversedStatic_rob(matrix_t* lhs, matrix_t* result) {
 void matrixTrans(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
-    for (uint8_t ii = 0; ii < lhs->rows; ii++) {
-        for (uint8_t jj = 0; jj < lhs->cols; jj++) {
-            ELEMP(result, jj, ii) = ELEMP(lhs, ii, jj);
+    for (uint8_t i = 0; i < lhs->rows; i++) {
+        for (uint8_t j = 0; j < lhs->cols; j++) {
+            ELEMP(result, j, i) = ELEMP(lhs, i, j);
         }
     }
     return;
@@ -372,14 +366,15 @@ void matrixNormalized(const matrix_t* lhs, matrix_t* result) {
 void matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
-    matrix_t tran, mult1;
-    matrixInit(&tran, lhs->cols, lhs->rows);
-    matrixInit(&mult1, lhs->cols, lhs->cols);
+    matrix_t tran;
+    matrix_t mult1;
+    (void)matrixInit(&tran, lhs->cols, lhs->rows);
+    (void)matrixInit(&mult1, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
     matrixMult(&tran, lhs, &mult1);
     LinSolveLU(&mult1, &tran, result);
-    matrixDelete(&tran);
-    matrixDelete(&mult1);
+    (void)matrixDelete(&tran);
+    (void)matrixDelete(&mult1);
     return;
 }
 
@@ -393,7 +388,8 @@ void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->cols == lhs->rows);
     float _tranData[lhs->cols * lhs->rows];
     float _mult1Data[lhs->cols * lhs->cols];
-    matrix_t tran, mult1;
+    matrix_t tran;
+    matrix_t mult1;
     matrixInitStatic(&tran, _tranData, lhs->cols, lhs->rows);
     matrixInitStatic(&mult1, _mult1Data, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
@@ -409,33 +405,35 @@ void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 /* -----------Returns the determinant---------- */
-float matrixDet(matrix_t* matrix) {
+float matrixDet(const matrix_t* matrix) {
     if (matrix->rows != matrix->cols) {
         return 0.0f;
     }
-    matrix_t L, U, P;
-    matrixInit(&L, matrix->rows, matrix->rows);
-    matrixInit(&U, matrix->rows, matrix->rows);
-    matrixInit(&P, matrix->rows, 1);
+    matrix_t L;
+    matrix_t U;
+    matrix_t P;
+    (void)matrixInit(&L, matrix->rows, matrix->rows);
+    (void)matrixInit(&U, matrix->rows, matrix->rows);
+    (void)matrixInit(&P, matrix->rows, 1);
     float determinant = 1.0f;
 
     if (LU_Cormen(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
-            determinant *= ELEM(U, ii, ii);
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
         }
     }
 
     else {
         int8_t det_f = LUP_Cormen(matrix, &L, &U, &P);
-        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
-            determinant *= ELEM(U, ii, ii);
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
         }
-        determinant *= det_f;
+        determinant *= (float)det_f;
     }
 
-    matrixDelete(&L);
-    matrixDelete(&U);
-    matrixDelete(&P);
+    (void)matrixDelete(&L);
+    (void)matrixDelete(&U);
+    (void)matrixDelete(&P);
 
     return determinant;
 }
@@ -445,31 +443,33 @@ float matrixDet(matrix_t* matrix) {
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
 
 /* -----------Returns the determinant---------- */
-float matrixDetStatic(matrix_t* matrix) {
+float matrixDetStatic(const matrix_t* matrix) {
     if (matrix->rows != matrix->cols) {
         return 0.0f;
     }
     float _LData[matrix->rows * matrix->rows];
     float _UData[matrix->rows * matrix->rows];
     float _PData[matrix->rows];
-    matrix_t L, U, P;
+    matrix_t L;
+    matrix_t U;
+    matrix_t P;
     matrixInitStatic(&L, _LData, matrix->rows, matrix->rows);
     matrixInitStatic(&U, _UData, matrix->rows, matrix->rows);
     matrixInitStatic(&P, _PData, matrix->rows, 1);
     float determinant = 1.0f;
 
     if (LU_CormenStatic(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
-            determinant *= ELEM(U, ii, ii);
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
         }
     }
 
     else {
         int8_t det_f = LUP_CormenStatic(matrix, &L, &U, &P);
-        for (uint8_t ii = 0; ii < matrix->rows; ii++) {
-            determinant *= ELEM(U, ii, ii);
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
         }
-        determinant *= det_f;
+        determinant *= (float)det_f;
     }
     return determinant;
 }
@@ -479,8 +479,8 @@ float matrixDetStatic(matrix_t* matrix) {
 /* -------------Returns the norm-------------- */
 float matrixNorm(const matrix_t* matrix) {
     float result = 0.0f;
-    for (uint16_t ii = 0; ii < (matrix->rows * matrix->cols); ii++) {
-        result += matrix->data[ii] * matrix->data[ii];
+    for (uint16_t i = 0; i < (matrix->rows * matrix->cols); i++) {
+        result += matrix->data[i] * matrix->data[i];
     }
     result = SQRT(result);
     return result;

@@ -65,6 +65,7 @@
 
 utilsStatus_t queueInit(queue_t* queue, size_t itemSize, QUEUE_STYPE size) {
     queue->data = NULL;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     queue->data = ADVUTILS_CALLOC(size, itemSize);
     /* queue->data = ADVUTILS_MALLOC(size * itemSize); */
     ADVUTILS_ASSERT(queue->data != NULL);
@@ -106,14 +107,14 @@ utilsStatus_t queuePush(queue_t* queue, const void* value) {
         queue->_rear = 0;
     }
 
-    memcpy(&(queue->data[queue->_rear]), value, queue->itemSize);
+    (void)memcpy(&(queue->data[queue->_rear]), value, queue->itemSize);
     queue->_rear += queue->itemSize;
     queue->items += queue->itemSize;
 
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t queuePushArr(queue_t* queue, void* data, QUEUE_STYPE num) {
+utilsStatus_t queuePushArr(queue_t* queue, const void* data, QUEUE_STYPE num) {
     QUEUE_STYPE num2End = 0;
     QUEUE_STYPE numBytes = num * queue->itemSize;
 
@@ -128,11 +129,12 @@ utilsStatus_t queuePushArr(queue_t* queue, void* data, QUEUE_STYPE num) {
     num2End = queue->size - queue->_rear;
 
     if (num2End < numBytes) {
-        memcpy(&(queue->data[queue->_rear]), data, num2End);
-        memcpy(queue->data, ((uint8_t*)data + num2End), (numBytes - num2End));
+        (void)memcpy(&(queue->data[queue->_rear]), data, num2End);
+        /* cppcheck-suppress[misra-c2012-11.5,misra-c2012-18.4] ; deviation: generic container returns typed pointer from void* storage; pointer walk in performance-critical kernel (advisory) */
+        (void)memcpy(queue->data, ((const uint8_t*)data + num2End), (numBytes - num2End));
         queue->_rear = numBytes - num2End;
     } else {
-        memcpy(&(queue->data[queue->_rear]), data, numBytes);
+        (void)memcpy(&(queue->data[queue->_rear]), data, numBytes);
         queue->_rear += numBytes;
     }
     queue->items += numBytes;
@@ -145,36 +147,37 @@ utilsStatus_t queuePushFront(queue_t* queue, const void* value) {
         return UTILS_STATUS_FULL;
     }
 
-    if (queue->_front == 0) {
+    if (queue->_front == 0U) {
         queue->_front = queue->size;
     }
 
     queue->_front -= queue->itemSize;
 
-    memcpy(&(queue->data[queue->_front]), value, queue->itemSize);
+    (void)memcpy(&(queue->data[queue->_front]), value, queue->itemSize);
     queue->items += queue->itemSize;
 
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t queuePushFrontArr(queue_t* queue, void* data, QUEUE_STYPE num) {
+utilsStatus_t queuePushFrontArr(queue_t* queue, const void* data, QUEUE_STYPE num) {
     QUEUE_STYPE numBytes = num * queue->itemSize;
 
     if ((queue->size - queue->items) < numBytes) {
         return UTILS_STATUS_ERROR;
     }
 
-    if (queue->_front == 0) {
+    if (queue->_front == 0U) {
         queue->_front = queue->size;
     }
 
     if (queue->_front < numBytes) {
         QUEUE_STYPE numFromEnd = numBytes - queue->_front;
-        memcpy(queue->data, ((uint8_t*)data + numFromEnd), queue->_front);
-        memcpy(&(queue->data[queue->size - numFromEnd]), data, numFromEnd);
+        /* cppcheck-suppress[misra-c2012-11.5,misra-c2012-18.4] ; deviation: generic container returns typed pointer from void* storage; pointer walk in performance-critical kernel (advisory) */
+        (void)memcpy(queue->data, ((const uint8_t*)data + numFromEnd), queue->_front);
+        (void)memcpy(&(queue->data[queue->size - numFromEnd]), data, numFromEnd);
         queue->_front = queue->size - numFromEnd;
     } else {
-        memcpy(&(queue->data[queue->_front - numBytes]), data, numBytes);
+        (void)memcpy(&(queue->data[queue->_front - numBytes]), data, numBytes);
         queue->_front -= numBytes;
     }
     queue->items += numBytes;
@@ -183,7 +186,7 @@ utilsStatus_t queuePushFrontArr(queue_t* queue, void* data, QUEUE_STYPE num) {
 }
 
 utilsStatus_t queuePop(queue_t* queue, void* value) {
-    if (queue->items == 0) {
+    if (queue->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
@@ -191,7 +194,7 @@ utilsStatus_t queuePop(queue_t* queue, void* value) {
         queue->_front = 0;
     }
 
-    memcpy(value, &(queue->data[queue->_front]), queue->itemSize);
+    (void)memcpy(value, &(queue->data[queue->_front]), queue->itemSize);
     queue->items -= queue->itemSize;
 
     queue->_front += queue->itemSize;
@@ -214,11 +217,12 @@ utilsStatus_t queuePopArr(queue_t* queue, void* data, QUEUE_STYPE num) {
     num2End = queue->size - queue->_front;
 
     if (num2End < numBytes) {
-        memcpy(data, &(queue->data[queue->_front]), num2End);
-        memcpy(((uint8_t*)data + num2End), queue->data, (numBytes - num2End));
+        (void)memcpy(data, &(queue->data[queue->_front]), num2End);
+        /* cppcheck-suppress[misra-c2012-11.5,misra-c2012-18.4] ; deviation: generic container returns typed pointer from void* storage; pointer walk in performance-critical kernel (advisory) */
+        (void)memcpy(((uint8_t*)data + num2End), queue->data, (numBytes - num2End));
         queue->_front = numBytes - num2End;
     } else {
-        memcpy(data, &(queue->data[queue->_front]), numBytes);
+        (void)memcpy(data, &(queue->data[queue->_front]), numBytes);
         queue->_front += numBytes;
     }
     queue->items -= numBytes;
@@ -227,17 +231,17 @@ utilsStatus_t queuePopArr(queue_t* queue, void* data, QUEUE_STYPE num) {
 }
 
 utilsStatus_t queuePopBack(queue_t* queue, void* value) {
-    if (queue->items == 0) {
+    if (queue->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
-    if (queue->_rear == 0) {
+    if (queue->_rear == 0U) {
         queue->_rear = queue->size;
     }
 
     queue->_rear -= queue->itemSize;
 
-    memcpy(value, &(queue->data[queue->_rear]), queue->itemSize);
+    (void)memcpy(value, &(queue->data[queue->_rear]), queue->itemSize);
     queue->items -= queue->itemSize;
 
     return UTILS_STATUS_SUCCESS;
@@ -250,17 +254,18 @@ utilsStatus_t queuePopBackArr(queue_t* queue, void* data, QUEUE_STYPE num) {
         return UTILS_STATUS_ERROR;
     }
 
-    if (queue->_rear == 0) {
+    if (queue->_rear == 0U) {
         queue->_rear = queue->size;
     }
 
     if (queue->_rear < numBytes) {
         QUEUE_STYPE numFromEnd = numBytes - queue->_rear;
-        memcpy(((uint8_t*)data + numFromEnd), queue->data, queue->_rear);
-        memcpy(data, &(queue->data[queue->size - numFromEnd]), numFromEnd);
+        /* cppcheck-suppress[misra-c2012-11.5,misra-c2012-18.4] ; deviation: generic container returns typed pointer from void* storage; pointer walk in performance-critical kernel (advisory) */
+        (void)memcpy(((uint8_t*)data + numFromEnd), queue->data, queue->_rear);
+        (void)memcpy(data, &(queue->data[queue->size - numFromEnd]), numFromEnd);
         queue->_rear = queue->size - numFromEnd;
     } else {
-        memcpy(data, &(queue->data[queue->_rear - numBytes]), numBytes);
+        (void)memcpy(data, &(queue->data[queue->_rear - numBytes]), numBytes);
         queue->_rear -= numBytes;
     }
     queue->items -= numBytes;
@@ -269,7 +274,7 @@ utilsStatus_t queuePopBackArr(queue_t* queue, void* data, QUEUE_STYPE num) {
 }
 
 utilsStatus_t queuePeek(queue_t* queue, void* value) {
-    if (queue->items == 0) {
+    if (queue->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
@@ -277,21 +282,21 @@ utilsStatus_t queuePeek(queue_t* queue, void* value) {
         queue->_front = 0;
     }
 
-    memcpy(value, &(queue->data[queue->_front]), queue->itemSize);
+    (void)memcpy(value, &(queue->data[queue->_front]), queue->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
 
 utilsStatus_t queuePeekBack(queue_t* queue, void* value) {
-    if (queue->items == 0) {
+    if (queue->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
-    if (queue->_rear == 0) {
+    if (queue->_rear == 0U) {
         queue->_rear = queue->size;
     }
 
-    memcpy(value, &(queue->data[queue->_rear - queue->itemSize]), queue->itemSize);
+    (void)memcpy(value, &(queue->data[queue->_rear - queue->itemSize]), queue->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
@@ -300,7 +305,7 @@ utilsStatus_t queueFlush(queue_t* queue) {
     if (queue->data == NULL) {
         return UTILS_STATUS_ERROR;
     }
-    memset(queue->data, 0x00, queue->size);
+    (void)memset(queue->data, 0x00, queue->size);
     queue->items = 0;
     queue->_front = 0;
     queue->_rear = 0;

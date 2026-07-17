@@ -41,24 +41,8 @@
 #include "LPHashTable.h"
 #include <string.h>
 #include "ADVUtilsAssert.h"
+#include "ADVUtilsMemory.h"
 #include "hashFunctions.h"
-#ifdef ADVUTILS_MEMORY_MGMT_HEADER
-#if !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE)
-#error ADVUTILS_MALLOC, ADVUTILS_CALLOC and ADVUTILS_FREE must be defined by the user!
-#else
-#include ADVUTILS_MEMORY_MGMT_HEADER
-#endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
-#else
-#include <stdlib.h>
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
-
-/* Macros --------------------------------------------------------------------*/
-
-#ifndef ADVUTILS_MEMORY_MGMT_HEADER
-#define ADVUTILS_MALLOC malloc
-#define ADVUTILS_CALLOC calloc
-#define ADVUTILS_FREE   free
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
 
 /* Minimum size of hash-table when resizing */
 #ifndef LPHT_MIN_SIZE
@@ -87,19 +71,20 @@
 
 /* Function prototypes -------------------------------------------------------*/
 
-static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, const void* value);
-static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, const void* value);
+static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, const char* key, const void* value);
+static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, const char* key, const void* value);
 static void lpHashTableReplaceEntries(lpHashTable_t* lpht, uint32_t startIndex);
 static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase);
 
 /* Private Functions ---------------------------------------------------------*/
 
 static inline char* lpHashTableStrdup(const char* s) {
-    size_t bufsize = strlen(s) + 1;
+    size_t bufsize = strlen(s) + 1U;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     char* retval = ADVUTILS_MALLOC(bufsize);
     ADVUTILS_ASSERT(retval != NULL);
-    if (retval) {
-        memcpy(retval, s, bufsize);
+    if (retval != NULL) {
+        (void)memcpy(retval, s, bufsize);
     }
     return retval;
 }
@@ -114,6 +99,7 @@ utilsStatus_t lpHashTableInit(lpHashTable_t* lpht, size_t itemSize, uint32_t ini
     lpht->itemSize = itemSize;
     lpht->resizable = resizable;
 
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     lpht->entries = ADVUTILS_CALLOC(lpht->size, sizeof(lpHashTableEntry_t));
     ADVUTILS_ASSERT(lpht->entries != NULL);
     if (lpht->entries == NULL) {
@@ -123,7 +109,7 @@ utilsStatus_t lpHashTableInit(lpHashTable_t* lpht, size_t itemSize, uint32_t ini
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value) {
+utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, const char* key, const void* value) {
     if ((value == NULL) || (key == NULL)) {
         return UTILS_STATUS_ERROR;
     }
@@ -134,7 +120,7 @@ utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value) 
     }
 
     /* If length will exceed defined quota of current capacity, expand it. */
-    if (((lpht->items + 1) >= (lpht->size * LPHT_MAX_SATURATION)) && (lpht->resizable == LPHT_RESIZABLE)) {
+    if (((((double)lpht->items + 1.0) >= ((double)lpht->size * LPHT_MAX_SATURATION))) && (lpht->resizable == LPHT_RESIZABLE)) {
         if (lpHashTableXpand(lpht, 1) == UTILS_STATUS_ERROR) {
             return UTILS_STATUS_ERROR;
         }
@@ -153,18 +139,18 @@ utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value) 
     return UTILS_STATUS_ERROR;
 }
 
-utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, char* key, void* value, lpHashTableRemoval_t remove) {
+utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, const char* key, void* value, lpHashTableRemoval_t remove) {
 
     if (!lpht->items) {
         return UTILS_STATUS_EMPTY;
     }
 
-    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1);
+    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1U);
     uint32_t cnt = 0;
 
     while (lpht->entries[ii].key != NULL) {
         if (!strcmp(key, lpht->entries[ii].key)) {
-            memcpy(value, lpht->entries[ii].value, lpht->itemSize);
+            (void)memcpy(value, lpht->entries[ii].value, lpht->itemSize);
 
             if (remove == LPHT_REMOVE_ITEM) {
                 ADVUTILS_FREE(lpht->entries[ii].key);
@@ -200,11 +186,11 @@ utilsStatus_t lpHashTableFlush(lpHashTable_t* lpht) {
         return UTILS_STATUS_EMPTY;
     }
 
-    for (uint32_t ii = 0; ii < lpht->size; ii++) {
-        ADVUTILS_FREE(lpht->entries[ii].key);
-        ADVUTILS_FREE(lpht->entries[ii].value);
-        lpht->entries[ii].key = NULL;
-        lpht->entries[ii].value = NULL;
+    for (uint32_t i = 0; i < lpht->size; i++) {
+        ADVUTILS_FREE(lpht->entries[i].key);
+        ADVUTILS_FREE(lpht->entries[i].value);
+        lpht->entries[i].key = NULL;
+        lpht->entries[i].value = NULL;
     }
 
     lpht->items = 0;
@@ -218,7 +204,7 @@ utilsStatus_t lpHashTableDelete(lpHashTable_t* lpht) {
         return UTILS_STATUS_ERROR;
     }
 
-    lpHashTableFlush(lpht);
+    (void)lpHashTableFlush(lpht);
 
     ADVUTILS_FREE(lpht->entries);
     lpht->entries = NULL;
@@ -226,9 +212,9 @@ utilsStatus_t lpHashTableDelete(lpHashTable_t* lpht) {
     return UTILS_STATUS_SUCCESS;
 }
 
-static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, const void* value) {
+static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, const char* key, const void* value) {
     /* limit hash to current memory size */
-    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1);
+    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1U);
 
     /* Loop till we find an empty entry. */
     while (lpht->entries[ii].key != NULL) {
@@ -250,23 +236,23 @@ static utilsStatus_t lpHashTableSetEntry(lpHashTable_t* lpht, char* key, const v
         return UTILS_STATUS_ERROR;
     }
 
-    memcpy(lpht->entries[ii].value, value, lpht->itemSize);
+    (void)memcpy(lpht->entries[ii].value, value, lpht->itemSize);
 
     lpht->items++;
 
     return UTILS_STATUS_SUCCESS;
 }
 
-static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, const void* value) {
+static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, const char* key, const void* value) {
     /* limit hash to current memory size */
-    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1);
+    uint32_t ii = LPHT_HASHFUN(key) & (lpht->size - 1U);
     uint32_t cnt = 0;
 
     /* Loop to search the entry to be updated */
     while (lpht->entries[ii].key != NULL) {
         if (!strcmp(key, lpht->entries[ii].key)) {
             /* Found entry, now update it */
-            memcpy(lpht->entries[ii].value, value, lpht->itemSize);
+            (void)memcpy(lpht->entries[ii].value, value, lpht->itemSize);
             return UTILS_STATUS_SUCCESS;
         }
         if (++ii >= lpht->size) {
@@ -282,26 +268,28 @@ static utilsStatus_t lpHashTableUpdateEntry(lpHashTable_t* lpht, char* key, cons
 }
 
 static void lpHashTableReplaceEntries(lpHashTable_t* lpht, uint32_t startIndex) {
-    if (++startIndex >= lpht->size) {
-        startIndex = 0;
+    uint32_t idx = startIndex;
+    if (++idx >= lpht->size) {
+        idx = 0;
     }
     uint32_t cnt = lpht->items;
-    while ((lpht->entries[startIndex].key != NULL) && cnt--) {
+    while ((lpht->entries[idx].key != NULL) && (cnt > 0U)) {
+        cnt--;
         /* limit hash to current memory size */
-        uint32_t ii = LPHT_HASHFUN(lpht->entries[startIndex].key) & (lpht->size - 1);
-        if (startIndex != ii) {
+        uint32_t ii = LPHT_HASHFUN(lpht->entries[idx].key) & (lpht->size - 1U);
+        if (idx != ii) {
             while (lpht->entries[ii].key != NULL) {
                 if (++ii >= lpht->size) {
                     ii = 0;
                 }
             }
-            lpht->entries[ii].key = lpht->entries[startIndex].key;
-            lpht->entries[ii].value = lpht->entries[startIndex].value;
-            lpht->entries[startIndex].key = NULL;
-            lpht->entries[startIndex].value = NULL;
+            lpht->entries[ii].key = lpht->entries[idx].key;
+            lpht->entries[ii].value = lpht->entries[idx].value;
+            lpht->entries[idx].key = NULL;
+            lpht->entries[idx].value = NULL;
         }
-        if (++startIndex >= lpht->size) {
-            startIndex = 0;
+        if (++idx >= lpht->size) {
+            idx = 0;
         }
     }
 }
@@ -311,7 +299,7 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     uint32_t old_size = lpht->size;
 
     /* hash is currently a uint32_t so Hash-table size should not exceed that */
-    if (increase) {
+    if (increase != 0U) {
         /* increase table size */
         if (lpht->size >= LPHT_MAX_SIZE) {
             return UTILS_STATUS_SUCCESS;
@@ -322,9 +310,9 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
         }
     } else {
         /* decrease table size */
-        if (lpht->size <= LPHT_MIN_SIZE) {
+        if (lpht->size <= (uint32_t)LPHT_MIN_SIZE) {
             return UTILS_STATUS_SUCCESS;
-        } else if (lpht->size >= (LPHT_MIN_SIZE * 2)) {
+        } else if (lpht->size >= ((uint32_t)LPHT_MIN_SIZE * 2U)) {
             lpht->size = (lpht->size >> 1);
         } else {
             lpht->size = LPHT_MIN_SIZE;
@@ -332,6 +320,7 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     }
 
     lpHashTableEntry_t* old_entries = lpht->entries;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     lpht->entries = ADVUTILS_CALLOC(lpht->size, sizeof(lpHashTableEntry_t));
     ADVUTILS_ASSERT(lpht->entries != NULL);
     if (lpht->entries == NULL) {
@@ -343,17 +332,17 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
     /* Iterate entries, move all non-empty ones to new table's entries. */
     lpht->items = 0;
 
-    for (uint32_t ii = 0; ii < old_size; ii++) {
-        if (old_entries[ii].key != NULL) {
+    for (uint32_t i = 0; i < old_size; i++) {
+        if (old_entries[i].key != NULL) {
             /* limit hash to current memory size */
-            uint32_t jj = LPHT_HASHFUN(old_entries[ii].key) & (lpht->size - 1);
-            while (lpht->entries[jj].key != NULL) {
-                if (++jj >= lpht->size) {
-                    jj = 0;
+            uint32_t j = LPHT_HASHFUN(old_entries[i].key) & (lpht->size - 1U);
+            while (lpht->entries[j].key != NULL) {
+                if (++j >= lpht->size) {
+                    j = 0;
                 }
             }
-            lpht->entries[jj].key = old_entries[ii].key;
-            lpht->entries[jj].value = old_entries[ii].value;
+            lpht->entries[j].key = old_entries[i].key;
+            lpht->entries[j].value = old_entries[i].value;
             lpht->items++;
         }
     }

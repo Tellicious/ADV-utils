@@ -33,8 +33,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __BUTTON_H__
-#define __BUTTON_H__
+#ifndef ADVUTILS_BUTTON_H
+#define ADVUTILS_BUTTON_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -81,8 +81,12 @@ typedef struct {
     buttonPressType_t press : 5;
     uint8_t event           : 1;
     uint8_t pulses;
-    uint16_t debounceTicks, resetTicks, longPressTicks, veryLongPressTicks;
-    uint32_t validTick[2], lastTick[2];
+    uint16_t debounceTicks;
+    uint16_t resetTicks;
+    uint16_t longPressTicks;
+    uint16_t veryLongPressTicks;
+    uint32_t validTick[2];
+    uint32_t lastTick[2];
 } __attribute__((packed)) button_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -127,14 +131,14 @@ buttonPressType_t buttonGetPress(button_t* button, uint32_t ticks);
  * \return          BUTTON_PRESSED, BUTTON_RELEASED according to current button status
  */
 
-static inline buttonStatus_t buttonGetStatus(button_t* button, uint32_t ticks) {
-    return (((button->validTick[button->status] > button->validTick[!button->status]) || (ticks - button->lastTick[button->status] > button->debounceTicks))
+static inline buttonStatus_t buttonGetStatus(const button_t* button, uint32_t ticks) {
+    return (((button->validTick[button->status] > button->validTick[!button->status]) || ((ticks - button->lastTick[button->status]) > button->debounceTicks))
                 ? button->status
-                : (buttonStatus_t)!button->status);
+                : ((button->status == BUTTON_RELEASED) ? BUTTON_PRESSED : BUTTON_RELEASED));
 }
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __BUTTON_H__ */
+#endif /* ADVUTILS_BUTTON_H */

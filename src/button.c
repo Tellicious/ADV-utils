@@ -55,7 +55,7 @@ void buttonInit(button_t* button, buttonType_t type, uint32_t debounceTicks, uin
 }
 
 void buttonEvent(button_t* button, buttonStatus_t status, uint32_t ticks) {
-    uint8_t invStatus = !status;
+    uint8_t invStatus = (status == BUTTON_PRESSED) ? 0U : 1U;
     if (button->status == status) {
         return;
     }
@@ -65,7 +65,11 @@ void buttonEvent(button_t* button, buttonStatus_t status, uint32_t ticks) {
         button->event |= status;
         button->validTick[invStatus] = button->lastTick[invStatus];
         if (invStatus && ((button->type == BUTTON_TYPE_PULSATING) || ((button->lastTick[0] - button->validTick[1]) < button->veryLongPressTicks))) {
-            (((button->validTick[1] - button->validTick[0]) > button->resetTicks)) ? (button->pulses = 1) : (button->pulses++);
+            if ((button->validTick[1] - button->validTick[0]) > button->resetTicks) {
+                button->pulses = 1U;
+            } else {
+                button->pulses++;
+            }
         }
     }
 }
@@ -80,7 +84,7 @@ buttonPressType_t buttonGetPress(button_t* button, uint32_t ticks) {
             button->press = BUTTON_VERYLONG_PRESS;
             button->event = 0;
             button->pulses = 0;
-        } else if ((button->pulses == 1) && ((button->lastTick[0] - button->validTick[1]) > button->longPressTicks)) {
+        } else if ((button->pulses == 1U) && ((button->lastTick[0] - button->validTick[1]) > button->longPressTicks)) {
             button->press = BUTTON_LONG_PRESS;
             button->event = 0;
             button->pulses = 0;
@@ -96,13 +100,17 @@ buttonPressType_t buttonGetPress(button_t* button, uint32_t ticks) {
             }
             button->event = 0;
             button->pulses = 0;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     } else {
         if (button->pulses && (button->status == BUTTON_RELEASED) && ((ticks - button->lastTick[0]) > button->resetTicks)) {
             button->press = BUTTON_RELEASE_PRESS;
             button->pulses = 0;
-        } else if (button->pulses) {
+        } else if (button->pulses > 0U) {
             button->press = BUTTON_PULSATING_PRESS;
+        } else {
+            /* no action required (MISRA 15.7) */
         }
     }
     return button->press;

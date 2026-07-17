@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MOVINGAVG_H__
-#define __MOVINGAVG_H__
+#ifndef ADVUTILS_MOVINGAVG_H
+#define ADVUTILS_MOVINGAVG_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,8 +62,10 @@ extern "C" {
  */
 typedef struct {
     MOVAVG_TYPE* data;
-    MOVAVG_TYPE sum, inv_size;
-    MOVAVG_STYPE size, _write;
+    MOVAVG_TYPE sum;
+    MOVAVG_TYPE inv_size;
+    MOVAVG_STYPE size;
+    MOVAVG_STYPE _write;
 } movingAvg_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -106,7 +108,7 @@ MOVAVG_TYPE movingAvgCalc(movingAvg_t* movingAvg, MOVAVG_TYPE value);
  * 
  * \return          latest moving average
  */
-static inline MOVAVG_TYPE movingAvgGetLatest(movingAvg_t* movingAvg) { return (movingAvg->sum * movingAvg->inv_size); }
+static inline MOVAVG_TYPE movingAvgGetLatest(const movingAvg_t* movingAvg) { return (movingAvg->sum * movingAvg->inv_size); }
 
 /**
  * \brief           Flush moving average setting all values to 0
@@ -128,4 +130,4 @@ utilsStatus_t movingAvgDelete(movingAvg_t* movingAvg);
 }
 #endif
 
-#endif /* __QUEUE_H__ */
+#endif /* ADVUTILS_MOVINGAVG_H */

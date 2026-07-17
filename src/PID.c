@@ -45,8 +45,8 @@ void PID_init(PID_t* PID, float kpVal, float kiVal, float kdVal, float ndVal, fl
     PID->ki = 0.5f * kiVal * PID->dT;
     PID->nd = ndVal;
     PID->kb = 0.5f * kbVal * PID->dT;
-    PID->kd = (2 * kdVal * ndVal) / (2 + ndVal * PID->dT);
-    PID->kf = (2 - ndVal * PID->dT) / (2 + ndVal * PID->dT);
+    PID->kd = (2.0f * kdVal * ndVal) / (2.0f + (ndVal * PID->dT));
+    PID->kf = (2.0f - (ndVal * PID->dT)) / (2.0f + (ndVal * PID->dT));
     PID_setIntegralSaturation(PID, satMin, satMax);
     PID->DuD = 0;
     PID->DuI = 0;
@@ -58,9 +58,9 @@ void PID_calc(PID_t* PID, float setPoint, float measure) {
     float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuI += PID->ki * e;
     PID->DuD += PID->kd * dErr;
-    PID->output = CONSTRAIN(PID->kp * e + PID->DuI + PID->DuD, PID->satMin, PID->satMax);
+    PID->output = CONSTRAIN((PID->kp * e) + PID->DuI + PID->DuD, PID->satMin, PID->satMax);
     PID->DuI += PID->ki * e;
-    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
+    PID->DuD = (PID->kf * PID->DuD) - (PID->kd * dErr);
 }
 
 utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure) {
@@ -69,9 +69,9 @@ utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure) {
     PID->DuI += PID->ki * e;
     PID->DuI = CONSTRAIN(PID->DuI, PID->satMin, PID->satMax);
     PID->DuD += PID->kd * dErr;
-    PID->output = PID->kp * e + PID->DuI + PID->DuD;
+    PID->output = (PID->kp * e) + PID->DuI + PID->DuD;
     /* Prepare variables for next step */
-    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
+    PID->DuD = (PID->kf * PID->DuD) - (PID->kd * dErr);
     if ((PID->DuI == PID->satMin) || (PID->DuI == PID->satMax)) {
         return UTILS_STATUS_FULL;
     } else {
@@ -85,8 +85,8 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure) {
     float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuI += PID->ki * e;
     PID->DuD += PID->kd * dErr;
-    PID->output = PID->kp * e + PID->DuI + PID->DuD;
-    if (((e * PID->output) > 0) && ((PID->output < PID->satMin) || (PID->output > PID->satMax))) {
+    PID->output = (PID->kp * e) + PID->DuI + PID->DuD;
+    if (((e * PID->output) > 0.0f) && ((PID->output < PID->satMin) || (PID->output > PID->satMax))) {
         PID->DuI -= PID->ki * e;
         PID->output -= PID->ki * e;
     } else {
@@ -94,7 +94,7 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure) {
     }
     PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
-    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
+    PID->DuD = (PID->kf * PID->DuD) - (PID->kd * dErr);
     return (((PID->output == PID->satMax) || (PID->output == PID->satMin)) ? UTILS_STATUS_FULL : UTILS_STATUS_SUCCESS);
 }
 
@@ -103,19 +103,19 @@ utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure) {
     float e = setPoint - measure;
     float dErr = (PID->derivMode == PID_DERIV_ON_MEASURE) ? (-measure) : e;
     PID->DuD += PID->kd * dErr;
-    PID->output = PID->kp * e + PID->DuI + PID->DuD;
+    PID->output = (PID->kp * e) + PID->DuI + PID->DuD;
     if (PID->output > PID->satMax) {
         bcVal = PID->satMax - PID->output;
     } else if (PID->output < PID->satMin) {
         bcVal = PID->satMin - PID->output;
     } else {
-        bcVal = 0;
+        bcVal = 0.0f;
     }
-    PID->DuI += PID->ki * e + PID->kb * bcVal;
-    PID->output = PID->kp * e + PID->DuI + PID->DuD;
+    PID->DuI += (PID->ki * e) + (PID->kb * bcVal);
+    PID->output = (PID->kp * e) + PID->DuI + PID->DuD;
     PID->output = CONSTRAIN(PID->output, PID->satMin, PID->satMax);
     /* Prepare variables for next step */
-    PID->DuI += PID->ki * e + PID->kb * bcVal;
-    PID->DuD = PID->kf * PID->DuD - PID->kd * dErr;
+    PID->DuI += (PID->ki * e) + (PID->kb * bcVal);
+    PID->DuD = (PID->kf * PID->DuD) - (PID->kd * dErr);
     return (((PID->output == PID->satMax) || (PID->output == PID->satMin)) ? UTILS_STATUS_FULL : UTILS_STATUS_SUCCESS);
 }

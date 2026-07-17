@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __LPHASHTABLE_H__
-#define __LPHASHTABLE_H__
+#ifndef ADVUTILS_LPHASHTABLE_H
+#define ADVUTILS_LPHASHTABLE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -64,7 +64,8 @@ typedef struct {
  */
 typedef struct {
     lpHashTableEntry_t* entries; /* hash slots */
-    uint32_t size, items;
+    uint32_t size;
+    uint32_t items;
     size_t itemSize;
     lpHashTableResizable_t resizable;
 } lpHashTable_t;
@@ -108,7 +109,7 @@ utilsStatus_t lpHashTableInit(lpHashTable_t* lpht, size_t itemSize, uint32_t ini
  * 
  * \return          UTILS_STATUS_SUCCESS if data is written correctly, UTILS_STATUS_ERROR otherwise 
  */
-utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value);
+utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, const char* key, const void* value);
 
 /**
  * \brief           Get item with given key from hash table
@@ -120,7 +121,7 @@ utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, char* key, const void* value);
  * 
  * \return          UTILS_STATUS_SUCCESS if data is read correctly, UTILS_STATUS_ERROR if data 
  */
-utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, char* key, void* value, lpHashTableRemoval_t remove);
+utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, const char* key, void* value, lpHashTableRemoval_t remove);
 
 /**
  * \brief           Returns hash-table info
@@ -129,7 +130,7 @@ utilsStatus_t lpHashTableGet(lpHashTable_t* lpht, char* key, void* value, lpHash
  * \param[out]      size: pointer to size
  * \param[out]      items: pointer to number of items currently in the hash-table
  */
-static inline void lpHashTableInfo(lpHashTable_t* lpht, uint32_t* size, uint32_t* items) {
+static inline void lpHashTableInfo(const lpHashTable_t* lpht, uint32_t* size, uint32_t* items) {
     *size = lpht->size;
     *items = lpht->items;
 }
@@ -157,4 +158,4 @@ utilsStatus_t lpHashTableDelete(lpHashTable_t* lpht);
 }
 #endif
 
-#endif /* __LPHASHTABLE_H__ */
+#endif /* ADVUTILS_LPHASHTABLE_H */

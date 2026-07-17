@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __NUM_METHODS_H__
-#define __NUM_METHODS_H__
+#ifndef ADVUTILS_NUMMETHODS_H
+#define ADVUTILS_NUMMETHODS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -53,7 +53,7 @@ extern "C" {
  *
  * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
  */
-void fwsub(matrix_t* A, matrix_t* B, matrix_t* result);
+void fwsub(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve an Ax = PB system with forward substitution (with permutation)
@@ -65,7 +65,7 @@ void fwsub(matrix_t* A, matrix_t* B, matrix_t* result);
  *
  * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
  */
-void fwsubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result);
+void fwsubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system with backward substitution
@@ -76,7 +76,7 @@ void fwsubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result);
  *
  * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
  */
-void bksub(matrix_t* A, matrix_t* B, matrix_t* result);
+void bksub(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system with backward substitution (with permutation)
@@ -88,7 +88,7 @@ void bksub(matrix_t* A, matrix_t* B, matrix_t* result);
  *
  * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
  */
-void bksubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result);
+void bksubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result);
 
 /**
  * \brief           Calculate sort of quadratic form result=A*B*(~A)
@@ -97,7 +97,7 @@ void bksubPerm(matrix_t* A, matrix_t* B, matrix_t* P, matrix_t* result);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void QuadProd(matrix_t* A, matrix_t* B, matrix_t* result);
+void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Calculate L (lower triangular) and U (upper triangular) matrices such that A = LU with Crout's Method
@@ -108,7 +108,7 @@ void QuadProd(matrix_t* A, matrix_t* B, matrix_t* result);
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t LU_Crout(matrix_t* A, matrix_t* L, matrix_t* U);
+utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**
@@ -120,7 +120,7 @@ utilsStatus_t LU_Crout(matrix_t* A, matrix_t* L, matrix_t* U);
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t LU_Cormen(matrix_t* A, matrix_t* L, matrix_t* U);
+utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U);
 
 /**
  * \brief           Calculate L (lower triangular), U (upper triangular) and P (permutation) matrices such that A = LUP with Cormen's Method
@@ -132,7 +132,7 @@ utilsStatus_t LU_Cormen(matrix_t* A, matrix_t* L, matrix_t* U);
  *
  * \return          factor to be multiplied by determinant of U to obtain determinant of A
  */
-int8_t LUP_Cormen(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
+int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
 
 /**
  * \brief           Solve AX = B system using LU factorization
@@ -141,7 +141,7 @@ int8_t LUP_Cormen(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveLU(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using LUP factorization
@@ -150,7 +150,7 @@ void LinSolveLU(matrix_t* A, matrix_t* B, matrix_t* result);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveLUP(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using Gauss elimination with partial pivoting
@@ -159,7 +159,7 @@ void LinSolveLUP(matrix_t* A, matrix_t* B, matrix_t* result);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveGauss(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q
@@ -174,7 +174,7 @@ void LinSolveGauss(matrix_t* A, matrix_t* B, matrix_t* result);
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached
  */
-utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
 /**
  * \brief           Gauss-Newton sensor calibration with 9 parameters
@@ -199,7 +199,7 @@ utilsStatus_t DARE(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t 
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
 /**
  * \brief           Gauss-Newton sensor calibration with 6 parameters
@@ -221,7 +221,7 @@ utilsStatus_t GaussNewton_Sens_Cal_9(matrix_t* Data, float k, matrix_t* X0, uint
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -234,7 +234,7 @@ utilsStatus_t GaussNewton_Sens_Cal_6(matrix_t* Data, float k, matrix_t* X0, uint
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t LU_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U);
+utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
 
 /**
  * \brief           Calculate L (lower triangular), U (upper triangular) and P (permutation) matrices such that A = LUP with Cormen's Method and static allocation
@@ -246,7 +246,7 @@ utilsStatus_t LU_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U);
  *
  * \return          factor to be multiplied by determinant of U to obtain determinant of A
  */
-int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
+int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
 
 /**
  * \brief           Solve AX = B system using LU factorization with static allocation
@@ -255,7 +255,7 @@ int8_t LUP_CormenStatic(matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveLUStatic(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using LUP factorization with static allocation
@@ -264,7 +264,7 @@ void LinSolveLUStatic(matrix_t* A, matrix_t* B, matrix_t* result);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveLUPStatic(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using Gauss elimination with partial pivoting and static allocation
@@ -273,7 +273,7 @@ void LinSolveLUPStatic(matrix_t* A, matrix_t* B, matrix_t* result);
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
  */
-void LinSolveGaussStatic(matrix_t* A, matrix_t* B, matrix_t* result);
+void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q with static allocation
@@ -288,7 +288,7 @@ void LinSolveGaussStatic(matrix_t* A, matrix_t* B, matrix_t* result);
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached
  */
-utilsStatus_t DAREStatic(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
 /**
  * \brief           Gauss-Newton sensor calibration with 9 parameters and static allocation
@@ -313,7 +313,7 @@ utilsStatus_t DAREStatic(matrix_t* A, matrix_t* B, matrix_t* Q, matrix_t* R, uin
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
 /**
  * \brief           Gauss-Newton sensor calibration with 6 parameters and static allocation
@@ -335,7 +335,7 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(matrix_t* Data, float k, matrix_t* X0
  *
  * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
  */
-utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
@@ -343,4 +343,4 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(matrix_t* Data, float k, matrix_t* X0
 }
 #endif
 
-#endif /* __NUM_METHODS_H__ */
+#endif /* ADVUTILS_NUMMETHODS_H */

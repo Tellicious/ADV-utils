@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __BASIC_MATH_H__
-#define __BASIC_MATH_H__
+#ifndef ADVUTILS_BASICMATH_H
+#define ADVUTILS_BASICMATH_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +46,7 @@ extern "C" {
 /* Macros --------------------------------------------------------------------*/
 
 /* Absolute value */
-#define ABS(value)                               (((value) >= 0) ? (value) : (-value))
+#define ABS(value)                               (((value) >= 0) ? (value) : (-(value)))
 
 /* Get sign of value */
 #define SIGN(x)                                  (((x) >= 0) ? 1 : -1)
@@ -58,7 +58,7 @@ extern "C" {
 #define MAP(x, fromLow, fromHigh, toLow, toHigh) (((x) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow)) + (toLow))
 
 /* Apply a deadband to value */
-#define DEADBAND(value, threshold)               ((ABS(value) <= threshold) ? 0 : ((value > 0) ? (value - threshold) : (value + threshold)))
+#define DEADBAND(value, threshold)               ((ABS(value) <= (threshold)) ? 0 : (((value) > 0) ? ((value) - (threshold)) : ((value) + (threshold))))
 
 /* Get maximum between 2 values */
 #ifdef __GNUC__
@@ -112,13 +112,13 @@ extern "C" {
 #define SHIFT(val, shift)              ((val) << (shift))
 
 /* Bit shift left in place */
-#define SHIFT_IN_PLACE(val, shift)     val <<= (shift)
+#define SHIFT_IN_PLACE(val, shift)     (val) <<= (shift)
 
 /* Bit shift right */
 #define UNSHIFT(val, shift)            ((val) >> (shift))
 
 /* Bit shift right in place */
-#define UNSHIFT_IN_PLACE(val, shift)   val >>= (shift)
+#define UNSHIFT_IN_PLACE(val, shift)   (val) >>= (shift)
 
 /* Check if all bit are set */
 #define IS_BIT_SET_ALL(val, mask)      (((val) & (mask)) == (mask))
@@ -139,19 +139,19 @@ extern "C" {
 #define BIT_SET(val, mask)             ((val) | (mask))
 
 /* Set bits in place */
-#define BIT_SET_IN_PLACE(val, mask)    val |= (mask)
+#define BIT_SET_IN_PLACE(val, mask)    (val) |= (mask)
 
 /* Clear bits */
 #define BIT_CLEAR(val, mask)           ((val) & ~(mask))
 
 /* Clear bits in place */
-#define BIT_CLEAR_IN_PLACE(val, mask)  val &= ~(mask)
+#define BIT_CLEAR_IN_PLACE(val, mask)  (val) &= ~(mask)
 
 /* Toggle bits */
 #define BIT_TOGGLE(val, mask)          ((val) ^ (mask))
 
 /* Toggle bits in place */
-#define BIT_TOGGLE_IN_PLACE(val, mask) val ^= (mask)
+#define BIT_TOGGLE_IN_PLACE(val, mask) (val) ^= (mask)
 
 /* Faster math operations */
 #ifdef USE_FAST_MATH
@@ -171,12 +171,15 @@ extern "C" {
 /* Constants -----------------------------------------------------------------*/
 
 /* Pi value */
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constPI 3.141592654f
 
 /* G value in m/s^2 */
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constG  9.80665f
 
 /* e value */
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constE  2.71828182845904523536028747135266249f
 
 /* Functions -----------------------------------------------------------------*/
@@ -221,4 +224,4 @@ float fastCos(float angle);
 }
 #endif
 
-#endif /* __BASIC_MATH_H__ */
+#endif /* ADVUTILS_BASICMATH_H */

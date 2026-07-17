@@ -51,17 +51,22 @@ void IIRFilterInit(IIRFilterGeneric_t* filter, float n0, float n1, float n2, flo
     filter->d3 = d3;
 
     /* Initialize state variables */
-    filter->i1 = filter->i2 = filter->i3 = filter->o1 = filter->o2 = filter->o3 = 0.0;
+    filter->i1 = 0.0f;
+    filter->i2 = 0.0f;
+    filter->i3 = 0.0f;
+    filter->o1 = 0.0f;
+    filter->o2 = 0.0f;
+    filter->o3 = 0.0f;
 }
 
 void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms) {
     ADVUTILS_ASSERT(lpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / TAN(constPI * (lpFreq * dT_ms * 1e-3f));
     const float q = SQRT(2.f);
-    float n0 = 1.f / (1.f + q * lambda + lambda * lambda);
+    float n0 = 1.f / (1.f + (q * lambda) + (lambda * lambda));
     float n1 = 2.f * n0;
-    float d1 = 2.f * (1.f - lambda * lambda) * n0;
-    float d2 = (1.f - q * lambda + lambda * lambda) * n0;
+    float d1 = 2.f * (1.f - (lambda * lambda)) * n0;
+    float d2 = (1.f - (q * lambda) + (lambda * lambda)) * n0;
     IIRFilterInit(filter, n0, n1, n0, 0, d1, d2, 0);
 }
 
@@ -69,36 +74,36 @@ void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float dT_ms) {
     ADVUTILS_ASSERT(hpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / TAN(constPI * (hpFreq * dT_ms * 1e-3f));
     const float q = SQRT(2.f);
-    float n0 = 1.f / (1.f + q * lambda + lambda * lambda);
+    float n0 = 1.f / (1.f + (q * lambda) + (lambda * lambda));
     float n1 = -2.f * n0 * lambda * lambda;
-    float d1 = 2.f * (1.f - lambda * lambda) * n0;
-    float d2 = (1.f - q * lambda + lambda * lambda) * n0;
+    float d1 = 2.f * (1.f - (lambda * lambda)) * n0;
+    float d2 = (1.f - (q * lambda) + (lambda * lambda)) * n0;
     n0 *= lambda * lambda;
     IIRFilterInit(filter, n0, n1, n0, 0, d1, d2, 0);
 }
 
 void IIRFilterInitBP(IIRFilterGeneric_t* filter, float centerFreq, float bandwidth, float dT_ms) {
-    ADVUTILS_ASSERT((centerFreq + 0.5f * bandwidth) < (0.5f / (dT_ms * 1e-3f)));
+    ADVUTILS_ASSERT((centerFreq + (0.5f * bandwidth)) < (0.5f / (dT_ms * 1e-3f)));
     const float Q = centerFreq / bandwidth; // Q factor
     const float C = TAN(constPI * (centerFreq * dT_ms * 1e-3f));
-    const float D = 1.f / (1.f + C / Q + C * C);
+    const float D = 1.f / (1.f + (C / Q) + (C * C));
     float n0 = C / Q * D;
     float n2 = -n0;
-    float d1 = 2.f * (C * C - 1.f) * D;
-    float d2 = (1.f - C / Q + C * C) * D;
+    float d1 = 2.f * ((C * C) - 1.f) * D;
+    float d2 = (1.f - (C / Q) + (C * C)) * D;
     IIRFilterInit(filter, n0, 0, n2, 0, d1, d2, 0);
 }
 
 void IIRFilterInitBS(IIRFilterGeneric_t* filter, float centerFreq, float bandwidth, float dT_ms) {
-    ADVUTILS_ASSERT((centerFreq + 0.5f * bandwidth) < (0.5f / (dT_ms * 1e-3f)));
+    ADVUTILS_ASSERT((centerFreq + (0.5f * bandwidth)) < (0.5f / (dT_ms * 1e-3f)));
     const float Q = centerFreq / bandwidth; // Q factor
     const float C = TAN(constPI * (centerFreq * dT_ms * 1e-3f));
-    const float D = 1.f / (1.f + C / Q + C * C);
-    float n0 = (1.f + C * C) * D;
-    float n1 = 2.f * (C * C - 1.f) * D;
+    const float D = 1.f / (1.f + (C / Q) + (C * C));
+    float n0 = (1.f + (C * C)) * D;
+    float n1 = 2.f * ((C * C) - 1.f) * D;
     float n2 = n0;
-    float d1 = 2.f * (C * C - 1.f) * D;
-    float d2 = (1.f - C / Q + C * C) * D;
+    float d1 = 2.f * ((C * C) - 1.f) * D;
+    float d2 = (1.f - (C / Q) + (C * C)) * D;
     IIRFilterInit(filter, n0, n1, n2, 0, d1, d2, 0);
 }
 
@@ -106,8 +111,8 @@ float IIRFilterProcess(IIRFilterGeneric_t* filter, float input) {
     /* Apply the IIR filter equation */
     float output;
 
-    output = filter->n0 * input + filter->n1 * filter->i1 + filter->n2 * filter->i2 + filter->n3 * filter->i3 - filter->d1 * filter->o1
-             - filter->d2 * filter->o2 - filter->d3 * filter->o3;
+    output = (filter->n0 * input) + (filter->n1 * filter->i1) + (filter->n2 * filter->i2) + (filter->n3 * filter->i3) - (filter->d1 * filter->o1)
+             - (filter->d2 * filter->o2) - (filter->d3 * filter->o3);
 
     /* Update state variables */
     filter->i3 = filter->i2;

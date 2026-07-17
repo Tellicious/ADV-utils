@@ -49,13 +49,17 @@
 uint32_t hash_FNV1A(const char* key) {
 
     uint64_t hash = FNV_OFFSET;
-    uint8_t p;
-
     ADVUTILS_ASSERT(key != NULL);
 
-    while ((p = (uint8_t)*key++)) {
-        hash ^= (uint64_t)p;
-        hash *= FNV_PRIME;
+    if (key != NULL) {
+        size_t ki = 0;
+        uint8_t p = (uint8_t)key[ki];
+        while (p != 0U) {
+            hash ^= (uint64_t)p;
+            hash *= FNV_PRIME;
+            ki++;
+            p = (uint8_t)key[ki];
+        }
     }
 
     /* limit to 32 bit */
@@ -71,12 +75,16 @@ uint32_t hash_FNV1A(const char* key) {
 */
 uint32_t hash_djb(const char* key) {
     uint32_t hash = 5381;
-    uint8_t p;
-
     ADVUTILS_ASSERT(key != NULL);
 
-    while ((p = (uint8_t)*key++)) {
-        hash = ((hash << 5) + hash) + p; /* hash * 33 + c */
+    if (key != NULL) {
+        size_t ki = 0;
+        uint8_t p = (uint8_t)key[ki];
+        while (p != 0U) {
+            hash = ((hash << 5) + hash) + p; /* hash * 33 + c */
+            ki++;
+            p = (uint8_t)key[ki];
+        }
     }
 
     return hash;
@@ -90,12 +98,16 @@ uint32_t hash_djb(const char* key) {
 */
 uint32_t hash_sdbm(const char* key) {
     uint32_t hash = 0;
-    uint8_t p;
-
     ADVUTILS_ASSERT(key != NULL);
 
-    while ((p = (uint8_t)*key++)) {
-        hash = p + (hash << 6) + (hash << 16) - hash;
+    if (key != NULL) {
+        size_t ki = 0;
+        uint8_t p = (uint8_t)key[ki];
+        while (p != 0U) {
+            hash = p + (hash << 6) + (hash << 16) - hash;
+            ki++;
+            p = (uint8_t)key[ki];
+        }
     }
 
     return hash;

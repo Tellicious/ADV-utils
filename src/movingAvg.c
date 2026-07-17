@@ -65,6 +65,7 @@
 
 utilsStatus_t movingAvgInit(movingAvg_t* movingAvg, MOVAVG_STYPE size) {
     movingAvg->data = NULL;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     movingAvg->data = ADVUTILS_CALLOC(size, sizeof(MOVAVG_TYPE));
     ADVUTILS_ASSERT(movingAvg->data != NULL);
     if (movingAvg->data == NULL) {
@@ -108,7 +109,7 @@ utilsStatus_t movingAvgFlush(movingAvg_t* movingAvg) {
         return UTILS_STATUS_ERROR;
     }
 
-    memset(movingAvg->data, 0x00, movingAvg->size * sizeof(MOVAVG_TYPE));
+    (void)memset(movingAvg->data, 0x00, movingAvg->size * sizeof(MOVAVG_TYPE));
 
     movingAvg->sum = 0;
     movingAvg->_write = 0;

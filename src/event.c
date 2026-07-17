@@ -40,23 +40,7 @@
 
 #include "event.h"
 #include "ADVUtilsAssert.h"
-#ifdef ADVUTILS_MEMORY_MGMT_HEADER
-#if !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE)
-#error ADVUTILS_MALLOC, ADVUTILS_CALLOC and ADVUTILS_FREE must be defined by the user!
-#else
-#include ADVUTILS_MEMORY_MGMT_HEADER
-#endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
-#else
-#include <stdlib.h>
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
-
-/* Macros --------------------------------------------------------------------*/
-
-#ifndef ADVUTILS_MEMORY_MGMT_HEADER
-#define ADVUTILS_MALLOC malloc
-#define ADVUTILS_CALLOC calloc
-#define ADVUTILS_FREE   free
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
+#include "ADVUtilsMemory.h"
 
 /* Functions -----------------------------------------------------------------*/
 
@@ -93,7 +77,10 @@ utilsStatus_t eventRegister(event_t* event, eventCBType_t callback) {
         return UTILS_STATUS_ERROR;
     } else if (event->count == event->size) {
         return UTILS_STATUS_FULL;
+    } else {
+        /* no action required (MISRA 15.7) */
     }
+    /* cppcheck-suppress misra-c2012-11.1 ; deviation: intentional dual-callback function-pointer storage */
     event->eventsList[event->count] = (eventExtCBType_t)callback;
     event->count++;
     return UTILS_STATUS_SUCCESS;
@@ -104,6 +91,8 @@ utilsStatus_t eventRegisterEx(event_t* event, eventExtCBType_t callback) {
         return UTILS_STATUS_ERROR;
     } else if (event->count == event->size) {
         return UTILS_STATUS_FULL;
+    } else {
+        /* no action required (MISRA 15.7) */
     }
     event->eventsList[event->count] = callback;
     event->count++;
@@ -114,8 +103,9 @@ utilsStatus_t eventDispatch(event_t* event) {
     if (event->type == EVENT_TYPE_EXTENDED) {
         return UTILS_STATUS_ERROR;
     }
-    for (uint16_t ii = 0; ii < event->count; ii++) {
-        ((eventCBType_t)event->eventsList[ii])();
+    for (uint16_t i = 0; i < event->count; i++) {
+        /* cppcheck-suppress misra-c2012-11.1 ; deviation: intentional dual-callback function-pointer storage */
+        ((eventCBType_t)event->eventsList[i])();
     }
     return UTILS_STATUS_SUCCESS;
 }
@@ -124,8 +114,8 @@ utilsStatus_t eventDispatchEx(event_t* event, void* val) {
     if (event->type == EVENT_TYPE_BASIC) {
         return UTILS_STATUS_ERROR;
     }
-    for (uint16_t ii = 0; ii < event->count; ii++) {
-        event->eventsList[ii](val);
+    for (uint16_t i = 0; i < event->count; i++) {
+        event->eventsList[i](val);
     }
     return UTILS_STATUS_SUCCESS;
 }

@@ -1,6 +1,6 @@
 <p align="center"> <img src="https://github.com/Tellicious/ADV-utils/assets/9076397/3ec512f1-2de6-4226-bc07-e4bfdd686a28" width=50% height=50%> </p>
 
-# Collection of useful C utilities
+# Collection of useful C utilities (MISRA-compliant)
 
 [![Unit tests](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml/badge.svg?event=push)](https://github.com/Tellicious/ADV-utils/actions/workflows/runTests.yml)
 [![Codecov](https://codecov.io/gh/Tellicious/ADV-utils/graph/badge.svg?token=OJG3076HXJ)](https://codecov.io/gh/Tellicious/ADV-utils)

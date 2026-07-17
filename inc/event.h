@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __EVENT_H__
-#define __EVENT_H__
+#ifndef ADVUTILS_EVENT_H
+#define ADVUTILS_EVENT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -69,7 +69,8 @@ typedef void (*eventExtCBType_t)(void* val);
 typedef struct {
     eventExtCBType_t* eventsList;
     eventType_t type;
-    uint16_t count, size;
+    uint16_t count;
+    uint16_t size;
 } event_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -151,4 +152,4 @@ utilsStatus_t eventDelete(event_t* event);
 }
 #endif
 
-#endif /* __EVENT_H__ */
+#endif /* ADVUTILS_EVENT_H */

@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.22.0 
+
+**Improvements:**
+- Further improved compliance to MISRA guidelines
+- Added list of deviations to MISRA guidelines
+- Aligned all iterators to `i`, `j`, `k` (from outer to inner loop)
+
 ## v1.21.0 
 
 **Improvements:**

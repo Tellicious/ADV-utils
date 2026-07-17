@@ -41,23 +41,7 @@
 #include "list.h"
 #include <string.h>
 #include "ADVUtilsAssert.h"
-#ifdef ADVUTILS_MEMORY_MGMT_HEADER
-#if !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE)
-#error ADVUTILS_MALLOC, ADVUTILS_CALLOC and ADVUTILS_FREE must be defined by the user!
-#else
-#include ADVUTILS_MEMORY_MGMT_HEADER
-#endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
-#else
-#include <stdlib.h>
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
-
-/* Macros --------------------------------------------------------------------*/
-
-#ifndef ADVUTILS_MEMORY_MGMT_HEADER
-#define ADVUTILS_MALLOC malloc
-#define ADVUTILS_CALLOC calloc
-#define ADVUTILS_FREE   free
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
+#include "ADVUtilsMemory.h"
 
 /* Functions -----------------------------------------------------------------*/
 
@@ -81,6 +65,7 @@ utilsStatus_t listPush(list_t* list, const void* value) {
     }
 
     listNode_t* ptr;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
     if (ptr == NULL) {
@@ -92,11 +77,12 @@ utilsStatus_t listPush(list_t* list, const void* value) {
         ADVUTILS_FREE(ptr);
         return UTILS_STATUS_ERROR;
     }
-    memcpy(ptr->data, value, list->itemSize);
+    (void)memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
     if ((list->_front == NULL) && (list->_rear == NULL)) {
-        list->_front = list->_rear = ptr;
+        list->_rear = ptr;
+        list->_front = ptr;
     } else {
         list->_rear->next = ptr;
         list->_rear = ptr;
@@ -115,6 +101,7 @@ utilsStatus_t listPushFront(list_t* list, const void* value) {
     }
 
     listNode_t* ptr;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
     if (ptr == NULL) {
@@ -126,11 +113,12 @@ utilsStatus_t listPushFront(list_t* list, const void* value) {
         ADVUTILS_FREE(ptr);
         return UTILS_STATUS_ERROR;
     }
-    memcpy(ptr->data, value, list->itemSize);
+    (void)memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
     if ((list->_front == NULL) && (list->_rear == NULL)) {
-        list->_front = list->_rear = ptr;
+        list->_rear = ptr;
+        list->_front = ptr;
     } else {
         ptr->next = list->_front;
         list->_front = ptr;
@@ -154,6 +142,7 @@ utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position) {
     }
 
     listNode_t* ptr;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     ptr = ADVUTILS_MALLOC(sizeof(listNode_t));
     ADVUTILS_ASSERT(ptr != NULL);
     if (ptr == NULL) {
@@ -165,21 +154,22 @@ utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position) {
         ADVUTILS_FREE(ptr);
         return UTILS_STATUS_ERROR;
     }
-    memcpy(ptr->data, value, list->itemSize);
+    (void)memcpy(ptr->data, value, list->itemSize);
     ptr->next = NULL;
 
     if ((list->_front == NULL) && (list->_rear == NULL)) {
-        list->_front = list->_rear = ptr;
+        list->_rear = ptr;
+        list->_front = ptr;
     } else if (position == list->items) {
         list->_rear->next = ptr;
         list->_rear = ptr;
-    } else if (position == 0) {
+    } else if (position == 0U) {
         ptr->next = list->_front;
         list->_front = ptr;
     } else {
         /* search for node at position - 1 */
         listNode_t* prev = list->_front;
-        for (LIST_STYPE ii = 1; ii < position; ii++) {
+        for (LIST_STYPE i = 1; i < position; i++) {
             prev = prev->next;
         }
         ptr->next = prev->next;
@@ -191,18 +181,18 @@ utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position) {
 }
 
 utilsStatus_t listUpdate(list_t* list, const void* value, LIST_STYPE position) {
-    if ((position + 1) > list->items) {
+    if ((position + 1U) > list->items) {
         return UTILS_STATUS_ERROR;
     }
 
     listNode_t* ptr = list->_front;
 
     /* search for node at position */
-    for (LIST_STYPE ii = 0; ii < position; ii++) {
+    for (LIST_STYPE i = 0; i < position; i++) {
         ptr = ptr->next;
     }
 
-    memcpy(ptr->data, value, list->itemSize);
+    (void)memcpy(ptr->data, value, list->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
@@ -213,7 +203,7 @@ utilsStatus_t listPop(list_t* list, void* value) {
     }
 
     listNode_t* ptr = list->_front;
-    memcpy(value, ptr->data, list->itemSize);
+    (void)memcpy(value, ptr->data, list->itemSize);
     list->_front = ptr->next;
     ADVUTILS_FREE(ptr->data);
     ADVUTILS_FREE(ptr);
@@ -230,11 +220,11 @@ utilsStatus_t listPopBack(list_t* list, void* value) {
         return UTILS_STATUS_EMPTY;
     }
 
-    memcpy(value, list->_rear->data, list->itemSize);
+    (void)memcpy(value, list->_rear->data, list->itemSize);
 
     /* search for node at end - 1 */
     listNode_t* prev = list->_front;
-    for (LIST_STYPE ii = 2; ii < list->items; ii++) {
+    for (LIST_STYPE i = 2; i < list->items; i++) {
         prev = prev->next;
     }
     prev->next = NULL;
@@ -245,7 +235,8 @@ utilsStatus_t listPopBack(list_t* list, void* value) {
 
     list->items--;
     if (!list->items) {
-        list->_front = list->_rear = NULL;
+        list->_rear = NULL;
+        list->_front = NULL;
     }
     return UTILS_STATUS_SUCCESS;
 }
@@ -255,7 +246,7 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
         return UTILS_STATUS_EMPTY;
     }
 
-    if ((position + 1) > list->items) {
+    if ((position + 1U) > list->items) {
         return UTILS_STATUS_ERROR;
     }
 
@@ -263,15 +254,15 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
     listNode_t* ptr = list->_front;
 
     /* search for node at position - 1 and node at position */
-    for (LIST_STYPE ii = 0; ii < position; ii++) {
+    for (LIST_STYPE i = 0; i < position; i++) {
         prev = ptr;
         ptr = ptr->next;
     }
-    memcpy(value, ptr->data, list->itemSize);
+    (void)memcpy(value, ptr->data, list->itemSize);
 
-    if (position == 0) {
+    if (position == 0U) {
         list->_front = ptr->next;
-    } else if ((position + 1) == list->items) {
+    } else if ((position + 1U) == list->items) {
         prev->next = NULL;
         list->_rear = prev;
     } else {
@@ -283,48 +274,49 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position) {
 
     list->items--;
     if (!list->items) {
-        list->_front = list->_rear = NULL;
+        list->_rear = NULL;
+        list->_front = NULL;
     }
     return UTILS_STATUS_SUCCESS;
 }
 
 utilsStatus_t listPeek(const list_t* list, void* value) {
-    if (list->items == 0) {
+    if (list->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
-    memcpy(value, list->_front->data, list->itemSize);
+    (void)memcpy(value, list->_front->data, list->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
 
 utilsStatus_t listPeekBack(const list_t* list, void* value) {
-    if (list->items == 0) {
+    if (list->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
-    memcpy(value, list->_rear->data, list->itemSize);
+    (void)memcpy(value, list->_rear->data, list->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
 
 utilsStatus_t listPeekAtPos(const list_t* list, void* value, LIST_STYPE position) {
-    if (list->items == 0) {
+    if (list->items == 0U) {
         return UTILS_STATUS_EMPTY;
     }
 
-    if ((position + 1) > list->items) {
+    if ((position + 1U) > list->items) {
         return UTILS_STATUS_ERROR;
     }
 
     const listNode_t* ptr = list->_front;
 
     /* search for node at position */
-    for (LIST_STYPE ii = 0; ii < position; ii++) {
+    for (LIST_STYPE i = 0; i < position; i++) {
         ptr = ptr->next;
     }
 
-    memcpy(value, ptr->data, list->itemSize);
+    (void)memcpy(value, ptr->data, list->itemSize);
 
     return UTILS_STATUS_SUCCESS;
 }
@@ -364,6 +356,8 @@ utilsStatus_t listItNext(listIterator_t* it) {
         it->ptr = it->ptr->next;
         it->idx++;
         return UTILS_STATUS_SUCCESS;
+    } else {
+        /* no action required (MISRA 15.7) */
     }
     return UTILS_STATUS_ERROR;
 }

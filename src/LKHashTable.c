@@ -41,24 +41,8 @@
 #include "LKHashTable.h"
 #include <string.h>
 #include "ADVUtilsAssert.h"
+#include "ADVUtilsMemory.h"
 #include "hashFunctions.h"
-#ifdef ADVUTILS_MEMORY_MGMT_HEADER
-#if !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE)
-#error ADVUTILS_MALLOC, ADVUTILS_CALLOC and ADVUTILS_FREE must be defined by the user!
-#else
-#include ADVUTILS_MEMORY_MGMT_HEADER
-#endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
-#else
-#include <stdlib.h>
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
-
-/* Macros --------------------------------------------------------------------*/
-
-#ifndef ADVUTILS_MEMORY_MGMT_HEADER
-#define ADVUTILS_MALLOC malloc
-#define ADVUTILS_CALLOC calloc
-#define ADVUTILS_FREE   free
-#endif /* ADVUTILS_MEMORY_MGMT_HEADER */
 
 /* Maximum size of the list objects used by the hash-table */
 #ifndef LKHT_LIST_SIZE
@@ -73,11 +57,12 @@
 /* Private Functions ---------------------------------------------------------*/
 
 static inline char* lkHashTableStrdup(const char* s) {
-    size_t bufsize = strlen(s) + 1;
+    size_t bufsize = strlen(s) + 1U;
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     char* retval = ADVUTILS_MALLOC(bufsize);
     ADVUTILS_ASSERT(retval != NULL);
-    if (retval) {
-        memcpy(retval, s, bufsize);
+    if (retval != NULL) {
+        (void)memcpy(retval, s, bufsize);
     }
     return retval;
 }
@@ -91,20 +76,21 @@ utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t siz
     lkht->size = size;
     lkht->itemSize = itemSize;
 
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
     lkht->entries = ADVUTILS_CALLOC(lkht->size, sizeof(list_t));
     ADVUTILS_ASSERT(lkht->entries != NULL);
     if (lkht->entries == NULL) {
         return UTILS_STATUS_ERROR;
     }
 
-    for (uint32_t ii = 0; ii < lkht->size; ii++) {
-        listInit(&(lkht->entries[ii]), sizeof(lkHashTableEntry_t), LKHT_LIST_SIZE);
+    for (uint32_t i = 0; i < lkht->size; i++) {
+        listInit(&(lkht->entries[i]), sizeof(lkHashTableEntry_t), LKHT_LIST_SIZE);
     }
 
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) {
+utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, const char* key, const void* value) {
     if ((value == NULL) || (key == NULL)) {
         return UTILS_STATUS_ERROR;
     }
@@ -114,7 +100,7 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) 
     }
 
     /* limit hash to current memory size */
-    uint32_t ii = LKHT_HASHFUN(key) & (lkht->size - 1);
+    uint32_t ii = LKHT_HASHFUN(key) & (lkht->size - 1U);
 
     lkHashTableEntry_t entry;
 
@@ -122,9 +108,9 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) 
     LIST_STYPE idx;
 
     for (idx = 0; idx < lkht->entries[ii].items; idx++) {
-        listPeekAtPos(&(lkht->entries[ii]), &entry, idx);
+        (void)listPeekAtPos(&(lkht->entries[ii]), &entry, idx);
         if (!strcmp(key, entry.key)) {
-            memcpy(entry.value, value, lkht->itemSize);
+            (void)memcpy(entry.value, value, lkht->itemSize);
             return UTILS_STATUS_SUCCESS;
         }
     }
@@ -140,7 +126,7 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) 
         return UTILS_STATUS_ERROR;
     }
 
-    memcpy(entry.value, value, lkht->itemSize);
+    (void)memcpy(entry.value, value, lkht->itemSize);
 
     if (listPush(&(lkht->entries[ii]), &entry) == UTILS_STATUS_SUCCESS) {
         lkht->items++;
@@ -151,13 +137,13 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value) 
     return UTILS_STATUS_ERROR;
 }
 
-utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, char* key, void* value, lkHashTableRemoval_t remove) {
+utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, const char* key, void* value, lkHashTableRemoval_t remove) {
 
     if (!lkht->items) {
         return UTILS_STATUS_EMPTY;
     }
 
-    uint32_t ii = LKHT_HASHFUN(key) & (lkht->size - 1);
+    uint32_t ii = LKHT_HASHFUN(key) & (lkht->size - 1U);
 
     if (!lkht->entries[ii].items) {
         return UTILS_STATUS_BUCKET_EMPTY;
@@ -170,12 +156,12 @@ utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, char* key, void* value, lkHash
     listIt(&iterator, &(lkht->entries[ii]));
 
     while (listItNext(&iterator) == UTILS_STATUS_SUCCESS) {
-        memcpy(&entry, iterator.ptr->data, sizeof(lkHashTableEntry_t));
+        (void)memcpy(&entry, iterator.ptr->data, sizeof(lkHashTableEntry_t));
 
         if (!strcmp(key, entry.key)) {
-            memcpy(value, entry.value, lkht->itemSize);
+            (void)memcpy(value, entry.value, lkht->itemSize);
             if (remove == LKHT_REMOVE_ITEM) {
-                listRemove(&(lkht->entries[ii]), &entry, iterator.idx);
+                (void)listRemove(&(lkht->entries[ii]), &entry, iterator.idx);
                 lkht->items--;
                 ADVUTILS_FREE(entry.key);
                 ADVUTILS_FREE(entry.value);
@@ -195,11 +181,11 @@ utilsStatus_t lkHashTableFlush(lkHashTable_t* lkht) {
 
     lkHashTableEntry_t entry;
 
-    for (uint32_t ii = 0; ii < lkht->size; ii++) {
-        LIST_STYPE idx = lkht->entries[ii].items;
+    for (uint32_t i = 0; i < lkht->size; i++) {
+        LIST_STYPE idx = lkht->entries[i].items;
 
-        while (idx--) {
-            listPop(&(lkht->entries[ii]), &entry);
+        while (idx-- != 0U) {
+            (void)listPop(&(lkht->entries[i]), &entry);
             ADVUTILS_FREE(entry.key);
             ADVUTILS_FREE(entry.value);
         }
@@ -216,7 +202,7 @@ utilsStatus_t lkHashTableDelete(lkHashTable_t* lkht) {
         return UTILS_STATUS_ERROR;
     }
 
-    lkHashTableFlush(lkht);
+    (void)lkHashTableFlush(lkht);
 
     ADVUTILS_FREE(lkht->entries);
     lkht->entries = NULL;

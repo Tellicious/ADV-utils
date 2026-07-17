@@ -38,14 +38,14 @@
 
 /* Macros --------------------------------------------------------------------*/
 
-#define PI_2 constPI * 0.5f
+#define PI_2 (constPI * 0.5f)
 
 /* Functions -----------------------------------------------------------------*/
 
 void quaternionNorm(quaternion_t* q) {
     float inv_norm;
 
-    inv_norm = INVSQRT(q->q0 * q->q0 + q->q1 * q->q1 + q->q2 * q->q2 + q->q3 * q->q3);
+    inv_norm = INVSQRT((q->q0 * q->q0) + (q->q1 * q->q1) + (q->q2 * q->q2) + (q->q3 * q->q3));
     if (isnan(inv_norm) || isinf(inv_norm)) {
         inv_norm = 1.f;
     }
@@ -57,12 +57,15 @@ void quaternionNorm(quaternion_t* q) {
 }
 
 void quaternionMult(const quaternion_t* qa, const quaternion_t* qb, quaternion_t* qo) {
-    float q0, q1, q2, q3;
+    float q0;
+    float q1;
+    float q2;
+    float q3;
 
-    q0 = qa->q0 * qb->q0 - qa->q1 * qb->q1 - qa->q2 * qb->q2 - qa->q3 * qb->q3;
-    q1 = qa->q0 * qb->q1 + qa->q1 * qb->q0 + qa->q2 * qb->q3 - qa->q3 * qb->q2;
-    q2 = qa->q0 * qb->q2 - qa->q1 * qb->q3 + qa->q2 * qb->q0 + qa->q3 * qb->q1;
-    q3 = qa->q0 * qb->q3 + qa->q1 * qb->q2 - qa->q2 * qb->q1 + qa->q3 * qb->q0;
+    q0 = (qa->q0 * qb->q0) - (qa->q1 * qb->q1) - (qa->q2 * qb->q2) - (qa->q3 * qb->q3);
+    q1 = (qa->q0 * qb->q1) + (qa->q1 * qb->q0) + (qa->q2 * qb->q3) - (qa->q3 * qb->q2);
+    q2 = (qa->q0 * qb->q2) - (qa->q1 * qb->q3) + (qa->q2 * qb->q0) + (qa->q3 * qb->q1);
+    q3 = (qa->q0 * qb->q3) + (qa->q1 * qb->q2) - (qa->q2 * qb->q1) + (qa->q3 * qb->q0);
     qo->q0 = q0;
     qo->q1 = q1;
     qo->q2 = q2;
@@ -70,18 +73,27 @@ void quaternionMult(const quaternion_t* qa, const quaternion_t* qb, quaternion_t
 }
 
 void quaternionRotation(const quaternion_t* qr, const quaternion_t* qv, quaternion_t* qo) {
-    float q0q0, q1q1, q2q2, q3q3;
-    float dq0, dq1, dq2;
-    float dq1q2, dq1q3, dq0q2, dq0q3;
-    float dq0q1, dq2q3;
+    float q0q0;
+    float q1q1;
+    float q2q2;
+    float q3q3;
+    float dq0;
+    float dq1;
+    float dq2;
+    float dq1q2;
+    float dq1q3;
+    float dq0q2;
+    float dq0q3;
+    float dq0q1;
+    float dq2q3;
 
     q0q0 = qr->q0 * qr->q0;
     q1q1 = qr->q1 * qr->q1;
     q2q2 = qr->q2 * qr->q2;
     q3q3 = qr->q3 * qr->q3;
-    dq0 = 2 * qr->q0;
-    dq1 = 2 * qr->q1;
-    dq2 = 2 * qr->q2;
+    dq0 = 2.0f * qr->q0;
+    dq1 = 2.0f * qr->q1;
+    dq2 = 2.0f * qr->q2;
     dq1q2 = dq1 * qr->q2;
     dq1q3 = dq1 * qr->q3;
     dq0q2 = dq0 * qr->q2;
@@ -90,9 +102,9 @@ void quaternionRotation(const quaternion_t* qr, const quaternion_t* qv, quaterni
     dq2q3 = dq2 * qr->q3;
 
     qo->q0 = 0;
-    qo->q1 = (q0q0 + q1q1 - q2q2 - q3q3) * qv->q1 + (dq1q2 + dq0q3) * qv->q2 + (dq1q3 - dq0q2) * qv->q3;
-    qo->q2 = (dq1q2 - dq0q3) * qv->q1 + (q0q0 + q2q2 - q1q1 - q3q3) * qv->q2 + (dq0q1 + dq2q3) * qv->q3;
-    qo->q3 = (dq0q2 + dq1q3) * qv->q1 + (dq2q3 - dq0q1) * qv->q2 + (q0q0 + q3q3 - q1q1 - q2q2) * qv->q3;
+    qo->q1 = ((q0q0 + q1q1 - q2q2 - q3q3) * qv->q1) + ((dq1q2 + dq0q3) * qv->q2) + ((dq1q3 - dq0q2) * qv->q3);
+    qo->q2 = ((dq1q2 - dq0q3) * qv->q1) + ((q0q0 + q2q2 - q1q1 - q3q3) * qv->q2) + ((dq0q1 + dq2q3) * qv->q3);
+    qo->q3 = ((dq0q2 + dq1q3) * qv->q1) + ((dq2q3 - dq0q1) * qv->q2) + ((q0q0 + q3q3 - q1q1 - q2q2) * qv->q3);
 }
 
 void quaternionConj(const quaternion_t* qa, quaternion_t* qo) {
@@ -103,12 +115,20 @@ void quaternionConj(const quaternion_t* qa, quaternion_t* qo) {
 }
 
 void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
-    float q0q0, q1q1, q2q2, q3q3;
-    float dq0, dq1, dq2;
-    float dq1q3, dq0q2;
-    float dq0q1, dq2q3;
+    float q0q0;
+    float q1q1;
+    float q2q2;
+    float q3q3;
+    float dq0;
+    float dq1;
+    float dq2;
+    float dq1q3;
+    float dq0q2;
+    float dq0q1;
+    float dq2q3;
 #ifdef AVOID_GIMBAL_LOCK
-    float dq1q2, dq0q3;
+    float dq1q2;
+    float dq0q3;
     static axis3f_t ea_pre;
 #endif
 
@@ -116,9 +136,9 @@ void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
     q1q1 = qr->q1 * qr->q1;
     q2q2 = qr->q2 * qr->q2;
     q3q3 = qr->q3 * qr->q3;
-    dq0 = 2 * qr->q0;
-    dq1 = 2 * qr->q1;
-    dq2 = 2 * qr->q2;
+    dq0 = 2.0f * qr->q0;
+    dq1 = 2.0f * qr->q1;
+    dq2 = 2.0f * qr->q2;
     dq1q3 = dq1 * qr->q3;
     dq0q2 = dq0 * qr->q2;
     dq0q1 = dq0 * qr->q1;
@@ -133,7 +153,7 @@ void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
 
     /* This part is needed to manage angle >90 deg */
 #ifdef AVOID_GIMBAL_LOCK
-    if (ea->x > PI_2 || ea->x < -PI_2) {
+    if ((ea->x > PI_2) || (ea->x < -PI_2)) {
         ea->x = ea_pre.x;
     }
     // This cannot happen, as asinf returns values between -pi/2 and pi/2

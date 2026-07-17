@@ -32,8 +32,8 @@
 /* END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __LINKEDHASHTABLE_H__
-#define __LINKEDHASHTABLE_H__
+#ifndef ADVUTILS_LINKEDHASHTABLE_H
+#define ADVUTILS_LINKEDHASHTABLE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -60,7 +60,8 @@ typedef struct {
  */
 typedef struct {
     list_t* entries; /* hash slots */
-    uint32_t size, items;
+    uint32_t size;
+    uint32_t items;
     size_t itemSize;
 } lkHashTable_t;
 
@@ -92,7 +93,7 @@ utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t siz
  * 
  * \return          UTILS_STATUS_SUCCESS if data is written correctly, UTILS_STATUS_ERROR otherwise
  */
-utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value);
+utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, const char* key, const void* value);
 
 /**
  * \brief           Get item with given key from hash table
@@ -104,7 +105,7 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, char* key, const void* value);
  * 
  * \return          UTILS_STATUS_SUCCESS if data is read correctly, UTILS_STATUS_ERROR if data 
  */
-utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, char* key, void* value, lkHashTableRemoval_t remove);
+utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, const char* key, void* value, lkHashTableRemoval_t remove);
 
 /**
  * \brief           Returns hash-table info
@@ -113,7 +114,7 @@ utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, char* key, void* value, lkHash
  * \param[out]      size: pointer to size
  * \param[out]      items: pointer to number of items currently in the hash-table
  */
-static inline void lkHashTableInfo(lkHashTable_t* lkht, uint32_t* size, uint32_t* items) {
+static inline void lkHashTableInfo(const lkHashTable_t* lkht, uint32_t* size, uint32_t* items) {
     *size = lkht->size;
     *items = lkht->items;
 }
@@ -141,4 +142,4 @@ utilsStatus_t lkHashTableDelete(lkHashTable_t* lkht);
 }
 #endif
 
-#endif /* __LINKEDHASHTABLE_H__ */
+#endif /* ADVUTILS_LINKEDHASHTABLE_H */

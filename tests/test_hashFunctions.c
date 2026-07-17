@@ -69,6 +69,13 @@ static void test_hash_FNV1A_null_pointer(void** state) {
     expect_assert_failure(hash_FNV1A(NULL));
 }
 
+static void test_hash_FNV1A_null_pointer_assert_disabled(void** state) {
+    (void)state; // unused
+    skipAssert = 1;
+    assert_int_equal(hash_FNV1A(NULL), 2216829733U);
+    skipAssert = 0;
+}
+
 static void test_hash_FNV1A_special_characters(void** state) {
     (void)state; // unused
     assert_int_equal(hash_FNV1A("!@#$%^&*()"), 114978727);
@@ -104,7 +111,15 @@ static void test_hash_djb_empty_string(void** state) {
 
 static void test_hash_djb_null_pointer(void** state) {
     (void)state; // unused
+    skipAssert = 0;
     expect_assert_failure(hash_djb(NULL));
+}
+
+static void test_hash_djb_null_pointer_assert_disabled(void** state) {
+    (void)state; // unused
+    skipAssert = 1;
+    assert_int_equal(hash_djb(NULL), 5381U);
+    skipAssert = 0;
 }
 
 static void test_hash_djb_special_characters(void** state) {
@@ -142,7 +157,15 @@ static void test_hash_sdbm_empty_string(void** state) {
 
 static void test_hash_sdbm_null_pointer(void** state) {
     (void)state; // unused
+    skipAssert = 0;
     expect_assert_failure(hash_sdbm(NULL));
+}
+
+static void test_hash_sdbm_null_pointer_assert_disabled(void** state) {
+    (void)state; // unused
+    skipAssert = 1;
+    assert_int_equal(hash_sdbm(NULL), 0U);
+    skipAssert = 0;
 }
 
 static void test_hash_sdbm_special_characters(void** state) {
@@ -173,6 +196,7 @@ int main(void) {
         cmocka_unit_test(test_hash_FNV1A_basic),
         cmocka_unit_test(test_hash_FNV1A_empty_string),
         cmocka_unit_test(test_hash_FNV1A_null_pointer),
+        cmocka_unit_test(test_hash_FNV1A_null_pointer_assert_disabled),
         cmocka_unit_test(test_hash_FNV1A_special_characters),
         cmocka_unit_test(test_hash_FNV1A_different_cases),
         cmocka_unit_test(test_hash_FNV1A_long_string),
@@ -182,6 +206,7 @@ int main(void) {
         cmocka_unit_test(test_hash_djb_basic),
         cmocka_unit_test(test_hash_djb_empty_string),
         cmocka_unit_test(test_hash_djb_null_pointer),
+        cmocka_unit_test(test_hash_djb_null_pointer_assert_disabled),
         cmocka_unit_test(test_hash_djb_special_characters),
         cmocka_unit_test(test_hash_djb_different_cases),
         cmocka_unit_test(test_hash_djb_long_string),
@@ -191,6 +216,7 @@ int main(void) {
         cmocka_unit_test(test_hash_sdbm_basic),
         cmocka_unit_test(test_hash_sdbm_empty_string),
         cmocka_unit_test(test_hash_sdbm_null_pointer),
+        cmocka_unit_test(test_hash_sdbm_null_pointer_assert_disabled),
         cmocka_unit_test(test_hash_sdbm_special_characters),
         cmocka_unit_test(test_hash_sdbm_different_cases),
         cmocka_unit_test(test_hash_sdbm_long_string),
