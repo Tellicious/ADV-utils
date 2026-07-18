@@ -132,23 +132,35 @@ static void test_functions(void** state) {
     assert_float_equal(fastSqrt(121.0f), 11.0f, 1e-4);
     assert_float_equal(fastSqrt(0.0f), 0.0f, 1e-4);
     assert_true(isnan(fastSqrt(-4.0f))); // Check for NaN for negative input
+    for (float value = 0.0f; value <= 1000.0f; value += 0.05f) {
+        assert_float_equal(fastSqrt(value), sqrtf(value), 1e-4f);
+    }
 
     // Test fastInvSqrt function
-    assert_float_equal(fastInvSqrt(4.0f), 0.5f, 2e-3);
-    assert_float_equal(fastInvSqrt(9.0f), 1.0f / 3.0f, 2e-3);
-    assert_float_equal(fastInvSqrt(1.0f), 1.0f, 2e-3);
+    assert_float_equal(fastInvSqrt(4.0f), 0.5f, 1e-4);
+    assert_float_equal(fastInvSqrt(9.0f), 1.0f / 3.0f, 1e-4);
+    assert_float_equal(fastInvSqrt(1.0f), 1.0f, 1e-4);
     assert_true(isnan(fastInvSqrt(-4.0f))); // Check for NaN for negative input
+    for (float value = 0.1f; value <= 1000.0f; value += 0.05f) {
+        assert_float_equal(fastInvSqrt(value), 1.0f / sqrtf(value), 1e-4f);
+    }
 
     // Test fastSin function
     assert_float_equal(fastSin(3.141592654f / 2.0f), 1.0f, 1e-4);
     assert_float_equal(fastSin(-3.141592654f / 2.0f), -1.0f, 1e-4);
     assert_float_equal(fastSin(0.0f), 0.0f, 1e-4);
     assert_float_equal(fastSin(3.141592654f), 0.0f, 1e-4);
+    for (float angle = -(2.0f * 3.141592654f); angle <= (2.0f * 3.141592654f); angle += 0.01f) {
+        assert_float_equal(fastSin(angle), sinf(angle), 7e-4f);
+    }
 
     // Test fastCos function
     assert_float_equal(fastCos(0.0f), 1.0f, 1e-4);
     assert_float_equal(fastCos(3.141592654f), -1.0f, 1e-4);
     assert_float_equal(fastCos(3.141592654f / 2.0f), 0.0f, 1e-4);
+    for (float angle = -(2.0f * 3.141592654f); angle <= (2.0f * 3.141592654f); angle += 0.01f) {
+        assert_float_equal(fastCos(angle), cosf(angle), 7e-4f);
+    }
 }
 
 int main(void) {

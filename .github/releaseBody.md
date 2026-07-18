@@ -1,8 +1,7 @@
-## MISRA compliance extension
+## Minor improvements
 
 **Improvements:**
-- Further improved compliance to MISRA guidelines
-- Added list of deviations to MISRA guidelines
-- Aligned all iterators to `i`, `j`, `k` (from outer to inner loop)
+- Improved accuracy of `fastInvSqrt`
+- Improved `basicMath` fast math function tests
   
 See [Changelog](Changelog.md)

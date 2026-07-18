@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.23.0 
+
+**Improvements:**
+- Improved accuracy of `fastInvSqrt`
+- Improved `basicMath` fast math function tests
+
+
 ## v1.22.0 
 
 **Improvements:**

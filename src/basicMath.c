@@ -97,6 +97,8 @@ float fastInvSqrt(float value) {
     conv.f = value;
     conv.i = 0x5f3759dfU - (conv.i >> 1);
     conv.f *= 1.5f - (value * 0.5f * conv.f * conv.f);
+    /* Added a second iteration for better accuracy */
+    conv.f *= 1.5f - (value * 0.5f * conv.f * conv.f);
     return conv.f;
 }
 
