@@ -223,15 +223,15 @@ static inline void IIRFilterDerivativeSetValue(IIRFilterDerivative_t* filter, fl
 #define IIRFilterDerivativeReset(filter) IIRFilterDerivativeSetValue(filter, 0.0f);
 
 /**
- * \brief           Initialize integrator IIR filter
+ * \brief           Initialize IIR integrator
  *
  *
- * \param[in]       filter: pointer to IIR integrator filter structure
+ * \param[in]       filter: pointer to IIR integrator structure
  * \param[in]       dT_ms: loop time in ms
  */
 static inline void IIRFilterIntegratorInit(IIRFilterIntegrator_t* filter, float dT_ms) {
     /* Store filter coefficients */
-    filter->n0 = 0.5 * dT_ms * 1e-3f;
+    filter->n0 = 0.5f * dT_ms * 1e-3f;
 
     /* Initialize state variables */
     filter->i1 = 0.0f;
@@ -239,10 +239,10 @@ static inline void IIRFilterIntegratorInit(IIRFilterIntegrator_t* filter, float 
 }
 
 /**
- * \brief           Apply integrator IIR filter to provided sample
+ * \brief           Apply IIR integrator to provided sample
  *
  *
- * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       filter: pointer to IIR integrator structure
  * \param[in]       input: input sample to be filtered
  *
  * \return		    filtered value
@@ -254,10 +254,10 @@ static inline float IIRFilterIntegratorProcess(IIRFilterIntegrator_t* filter, fl
 }
 
 /**
- * \brief           Set integrator IIR filter state variables to provided value
+ * \brief           Set IIR integrator state variables to provided value
  *
  *
- * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       filter: pointer to IIR integrator structure
  * \param[in]       value: value to set the filter state variables to
  */
 static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, float value) {
@@ -267,10 +267,10 @@ static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, fl
 }
 
 /**
- * \brief           Reset integrator IIR filter
+ * \brief           Reset IIR integrator
  *
  *
- * \param[in]       filter: pointer to IIR filter structure
+ * \param[in]       filter: pointer to IIR integrator structure
  */
 #define IIRFilterIntegratorReset(filter) IIRFilterIntegratorSetValue(filter, 0.0f)
 
