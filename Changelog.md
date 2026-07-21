@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.24.0 
+
+**Improvements:**
+- Added IIR leaky integrator to `IIRFilters.h`
+- Added macro to check if timer is running to `timer.h`
+- Minor refactor to IIR integrator comments
+
 ## v1.23.0 
 
 **Improvements:**
