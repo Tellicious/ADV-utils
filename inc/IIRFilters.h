@@ -82,6 +82,16 @@ typedef struct {
     float output; /* output values */
 } IIRFilterIntegrator_t;
 
+/**
+ * Leaky integrator filter struct
+ */
+typedef struct {
+    float n0;     /* numerator coefficients */
+    float leak;   /* leak coefficient */
+    float i1;     /* previous input values */
+    float output; /* output values */
+} IIRFilterLeakyIntegrator_t;
+
 /* Function prototypes -------------------------------------------------------*/
 
 /**
@@ -273,6 +283,62 @@ static inline void IIRFilterIntegratorSetValue(IIRFilterIntegrator_t* filter, fl
  * \param[in]       filter: pointer to IIR integrator structure
  */
 #define IIRFilterIntegratorReset(filter) IIRFilterIntegratorSetValue(filter, 0.0f)
+
+/**
+ * \brief           Initialize IIR leaky integrator
+ *
+ *
+ * \param[in]       filter: pointer to IIR leaky integrator structure
+ * \param[in]       dT_ms: loop time in ms
+ * \param[in]       tau_ms: leak time constant in ms
+ */
+static inline void IIRFilterLeakyIntegratorInit(IIRFilterLeakyIntegrator_t* filter, float dT_ms, float tau_ms) {
+    const float dT = dT_ms * 1e-3f;
+    const float tau = tau_ms * 1e-3f;
+
+    /* Bilinear (Tustin) discretization of 1 / (s + 1/tau) */
+    filter->n0 = (dT * tau) / (2.0f * tau + dT);
+    filter->leak = (2.0f * tau - dT) / (2.0f * tau + dT);
+
+    filter->i1 = 0.0f;
+    filter->output = 0.0f;
+}
+
+/**
+ * \brief           Apply IIR leaky integrator to provided sample
+ *
+ *
+ * \param[in]       filter: pointer to IIR leaky integrator structure
+ * \param[in]       input: input sample to be filtered
+ *
+ * \return		    filtered value
+ */
+static inline float IIRFilterLeakyIntegratorProcess(IIRFilterLeakyIntegrator_t* filter, float input) {
+    filter->output = filter->leak * filter->output + filter->n0 * (input + filter->i1);
+    filter->i1 = input;
+    return filter->output;
+}
+
+/**
+ * \brief           Set IIR leaky integrator state variables to provided value
+ *
+ *
+ * \param[in]       filter: pointer to IIR leaky integrator structure
+ * \param[in]       value: value to set the filter state variables to
+ */
+static inline void IIRFilterLeakyIntegratorSetValue(IIRFilterLeakyIntegrator_t* filter, float value) {
+    /* Initialize state variables */
+    filter->i1 = value;
+    filter->output = value;
+}
+
+/**
+ * \brief           Reset IIR leaky integrator
+ *
+ *
+ * \param[in]       filter: pointer to IIR leaky integrator structure
+ */
+#define IIRFilterLeakyIntegratorReset(filter) IIRFilterLeakyIntegratorSetValue(filter, 0.0f)
 
 #ifdef __cplusplus
 }

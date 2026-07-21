@@ -238,11 +238,50 @@ static void test_IIRFilterIntegrator(void** state) {
     assert_float_equal(filter.output, 0.0, 1e-5);
 }
 
+static void test_IIRFilterLeakyIntegrator(void** state) {
+    (void)state; /* unused */
+    IIRFilterLeakyIntegrator_t filter;
+    const float dT_ms = 100.0f;
+    const float tau_ms = 1000.0f;
+    const float expected_n0 = (dT_ms * 1e-3f * tau_ms * 1e-3f) / (2.0f * tau_ms * 1e-3f + dT_ms * 1e-3f);
+    const float expected_leak = (2.0f * tau_ms * 1e-3f - dT_ms * 1e-3f) / (2.0f * tau_ms * 1e-3f + dT_ms * 1e-3f);
+    float leak_true[NUM_DATA] = {
+        0.00000,   0.00000,   0.00000,   0.00000,   0.00000,  0.00000,  0.00000,  0.00000,  0.00000,   0.00000,   0.61905,   1.79819,   2.86503,  3.83026,
+        4.70357,   5.49371,   6.20859,   6.85539,   7.44059,  7.97006,  8.44910,  8.88252,  9.27466,   9.62946,   9.95046,   10.24089,  10.50366, 10.74141,
+        10.95651,  11.15113,  11.32721,  11.48653,  11.63067, 11.76108, 11.87907, 10.74773, 8.48604,   6.43975,   4.58835,   2.91327,   1.39772,  0.02651,
+        -1.21411,  -2.33658,  -3.35214,  -4.27099,  -5.10232, -5.85448, -6.53501, -7.15072, -7.70779,  -8.21181,  -8.66783,  -9.08042,  -9.45371, -9.79145,
+        -10.09703, -10.37350, -10.62365, -10.84997, -9.81664, -7.64362, -5.67756, -3.89875, -2.28934,  -0.83322,  0.48423,   1.67621,   2.75467,  3.73041,
+        4.61323,   5.41197,   6.13464,   6.78848,   7.38006,  7.91529,  8.39955,  8.83769,  9.23410,   9.59275,   9.91725,   10.21085,  10.47648, 10.71682,
+        10.93426,  9.89290,   7.71263,   5.74000,   3.95524,  2.34045,  0.87946,  -0.44240, -1.63836,  -2.72042,  -3.69943,  -4.58520,  -5.38661, -6.11169,
+        -6.76772,  -7.36127,  -7.89829,  -8.38417,  -8.82377, -9.22151, -9.58137, -9.90695, -10.20153, -10.46805, -10.70919, -10.92736, -9.88666,
+    };
+
+    IIRFilterLeakyIntegratorInit(&filter, dT_ms, tau_ms);
+    assert_float_equal(filter.n0, expected_n0, 1e-6);
+    assert_float_equal(filter.leak, expected_leak, 1e-6);
+    assert_float_equal(filter.i1, 0.0f, 1e-5);
+    assert_float_equal(filter.output, 0.0f, 1e-5);
+
+    for (uint8_t ii = 0; ii < NUM_DATA; ii++) {
+        assert_float_equal(IIRFilterLeakyIntegratorProcess(&filter, input[ii]), leak_true[ii], 1e-5);
+    }
+
+    IIRFilterLeakyIntegratorSetValue(&filter, 2.0f);
+    assert_float_equal(filter.i1, 2.0f, 1e-5);
+    assert_float_equal(filter.output, 2.0f, 1e-5);
+
+    IIRFilterLeakyIntegratorReset(&filter);
+    assert_float_equal(filter.i1, 0.0f, 1e-5);
+    assert_float_equal(filter.output, 0.0f, 1e-5);
+}
+
 int main(void) {
     const struct CMUnitTest test_IIRFilters[] = {
-        cmocka_unit_test(test_IIRFilterInit),   cmocka_unit_test(test_IIRFilterInitLP),     cmocka_unit_test(test_IIRFilterInitHP),
-        cmocka_unit_test(test_IIRFilterInitBP), cmocka_unit_test(test_IIRFilterInitBS),     cmocka_unit_test(test_IIRFilterProcess),
-        cmocka_unit_test(test_IIRFilterReset),  cmocka_unit_test(test_IIRFilterDerivative), cmocka_unit_test(test_IIRFilterIntegrator),
+        cmocka_unit_test(test_IIRFilterInit),       cmocka_unit_test(test_IIRFilterInitLP),
+        cmocka_unit_test(test_IIRFilterInitHP),     cmocka_unit_test(test_IIRFilterInitBP),
+        cmocka_unit_test(test_IIRFilterInitBS),     cmocka_unit_test(test_IIRFilterProcess),
+        cmocka_unit_test(test_IIRFilterReset),      cmocka_unit_test(test_IIRFilterDerivative),
+        cmocka_unit_test(test_IIRFilterIntegrator), cmocka_unit_test(test_IIRFilterLeakyIntegrator),
     };
 
     return cmocka_run_group_tests(test_IIRFilters, NULL, NULL);

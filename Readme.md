@@ -10,7 +10,7 @@
 - ***basicMath:*** math constants, conversion factors, bitwise operators, `fastSqrt`, `fastInvSqrt`, `fastSin` and `fastCos`
 - ***button:*** interrupt-based button object with debounce and multiple press types detection
 - ***event:*** callback-based event manager with support for functions with type `void(*)(void)` and `void(*)(void* val)`
-- ***IIRFilters:*** simple discrete-time IIR filters, with on-the-fly conversion continuous -> discrete of derivative, integrator, 2nd order low-pass, high-pass, band-pass and band-stop filters
+- ***IIRFilters:*** simple discrete-time IIR filters, with on-the-fly conversion continuous -> discrete of derivative, integrator, leaky integrator, 2nd order low-pass, high-pass, band-pass and band-stop filters
 - ***list:*** linked list
 - ***LKHashTable:*** dynamic linked hash-table object (based on _list_)
 - ***LPHashTable:*** linear-probing hash-table object with auto-resize capability
