@@ -88,6 +88,15 @@ static inline void timerStop(userTimer_t* t) {
 }
 
 /**
+ * \brief           Check if timer is running
+ *
+ * \param[in]       t: pointer to timer object
+ *
+ * \return          1 if timer is running, 0 otherwise
+ */
+#define timerIsRunning(t) ((t)->flag)
+
+/**
  * \brief           Reset timer object
  *
  * \param[in]       t: pointer to timer object

@@ -70,6 +70,17 @@ static void test_timerStop(void** state) {
     assert_int_equal(timer.flag, 0);
 }
 
+static void test_timerIsRunning(void** state) {
+    (void)state; /* unused */
+    userTimer_t timer;
+    timerInit(&timer, 1000);
+    assert_int_equal(timerIsRunning(&timer), 0);
+    timerStart(&timer, 500);
+    assert_int_equal(timerIsRunning(&timer), 1);
+    timerStop(&timer);
+    assert_int_equal(timerIsRunning(&timer), 0);
+}
+
 static void test_timerClear(void** state) {
     (void)state; /* unused */
     userTimer_t timer;
@@ -150,8 +161,9 @@ static void test_timerWrapAround(void** state) {
 
 int main(void) {
     const struct CMUnitTest test_timer[] = {
-        cmocka_unit_test(test_timerInit),    cmocka_unit_test(test_timerStart),       cmocka_unit_test(test_timerStop),       cmocka_unit_test(test_timerClear),
-        cmocka_unit_test(test_timerProcess), cmocka_unit_test(test_timerEventExists), cmocka_unit_test(test_timerWrapAround),
+        cmocka_unit_test(test_timerInit),        cmocka_unit_test(test_timerStart),      cmocka_unit_test(test_timerStop),
+        cmocka_unit_test(test_timerClear),       cmocka_unit_test(test_timerProcess),    cmocka_unit_test(test_timerIsRunning),
+        cmocka_unit_test(test_timerEventExists), cmocka_unit_test(test_timerWrapAround),
     };
 
     return cmocka_run_group_tests(test_timer, NULL, NULL);
