@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.25.0 
+
+**Improvements:**
+- Further improved compliance to MISRA guidelines
+- Added cppcheck configuration file
+- Minor formatting fix
+
+**Bugfix:**
+- Removed orphaned iterator type from `LPHashTable`
+
 ## v1.24.0 
 
 **Improvements:**

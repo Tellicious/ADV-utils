@@ -56,6 +56,9 @@ typedef struct {
     float q1;
     float q2;
     float q3;
+#ifdef AVOID_GIMBAL_LOCK
+    axis3f_t ea_pre;
+#endif
 } quaternion_t;
 
 #endif
@@ -103,7 +106,7 @@ void quaternionConj(const quaternion_t* qa, quaternion_t* qo);
  * \param[in]       qr: pointer to input quaternion object
  * \param[out]      ea: pointer to resulting euler angles
  */
-void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea);
+void quaternionToEuler(quaternion_t* qr, axis3f_t* ea);
 
 #ifdef __cplusplus
 }

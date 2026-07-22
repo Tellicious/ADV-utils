@@ -1,8 +1,11 @@
-## Addition of leaky integrator and timer status check
+## Further improvement to MISRA compliance
 
 **Improvements:**
-- Added IIR leaky integrator to `IIRFilters.h`
-- Added macro to check if timer is running to `timer.h`
-- Minor refactor to IIR integrator comments
+- Further improved compliance to MISRA guidelines
+- Added cppcheck configuration file
+- Minor formatting fix
+
+**Bugfix:**
+- Removed orphaned iterator type from `LPHashTable`
     
 See [Changelog](Changelog.md)

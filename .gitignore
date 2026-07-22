@@ -58,3 +58,4 @@ cmocka_includes.h
 # Build directories
 build/
 Testing/
+test-cppcheck-build-dir/

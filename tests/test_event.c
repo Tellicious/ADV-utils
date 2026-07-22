@@ -134,18 +134,18 @@ static void test_eventRegister(void** state) {
     eventDelete(&eventEx);
 }
 
-static void test_eventRegisterEx(void** state) {
+static void test_eventRegisterExt(void** state) {
     (void)state; /* unused */
     event_t event, eventEx;
     assert_int_equal(eventInit(&event, EVENT_TYPE_BASIC, 2), UTILS_STATUS_SUCCESS);
     assert_int_equal(eventInit(&eventEx, EVENT_TYPE_EXTENDED, 2), UTILS_STATUS_SUCCESS);
-    assert_int_equal(eventRegisterEx(&eventEx, extended_event_handler), UTILS_STATUS_SUCCESS);
+    assert_int_equal(eventRegisterExt(&eventEx, extended_event_handler), UTILS_STATUS_SUCCESS);
     assert_int_equal(eventEx.count, 1);
     /* Check registration of wrong event type */
-    assert_int_equal(eventRegisterEx(&event, extended_event_handler), UTILS_STATUS_ERROR);
+    assert_int_equal(eventRegisterExt(&event, extended_event_handler), UTILS_STATUS_ERROR);
     /* Check registration when full */
-    assert_int_equal(eventRegisterEx(&eventEx, extended_event_handler), UTILS_STATUS_SUCCESS);
-    assert_int_equal(eventRegisterEx(&eventEx, extended_event_handler), UTILS_STATUS_FULL);
+    assert_int_equal(eventRegisterExt(&eventEx, extended_event_handler), UTILS_STATUS_SUCCESS);
+    assert_int_equal(eventRegisterExt(&eventEx, extended_event_handler), UTILS_STATUS_FULL);
     eventDelete(&event);
     eventDelete(&eventEx);
 }
@@ -173,8 +173,8 @@ static void test_eventDispatchEx(void** state) {
     event_t event, eventEx;
     assert_int_equal(eventInit(&event, EVENT_TYPE_BASIC, 10), UTILS_STATUS_SUCCESS);
     assert_int_equal(eventInit(&eventEx, EVENT_TYPE_EXTENDED, 10), UTILS_STATUS_SUCCESS);
-    eventRegisterEx(&eventEx, extended_event_handler);
-    eventRegisterEx(&eventEx, extended_event_handler);
+    eventRegisterExt(&eventEx, extended_event_handler);
+    eventRegisterExt(&eventEx, extended_event_handler);
     extended_event_triggered = 0;
     int test_value = 42;
     extended_event_value = NULL;
@@ -201,7 +201,7 @@ static void test_eventDelete(void** state) {
 
 int main(void) {
     const struct CMUnitTest test_event[] = {cmocka_unit_test(test_eventInit),     cmocka_unit_test(test_eventInitStatic),
-                                            cmocka_unit_test(test_eventRegister), cmocka_unit_test(test_eventRegisterEx),
+                                            cmocka_unit_test(test_eventRegister), cmocka_unit_test(test_eventRegisterExt),
                                             cmocka_unit_test(test_eventDispatch), cmocka_unit_test(test_eventDispatchEx),
                                             cmocka_unit_test(test_eventDelete)};
 

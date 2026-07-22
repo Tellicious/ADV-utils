@@ -86,8 +86,8 @@ float fastSqrt(float value) {
 
 float fastInvSqrt(float value) {
     union {
-        float f;
         uint32_t i;
+        float f;
     } conv;
 
     if (value < 0.0f) {

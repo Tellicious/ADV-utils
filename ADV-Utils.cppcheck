@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="1">
+    <builddir>test-cppcheck-build-dir</builddir>
+    <platform>unix64</platform>
+    <analyze-all-vs-configs>false</analyze-all-vs-configs>
+    <check-headers>true</check-headers>
+    <check-unused-templates>true</check-unused-templates>
+    <inline-suppression>true</inline-suppression>
+    <max-ctu-depth>2</max-ctu-depth>
+    <max-template-recursion>100</max-template-recursion>
+    <includedir>
+        <dir name="inc/"/>
+    </includedir>
+    <paths>
+        <dir name="src"/>
+    </paths>
+    <libraries>
+        <library>gnu</library>
+    </libraries>
+    <suppressions>
+        <suppression>unusedFunction</suppression>
+        <suppression>misra-c2012-15.5</suppression>
+        <suppression>misra-config</suppression>
+        <suppression>misra-c2012-18.8</suppression>
+        <suppression>misra-c2012-8.7</suppression>
+        <suppression>misra-c2012-2.5</suppression>
+        <suppression>misra-c2012-21.3</suppression>
+        <suppression>misra-c2012-19.2</suppression>
+        <suppression>missingIncludeSystem</suppression>
+        <suppression>missingInclude</suppression>
+    </suppressions>
+    <safe-checks>
+        <class-public/>
+    </safe-checks>
+    <addons>
+        <addon>threadsafety</addon>
+        <addon>y2038</addon>
+        <addon>misra</addon>
+    </addons>
+    <check-level-exhaustive/>
+    <project-name>ADV-Utils</project-name>
+</project>

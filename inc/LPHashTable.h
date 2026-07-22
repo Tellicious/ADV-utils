@@ -71,16 +71,6 @@ typedef struct {
 } lpHashTable_t;
 
 /**
- * Hash-Table iterator 
- */
-typedef struct {
-    char* key;
-    void* value;
-    lpHashTable_t* _lpht;
-    uint32_t _index;
-} lpHashTableIterator_t;
-
-/**
  * Hash-Table removal setting
  */
 typedef enum { LPHT_REMOVE_ITEM = 0, LPHT_DO_NOT_REMOVE_ITEM = 1 } lpHashTableRemoval_t;

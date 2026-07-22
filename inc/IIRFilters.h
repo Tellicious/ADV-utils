@@ -297,8 +297,8 @@ static inline void IIRFilterLeakyIntegratorInit(IIRFilterLeakyIntegrator_t* filt
     const float tau = tau_ms * 1e-3f;
 
     /* Bilinear (Tustin) discretization of 1 / (s + 1/tau) */
-    filter->n0 = (dT * tau) / (2.0f * tau + dT);
-    filter->leak = (2.0f * tau - dT) / (2.0f * tau + dT);
+    filter->n0 = (dT * tau) / ((2.0f * tau) + dT);
+    filter->leak = ((2.0f * tau) - dT) / ((2.0f * tau) + dT);
 
     filter->i1 = 0.0f;
     filter->output = 0.0f;
@@ -314,7 +314,7 @@ static inline void IIRFilterLeakyIntegratorInit(IIRFilterLeakyIntegrator_t* filt
  * \return		    filtered value
  */
 static inline float IIRFilterLeakyIntegratorProcess(IIRFilterLeakyIntegrator_t* filter, float input) {
-    filter->output = filter->leak * filter->output + filter->n0 * (input + filter->i1);
+    filter->output = (filter->leak * filter->output) + (filter->n0 * (input + filter->i1));
     filter->i1 = input;
     return filter->output;
 }

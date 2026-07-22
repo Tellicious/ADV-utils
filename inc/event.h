@@ -80,23 +80,24 @@ typedef struct {
  * \brief           Init event structure
  *
  * \param[in]       event: pointer to event object
- * \param[in]       type: type of event callback, either EVENT_TYPE_BASIC or EVENT_TYPE_EXTENDED
+ * \param[in]       eventType: type of event callback, either EVENT_TYPE_BASIC or EVENT_TYPE_EXTENDED
  * \param[in]       size: maximum number of event callbacks
  * 
  * \return          UTILS_STATUS_SUCCESS if event is initialized, UTILS_STATUS_ERROR if data was not allocated correctly
  */
-utilsStatus_t eventInit(event_t* event, eventType_t type, uint16_t size);
+utilsStatus_t eventInit(event_t* event, eventType_t eventType, uint16_t size);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 /**
  * \brief           Init event structure with static memory allocation
  *
  * \param[in]       event: pointer to event object
- * \param[in]       data: pointer to data array with size = size * sizeof(eventCBType_t or eventExtCBType_t)
- * \param[in]       type: type of event callback, either EVENT_TYPE_BASIC or EVENT_TYPE_EXTENDED
+ * \param[in]       callbackData: pointer to data array with size = size * sizeof(eventCBType_t or eventExtCBType_t)
+ * \param[in]       eventType: type of event callback, either EVENT_TYPE_BASIC or EVENT_TYPE_EXTENDED
  * \param[in]       size: maximum number of event callbacks
  */
-void eventInitStatic(event_t* event, eventExtCBType_t* data, eventType_t type, uint16_t size);
+/* cppcheck-suppress misra-c2012-8.2 ; false positive: cppcheck loses param names through typedef'd function-pointer params */
+void eventInitStatic(event_t* event, eventExtCBType_t* callbackData, eventType_t eventType, uint16_t size);
 
 /**
  * \brief           Register basic callback to a specific event
@@ -116,7 +117,7 @@ utilsStatus_t eventRegister(event_t* event, eventCBType_t callback);
  *  
  * \return          UTILS_STATUS_SUCCESS if callback is registered correctly, UTILS_STATUS_FULL if event is full, UTILS_STATUS_ERROR otherwise
  */
-utilsStatus_t eventRegisterEx(event_t* event, eventExtCBType_t callback);
+utilsStatus_t eventRegisterExt(event_t* event, eventExtCBType_t callback);
 
 /**
  * \brief           Dispatch an event with basic callback

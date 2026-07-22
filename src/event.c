@@ -46,8 +46,8 @@
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
-utilsStatus_t eventInit(event_t* event, eventType_t type, uint16_t size) {
-    event->type = type;
+utilsStatus_t eventInit(event_t* event, eventType_t eventType, uint16_t size) {
+    event->type = eventType;
     event->count = 0;
     event->size = size;
     event->eventsList = ADVUTILS_CALLOC(size, sizeof(eventExtCBType_t));
@@ -63,11 +63,11 @@ utilsStatus_t eventInit(event_t* event, eventType_t type, uint16_t size) {
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
 
-void eventInitStatic(event_t* event, eventExtCBType_t* data, eventType_t type, uint16_t size) {
-    event->type = type;
+void eventInitStatic(event_t* event, eventExtCBType_t* callbackData, eventType_t eventType, uint16_t size) {
+    event->type = eventType;
     event->count = 0;
     event->size = size;
-    event->eventsList = data;
+    event->eventsList = callbackData;
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -86,7 +86,7 @@ utilsStatus_t eventRegister(event_t* event, eventCBType_t callback) {
     return UTILS_STATUS_SUCCESS;
 }
 
-utilsStatus_t eventRegisterEx(event_t* event, eventExtCBType_t callback) {
+utilsStatus_t eventRegisterExt(event_t* event, eventExtCBType_t callback) {
     if (event->type == EVENT_TYPE_BASIC) {
         return UTILS_STATUS_ERROR;
     } else if (event->count == event->size) {

@@ -114,7 +114,7 @@ void quaternionConj(const quaternion_t* qa, quaternion_t* qo) {
     qo->q3 = -qa->q3;
 }
 
-void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
+void quaternionToEuler(quaternion_t* qr, axis3f_t* ea) {
     float q0q0;
     float q1q1;
     float q2q2;
@@ -129,7 +129,6 @@ void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
 #ifdef AVOID_GIMBAL_LOCK
     float dq1q2;
     float dq0q3;
-    static axis3f_t ea_pre;
 #endif
 
     q0q0 = qr->q0 * qr->q0;
@@ -154,16 +153,16 @@ void quaternionToEuler(const quaternion_t* qr, axis3f_t* ea) {
     /* This part is needed to manage angle >90 deg */
 #ifdef AVOID_GIMBAL_LOCK
     if ((ea->x > PI_2) || (ea->x < -PI_2)) {
-        ea->x = ea_pre.x;
+        ea->x = qr->ea_pre.x;
     }
     // This cannot happen, as asinf returns values between -pi/2 and pi/2
     /*
     if (ea->y > PI_2 || ea->y < -PI_2) {
-        ea->y = ea_pre.y;
+        ea->y = qr->ea_pre.y;
     }*/
 
-    ea_pre.x = ea->x;
-    ea_pre.y = ea->y;
+    qr->ea_pre.x = ea->x;
+    qr->ea_pre.y = ea->y;
     ea->z = atan2f(dq1q2 + dq0q3, q0q0 + q1q1 - q2q2 - q3q3);
 #endif
 }

@@ -48,7 +48,7 @@
 static void test_quaternionNorm(void** state) {
     (void)state; /* unused */
 
-    quaternion_t q = {1.0f, 2.0f, 3.0f, 4.0f};
+    quaternion_t q = {1.0f, 2.0f, 3.0f, 4.0f, {0.0f, 0.0f, 0.0f}};
     quaternionNorm(&q);
 
     float norm = sqrtf(1.0f + 4.0f + 9.0f + 16.0f);
@@ -58,7 +58,7 @@ static void test_quaternionNorm(void** state) {
     assert_float_equal(q.q3, 4.0f / norm, 1e-5);
 
     // Edge case: Zero quaternion
-    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f};
+    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternionNorm(&q_zero);
     assert_float_equal(q_zero.q0, 0.0f, 1e-5);
     assert_float_equal(q_zero.q1, 0.0f, 1e-5);
@@ -66,7 +66,7 @@ static void test_quaternionNorm(void** state) {
     assert_float_equal(q_zero.q3, 0.0f, 1e-5);
 
     // Edge case: Negative components
-    quaternion_t q_neg = {-1.0f, -2.0f, -3.0f, -4.0f};
+    quaternion_t q_neg = {-1.0f, -2.0f, -3.0f, -4.0f, {0.0f, 0.0f, 0.0f}};
     quaternionNorm(&q_neg);
     assert_float_equal(q_neg.q0, -1.0f / norm, 1e-5);
     assert_float_equal(q_neg.q1, -2.0f / norm, 1e-5);
@@ -77,8 +77,8 @@ static void test_quaternionNorm(void** state) {
 static void test_quaternionMult(void** state) {
     (void)state; /* unused */
 
-    quaternion_t qa = {1.0f, 0.0f, 0.0f, 0.0f};
-    quaternion_t qb = {0.0f, 1.0f, 0.0f, 0.0f};
+    quaternion_t qa = {1.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
+    quaternion_t qb = {0.0f, 1.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternion_t qo;
     quaternionMult(&qa, &qb, &qo);
 
@@ -88,7 +88,7 @@ static void test_quaternionMult(void** state) {
     assert_float_equal(qo.q3, 0.0f, 1e-5);
 
     // Edge case: Identity quaternion multiplication
-    quaternion_t q_identity = {1.0f, 0.0f, 0.0f, 0.0f};
+    quaternion_t q_identity = {1.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternionMult(&qa, &q_identity, &qo);
     assert_float_equal(qo.q0, qa.q0, 1e-5);
     assert_float_equal(qo.q1, qa.q1, 1e-5);
@@ -96,7 +96,7 @@ static void test_quaternionMult(void** state) {
     assert_float_equal(qo.q3, qa.q3, 1e-5);
 
     // Edge case: Zero quaternion multiplication
-    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f};
+    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternionMult(&qa, &q_zero, &qo);
     assert_float_equal(qo.q0, 0.0f, 1e-5);
     assert_float_equal(qo.q1, 0.0f, 1e-5);
@@ -107,8 +107,8 @@ static void test_quaternionMult(void** state) {
 static void test_quaternionRotation(void** state) {
     (void)state; /* unused */
 
-    quaternion_t qr = {1.0f, 0.0f, 0.0f, 0.0f};
-    quaternion_t qv = {0.0f, 1.0f, 0.0f, 0.0f};
+    quaternion_t qr = {1.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
+    quaternion_t qv = {0.0f, 1.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternion_t qo;
     quaternionRotation(&qr, &qv, &qo);
 
@@ -118,8 +118,8 @@ static void test_quaternionRotation(void** state) {
     assert_float_equal(qo.q3, 0.0f, 1e-5);
 
     // Edge case: Rotation by 180 degrees
-    quaternion_t qr_180 = {0.0f, 1.0f, 0.0f, 0.0f}; // 180 degree rotation around the x-axis
-    quaternion_t qv2 = {0.0f, 0.0f, 1.0f, 0.0f};
+    quaternion_t qr_180 = {0.0f, 1.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}}; // 180 degree rotation around the x-axis
+    quaternion_t qv2 = {0.0f, 0.0f, 1.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternionRotation(&qr_180, &qv2, &qo);
     assert_float_equal(qo.q1, 0.0f, 1e-5);
     assert_float_equal(qo.q2, -1.0f, 1e-5);
@@ -129,7 +129,7 @@ static void test_quaternionRotation(void** state) {
 static void test_quaternionConj(void** state) {
     (void)state; /* unused */
 
-    quaternion_t qa = {1.0f, 2.0f, 3.0f, 4.0f};
+    quaternion_t qa = {1.0f, 2.0f, 3.0f, 4.0f, {0.0f, 0.0f, 0.0f}};
     quaternion_t qo;
     quaternionConj(&qa, &qo);
 
@@ -139,7 +139,7 @@ static void test_quaternionConj(void** state) {
     assert_float_equal(qo.q3, -4.0f, 1e-5);
 
     // Edge case: Zero quaternion conjugate
-    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f};
+    quaternion_t q_zero = {0.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     quaternionConj(&q_zero, &qo);
     assert_float_equal(qo.q0, 0.0f, 1e-5);
     assert_float_equal(qo.q1, 0.0f, 1e-5);
@@ -150,7 +150,7 @@ static void test_quaternionConj(void** state) {
 static void test_quaternionToEuler(void** state) {
     (void)state; /* unused */
 
-    quaternion_t qr = {1.0f, 0.0f, 0.0f, 0.0f};
+    quaternion_t qr = {1.0f, 0.0f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}};
     axis3f_t ea;
     quaternionToEuler(&qr, &ea);
 
@@ -159,14 +159,14 @@ static void test_quaternionToEuler(void** state) {
     assert_float_equal(ea.z, 0.0f, 1e-5);
 
     // Edge case: 90 degree rotation around the z-axis
-    quaternion_t qr_90_z = {0.7071068f, 0.0f, 0.0f, 0.7071068f}; // 90 degrees around z-axis
+    quaternion_t qr_90_z = {0.7071068f, 0.0f, 0.0f, 0.7071068f, {0.0f, 0.0f, 0.0f}}; // 90 degrees around z-axis
     quaternionToEuler(&qr_90_z, &ea);
     assert_float_equal(ea.x, 0.0f, 1e-5);
     assert_float_equal(ea.y, 0.0f, 1e-5);
     assert_float_equal(ea.z, constPI / 2.f, 1e-5);
 
     // Edge case: 92 degree rotation around the x-axis. Angles should remain unchanged
-    quaternion_t qr_92_x = {0.6946f, 0.7193f, 0.0f, 0.0f}; // 92 degrees around x-axis
+    quaternion_t qr_92_x = {0.6946f, 0.7193f, 0.0f, 0.0f, {0.0f, 0.0f, 0.0f}}; // 92 degrees around x-axis
     axis3f_t ea_pre;
     ea_pre.x = ea.x;
     ea_pre.y = ea.y;
