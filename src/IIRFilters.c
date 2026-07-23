@@ -62,7 +62,7 @@ void IIRFilterInit(IIRFilterGeneric_t* filter, float n0, float n1, float n2, flo
 void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms) {
     ADVUTILS_ASSERT(lpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / TAN(constPI * (lpFreq * dT_ms * 1e-3f));
-    const float q = SQRT(2.f);
+    const float q = constSQRT2; // Q factor for Butterworth filter
     float n0 = 1.f / (1.f + (q * lambda) + (lambda * lambda));
     float n1 = 2.f * n0;
     float d1 = 2.f * (1.f - (lambda * lambda)) * n0;
@@ -73,7 +73,7 @@ void IIRFilterInitLP(IIRFilterGeneric_t* filter, float lpFreq, float dT_ms) {
 void IIRFilterInitHP(IIRFilterGeneric_t* filter, float hpFreq, float dT_ms) {
     ADVUTILS_ASSERT(hpFreq < (0.5f / (dT_ms * 1e-3f)));
     const float lambda = 1.f / TAN(constPI * (hpFreq * dT_ms * 1e-3f));
-    const float q = SQRT(2.f);
+    const float q = constSQRT2; // Q factor for Butterworth filter
     float n0 = 1.f / (1.f + (q * lambda) + (lambda * lambda));
     float n1 = -2.f * n0 * lambda * lambda;
     float d1 = 2.f * (1.f - (lambda * lambda)) * n0;

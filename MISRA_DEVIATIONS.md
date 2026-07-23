@@ -70,6 +70,6 @@ rewrite would need a tagged union and a wider public API change.
 
 ## Analyser false positives (suppressed in-code)
 
-### Rule 20.4 — macro named as a keyword (basicMath.h: constPI/constG/constE)
+### Rule 20.4 — macro named as a keyword (basicMath.h: constPI/constG/constE/etc)
 The addon flags these `const`-prefixed identifiers; none is a keyword.
 Suppressed inline.

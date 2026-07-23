@@ -36,10 +36,6 @@
 #include "quaternion.h"
 #include "basicMath.h"
 
-/* Macros --------------------------------------------------------------------*/
-
-#define PI_2 (constPI * 0.5f)
-
 /* Functions -----------------------------------------------------------------*/
 
 void quaternionNorm(quaternion_t* q) {
@@ -152,12 +148,12 @@ void quaternionToEuler(quaternion_t* qr, axis3f_t* ea) {
 
     /* This part is needed to manage angle >90 deg */
 #ifdef AVOID_GIMBAL_LOCK
-    if ((ea->x > PI_2) || (ea->x < -PI_2)) {
+    if ((ea->x > constPI_2) || (ea->x < -constPI_2)) {
         ea->x = qr->ea_pre.x;
     }
     // This cannot happen, as asinf returns values between -pi/2 and pi/2
     /*
-    if (ea->y > PI_2 || ea->y < -PI_2) {
+    if (ea->y > constPI_2 || ea->y < -constPI_2) {
         ea->y = qr->ea_pre.y;
     }*/
 

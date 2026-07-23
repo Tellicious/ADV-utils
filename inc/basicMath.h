@@ -171,16 +171,68 @@ extern "C" {
 /* Constants -----------------------------------------------------------------*/
 
 /* Pi value */
+#ifdef M_PI
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constPI 3.141592654f
+#define constPI M_PI
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constPI 3.14159265358979323846f
+#endif
+
+#ifdef M_PI_2
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constPI_2 M_PI_2
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constPI_2 1.57079632679489661923f
+#endif
+
+#ifdef M_TWOPI
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constTWOPI M_TWOPI
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constTWOPI 6.28318530717958647692f
+#endif
 
 /* G value in m/s^2 */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constG  9.80665f
+#define constG 9.80665f
 
 /* e value */
+#ifdef M_E
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constE  2.71828182845904523536028747135266249f
+#define constE M_E
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constE 2.7182818284590452354f
+#endif
+
+/* sqrt(2) */
+#ifdef M_SQRT2
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT2 M_SQRT2
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT2 1.41421356237309504880f
+#endif
+
+#ifdef M_SQRT1_2
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT1_2 M_SQRT1_2
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT1_2 0.70710678118654752440f
+#endif
+
+/* sqrt(3) */
+#ifdef M_SQRT3
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT3 M_SQRT3
+#else
+/* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
+#define constSQRT3 1.73205080756887719000f
+#endif
 
 /* Functions -----------------------------------------------------------------*/
 
