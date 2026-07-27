@@ -115,7 +115,7 @@ static inline void matrixCopy(const matrix_t* input, matrix_t* output) { (void)m
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[in]       rhs: pointer to right-hand side matrix object
- * \param[out]      result: pointer to result matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
  */
 void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
@@ -124,7 +124,7 @@ void matrixAdd(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[in]       sc: scalar value
- * \param[out]      result: pointer to result matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
  */
 void matrixAddScalar(const matrix_t* lhs, float sc, matrix_t* result);
 
@@ -133,7 +133,7 @@ void matrixAddScalar(const matrix_t* lhs, float sc, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[in]       rhs: pointer to right-hand side matrix object
- * \param[out]      result: pointer to result matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
  */
 void matrixSub(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result);
 
@@ -169,7 +169,7 @@ void matrixMult_rhsT(const matrix_t* lhs, const matrix_t* rhs, matrix_t* result)
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[in]       sc: scalar value
- * \param[out]      result: pointer to result matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
  */
 void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result);
 
@@ -229,7 +229,7 @@ void matrixSymmetric(const matrix_t* lhs, matrix_t* result);
  * \brief           Matrix normalization
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
- * \param[out]      result: pointer to result matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
  */
 void matrixNormalized(const matrix_t* lhs, matrix_t* result);
 
