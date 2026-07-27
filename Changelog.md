@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.26.0 
+
+**New features:**
+- Added new function `matrixSymmetric` to make any square matrix symmetric
+
 ## v1.25.0 
 
 **New features:**

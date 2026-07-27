@@ -282,6 +282,47 @@ static void test_matrixTrans(void** state) {
     assert_float_equal(result.data[5], 6.0f, 1e-5);
 }
 
+static void test_matrixSymmetric(void** state) {
+    (void)state; /* unused */
+    matrix_t lhs, result;
+    float lhs_data[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    float result_data[9];
+    matrixInitStatic(&lhs, lhs_data, 3, 3);
+    matrixInitStatic(&result, result_data, 3, 3);
+    matrixSymmetric(&lhs, &result);
+    /* result = (lhs + lhs^T) / 2 */
+    assert_float_equal(result.data[0], 1.0f, 1e-5);
+    assert_float_equal(result.data[1], 3.0f, 1e-5);
+    assert_float_equal(result.data[2], 5.0f, 1e-5);
+    assert_float_equal(result.data[3], 3.0f, 1e-5);
+    assert_float_equal(result.data[4], 5.0f, 1e-5);
+    assert_float_equal(result.data[5], 7.0f, 1e-5);
+    assert_float_equal(result.data[6], 5.0f, 1e-5);
+    assert_float_equal(result.data[7], 7.0f, 1e-5);
+    assert_float_equal(result.data[8], 9.0f, 1e-5);
+    /* const input must be left untouched */
+    assert_float_equal(lhs.data[1], 2.0f, 1e-5);
+    assert_float_equal(lhs.data[5], 6.0f, 1e-5);
+    assert_float_equal(lhs.data[6], 7.0f, 1e-5);
+}
+
+static void test_matrixSymmetric_inPlace(void** state) {
+    (void)state; /* unused */
+    matrix_t m;
+    float m_data[9] = {1, 2, 3, 4, 5, 6, 7, 8, 9};
+    matrixInitStatic(&m, m_data, 3, 3);
+    matrixSymmetric(&m, &m); /* lhs and result alias the same buffer */
+    assert_float_equal(m.data[0], 1.0f, 1e-5);
+    assert_float_equal(m.data[1], 3.0f, 1e-5);
+    assert_float_equal(m.data[2], 5.0f, 1e-5);
+    assert_float_equal(m.data[3], 3.0f, 1e-5);
+    assert_float_equal(m.data[4], 5.0f, 1e-5);
+    assert_float_equal(m.data[5], 7.0f, 1e-5);
+    assert_float_equal(m.data[6], 5.0f, 1e-5);
+    assert_float_equal(m.data[7], 7.0f, 1e-5);
+    assert_float_equal(m.data[8], 9.0f, 1e-5);
+}
+
 static void test_matrixNorm(void** state) {
     (void)state; /* unused */
     matrix_t matrix;
@@ -521,6 +562,8 @@ int main(void) {
         cmocka_unit_test(test_matrixMult_rhsT),
         cmocka_unit_test(test_matrixMultScalar),
         cmocka_unit_test(test_matrixTrans),
+        cmocka_unit_test(test_matrixSymmetric),
+        cmocka_unit_test(test_matrixSymmetric_inPlace),
         cmocka_unit_test(test_matrixNorm),
         cmocka_unit_test(test_matrixNormalized),
         cmocka_unit_test(test_matrixSetAndGet),

@@ -351,7 +351,24 @@ void matrixTrans(matrix_t* lhs, matrix_t* result) {
     return;
 }
 
-/* -----------------Nomalized-------------------- */
+/* ------------------Symmetric-------------------- */
+void matrixSymmetric(const matrix_t* lhs, matrix_t* result) {
+    ADVUTILS_ASSERT(lhs->rows == lhs->cols); /* (m + m^T)/2 is only defined for a square matrix */
+    ADVUTILS_ASSERT(result->rows == lhs->rows);
+    ADVUTILS_ASSERT(result->cols == lhs->cols);
+    for (uint16_t i = 0U; i < lhs->rows; i++) {
+        /* Diagonal is unchanged ((d + d)/2 == d); written explicitly so it's also correct when result != lhs */
+        ELEM(*result, i, i) = ELEM(*lhs, i, i);
+        for (uint16_t j = i + 1U; j < lhs->cols; j++) {
+            float tmp = (ELEM(*lhs, i, j) + ELEM(*lhs, j, i)) * 0.5f;
+            ELEM(*result, i, j) = tmp;
+            ELEM(*result, j, i) = tmp;
+        }
+    }
+    return;
+}
+
+/* -----------------Normalized-------------------- */
 void matrixNormalized(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);

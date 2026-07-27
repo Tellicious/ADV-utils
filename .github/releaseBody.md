@@ -1,14 +1,6 @@
-## Further improvement to MISRA compliance
+## Added new matrix function
 
 **New features:**
-- Added new constants to `basicMath.h`, falling back to `math.h` constants when available
-
-**Improvements:**
-- Further improved compliance to MISRA guidelines
-- Added cppcheck configuration file
-- Minor formatting fix
-
-**Bugfix:**
-- Removed orphaned iterator type from `LPHashTable`
+- Added new function `matrixSymmetric` to make any square matrix symmetric
     
 See [Changelog](Changelog.md)

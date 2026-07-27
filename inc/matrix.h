@@ -218,6 +218,14 @@ void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result);
 void matrixTrans(matrix_t* lhs, matrix_t* result);
 
 /**
+ * \brief           Make a matrix symmetric
+ *
+ * \param[in]       lhs: pointer to left-hand side matrix object
+ * \param[out]      result: pointer to result matrix object (can be the same as lhs)
+ */
+void matrixSymmetric(const matrix_t* lhs, matrix_t* result);
+
+/**
  * \brief           Matrix normalization
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
