@@ -70,7 +70,7 @@ void fwsubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
-    ADVUTILS_ASSERT(P->cols == 1);
+    ADVUTILS_ASSERT(P->cols == 1U);
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, 0, i) = ELEMP(B, (uint8_t)ELEMP(P, 0, 0), i) / ELEMP(A, 0, 0);
         for (uint8_t j = 1; j < A->rows; j++) {
@@ -112,7 +112,7 @@ void bksubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
-    ADVUTILS_ASSERT(P->cols == 1);
+    ADVUTILS_ASSERT(P->cols == 1U);
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, (A->cols - 1U), i) = ELEMP(B, (uint8_t)ELEMP(P, (A->cols - 1U), 0), i) / ELEMP(A, (A->cols - 1U), (A->cols - 1U));
         for (int16_t j = (int16_t)((int32_t)A->rows - 2); j >= 0; j--) {
@@ -232,7 +232,7 @@ int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     ADVUTILS_ASSERT(U->rows == A->cols);
     ADVUTILS_ASSERT(U->cols == A->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
-    ADVUTILS_ASSERT(P->cols == 1);
+    ADVUTILS_ASSERT(P->cols == 1U);
     int8_t d_mult = 1; /* determinant multiplying factor */
     matrix_t A_cp;
     (void)matrixInit(&A_cp, A->rows, A->cols);
@@ -781,7 +781,7 @@ int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P
     ADVUTILS_ASSERT(U->rows == A->cols);
     ADVUTILS_ASSERT(U->cols == A->cols);
     ADVUTILS_ASSERT(P->rows == A->rows);
-    ADVUTILS_ASSERT(P->cols == 1);
+    ADVUTILS_ASSERT(P->cols == 1U);
     int8_t d_mult = 1; /* determinant multiplying factor */
     float _A_cp_Data[A->rows * A->cols];
     matrix_t A_cp;

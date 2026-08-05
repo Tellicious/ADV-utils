@@ -1,9 +1,6 @@
-## Added new matrix function
+## Minor fixes
 
-**New features:**
-- Added new function `matrixSymmetric` to make any square matrix symmetric
-    
-**Improvements:**
-- Added comment to matrix functions that are safe if executed in place
+**Bugfix:**
+- Minor fixes for MISRA compliance
   
 See [Changelog](Changelog.md)

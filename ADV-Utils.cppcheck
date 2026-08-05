@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="1">
-    <builddir>test-cppcheck-build-dir</builddir>
+    <builddir>ADV-Utils-cppcheck-build-dir</builddir>
     <platform>unix64</platform>
     <analyze-all-vs-configs>false</analyze-all-vs-configs>
     <check-headers>true</check-headers>
@@ -11,6 +11,21 @@
     <includedir>
         <dir name="inc/"/>
     </includedir>
+    <defines>
+        <define name="ADVUTILS_MALLOC=malloc"/>
+        <define name="ADVUTILS_CALLOC=calloc"/>
+        <define name="ADVUTILS_FREE=free"/>
+        <define name="ADVUTILS_ASSERT=assert"/>
+        <define name="LKHT_LIST_SIZE=2U"/>
+        <define name="LKHT_HASHFUN=hash_FNV1A"/>
+        <define name="LPHT_MIN_SIZE=2U"/>
+        <define name="LPHT_MAX_SIZE=20U"/>
+        <define name="LPHT_MIN_SATURATION=0.2f"/>
+        <define name="LPHT_MAX_SATURATION=0.7f"/>
+        <define name="LPHT_HASHFUN=hash_djb"/>
+        <define name="ADVUTILS_USE_DYNAMIC_ALLOCATION"/>
+        <define name="ADVUTILS_USE_STATIC_ALLOCATION"/>
+</defines>
     <paths>
         <dir name="src"/>
     </paths>

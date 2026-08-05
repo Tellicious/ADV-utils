@@ -255,7 +255,10 @@ static inline void PID_setIntegralSaturation(PID_t* PID, float satMin, float sat
  *
  * \param[in]       PID: pointer to PID object
  */
-#define PID_reset(PID) (PID)->DuD = (PID)->DuI = 0
+static inline void PID_reset(PID_t* PID) {
+    PID->DuD = 0.0f;
+    PID->DuI = 0.0f;
+}
 
 #ifdef __cplusplus
 }

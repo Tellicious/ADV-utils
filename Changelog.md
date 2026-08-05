@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.26.1
+
+**Bugfix:**
+- Minor fixes for MISRA compliance
+  
 ## v1.26.0 
 
 **New features:**
