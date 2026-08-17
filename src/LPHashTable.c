@@ -303,7 +303,7 @@ static utilsStatus_t lpHashTableXpand(lpHashTable_t* lpht, uint8_t increase) {
         /* increase table size */
         if (lpht->size >= LPHT_MAX_SIZE) {
             return UTILS_STATUS_SUCCESS;
-        } else if (lpht->size >= (LPHT_MAX_SIZE >> 1)) {
+        } else if (lpht->size >= (LPHT_MAX_SIZE >> 1U)) {
             lpht->size = LPHT_MAX_SIZE;
         } else {
             lpht->size *= 2;

@@ -52,7 +52,7 @@ void fwsub(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, 0, i) = ELEMP(B, 0, i) / ELEMP(A, 0, 0);
         for (uint8_t j = 1; j < A->rows; j++) {
-            float tmp = 0.0;
+            float tmp = 0.0f;
             for (uint8_t k = 0; k < j; k++) {
                 tmp += ELEMP(A, j, k) * (ELEMP(result, k, i));
             }
@@ -74,7 +74,7 @@ void fwsubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, 0, i) = ELEMP(B, (uint8_t)ELEMP(P, 0, 0), i) / ELEMP(A, 0, 0);
         for (uint8_t j = 1; j < A->rows; j++) {
-            float tmp = 0.0;
+            float tmp = 0.0f;
             for (uint8_t k = 0; k < j; k++) {
                 tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
@@ -94,7 +94,7 @@ void bksub(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, (A->cols - 1U), i) = ELEMP(B, (A->cols - 1U), i) / ELEMP(A, (A->cols - 1U), (A->cols - 1U));
         for (int16_t j = (int16_t)((int32_t)A->rows - 2); j >= 0; j--) {
-            float tmp = 0.0;
+            float tmp = 0.0f;
             for (uint8_t k = (uint8_t)((uint32_t)A->cols - 1U); (int16_t)k > j; k--) {
                 tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
@@ -116,7 +116,7 @@ void bksubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t
     for (uint8_t i = 0; i < B->cols; i++) {
         ELEMP(result, (A->cols - 1U), i) = ELEMP(B, (uint8_t)ELEMP(P, (A->cols - 1U), 0), i) / ELEMP(A, (A->cols - 1U), (A->cols - 1U));
         for (int16_t j = (int16_t)((int32_t)A->rows - 2); j >= 0; j--) {
-            float tmp = 0.0;
+            float tmp = 0.0f;
             for (uint8_t k = (uint8_t)((uint32_t)A->cols - 1U); (int16_t)k > j; k--) {
                 tmp += ELEMP(A, j, k) * ELEMP(result, k, i);
             }
@@ -137,7 +137,7 @@ void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     matrixZeros(result);
     for (uint8_t n = 0; n < A->rows; n++) {
         for (uint8_t i = 0; i < A->cols; i++) {
-            float tmp = 0.0;
+            float tmp = 0.0f;
             for (uint8_t j = 0; j < A->cols; j++) {
                 tmp += ELEMP(A, n, j) * ELEMP(B, i, j);
             }
@@ -206,7 +206,7 @@ utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U) {
             (void)matrixDelete(&A_cp);
             return UTILS_STATUS_ERROR;
         }
-        float tmp = 1.0 / ELEMP(U, i, i);
+        float tmp = 1.0f / ELEMP(U, i, i);
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
             ELEMP(L, j, i) = ELEM(A_cp, j, i) * tmp;
             ELEMP(U, i, j) = ELEM(A_cp, i, j);
@@ -276,7 +276,7 @@ int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
                 ELEM(A_cp, pivrow, j) = tmp;
             }
         }
-        tmp = 1.0 / ELEM(A_cp, i, i);
+        tmp = 1.0f / ELEM(A_cp, i, i);
         /* Gaussian elimination */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) { /* iterate down rows */
             ELEM(A_cp, j, i) *= tmp;
@@ -375,7 +375,7 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
         }
 
         /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, i) == 0.0) {
+        if (ELEM(A_cp, pivrow, i) == 0.0f) {
             matrixZeros(result);
             (void)matrixDelete(&A_cp);
             (void)matrixDelete(&B_cp);
@@ -399,7 +399,7 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
         }
 
         /* Row reduction */
-        tmp = 1.0 / ELEM(A_cp, i, i);                             /* invert pivot element */
+        tmp = 1.0f / ELEM(A_cp, i, i);                             /* invert pivot element */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
             float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
@@ -756,7 +756,7 @@ utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U) {
         if (ELEM(A_cp, i, i) == 0) {
             return UTILS_STATUS_ERROR;
         }
-        float tmp = 1.0 / ELEMP(U, i, i);
+        float tmp = 1.0f / ELEMP(U, i, i);
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) {
             ELEMP(L, j, i) = ELEM(A_cp, j, i) * tmp;
             ELEMP(U, i, j) = ELEM(A_cp, i, j);
@@ -825,7 +825,7 @@ int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P
                 ELEM(A_cp, pivrow, j) = tmp;
             }
         }
-        tmp = 1.0 / ELEM(A_cp, i, i);
+        tmp = 1.0f / ELEM(A_cp, i, i);
         /* Gaussian elimination */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.rows; j++) { /* iterate down rows */
             ELEM(A_cp, j, i) *= tmp;
@@ -926,7 +926,7 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
         }
 
         /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, i) == 0.0) {
+        if (ELEM(A_cp, pivrow, i) == 0.0f) {
             matrixZeros(result);
             return;
         }
@@ -948,7 +948,7 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
         }
 
         /* Row reduction */
-        tmp = 1.0 / ELEM(A_cp, i, i);                             /* invert pivot element */
+        tmp = 1.0f / ELEM(A_cp, i, i);                             /* invert pivot element */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
             float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
