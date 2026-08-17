@@ -97,22 +97,22 @@ void PID_init(PID_t* PID, float kpVal, float kiVal, float kdVal, float ndVal, fl
 /**
  * \brief           PID calculation without anti-windup (with output clamping)
  *
+ * \attention       To be called regularly every dT ms
+ * 
  * \param[in]       PID: pointer to PID object
  * \param[in]       setPoint: set point value
  * \param[in]       measure: measure value
- * 
- * \attention       to be called regularly every dT ms
  */
 void PID_calc(PID_t* PID, float setPoint, float measure);
 
 /**
  * \brief           PID calculation with aero-specific anti-windup, clamping only integral term
+ * 
+ * \attention       To be called regularly every dT ms
  *
  * \param[in]       PID: pointer to PID object
  * \param[in]       setPoint: set point value
  * \param[in]       measure: measure value
- * 
- * \attention       to be called regularly every dT ms
  * 
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_FULL integral term is saturated
@@ -121,12 +121,12 @@ utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure);
 
 /**
  * \brief           PID calculation with integral-clamping anti-windup, clamping entire output
+ * 
+ * \attention       To be called regularly every dT ms
  *
  * \param[in]       PID: pointer to PID object
  * \param[in]       setPoint: set point value
  * \param[in]       measure: measure value
- * 
- * \attention       to be called regularly every dT ms
  * 
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_FULL integral term is saturated
@@ -135,12 +135,12 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure);
 
 /**
  * \brief           PID calculation with back-calculation anti-windup, clamping entire output
+ * 
+ * \attention       To be called regularly every dT ms
  *
  * \param[in]       PID: pointer to PID object
  * \param[in]       setPoint: set point value
  * \param[in]       measure: measure value
- * 
- * \attention       to be called regularly every dT ms
  * 
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_FULL integral term is saturated
@@ -231,11 +231,11 @@ static inline void PID_setKd(PID_t* PID, float kdVal, float ndVal) {
 
 /**
  * \brief           Set derivative term source
+ * 
+ * \attention       Intended to be set once after PID_init()
  *
  * \param[in]       PID: pointer to PID object
  * \param[in]       mode: derivative source. \ref PID_DERIV_ON_ERROR (default) reacts to set-point changes; \ref PID_DERIV_ON_MEASURE differentiates only the measurement
- * 
- * \attention       Intended to be set once after PID_init()
  */
 #define PID_setDerivativeMode(PID, mode) (PID)->derivMode = (mode)
 

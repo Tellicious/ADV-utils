@@ -81,11 +81,11 @@ void quaternionNorm(quaternion_t* q);
 /**
  * \brief           Quaternion multiplication qo = qa * qb
  *
+ * \attention       qo can be different from qa/qb, or the same as qa/qb
+ *
  * \param[in]       qa: pointer to left-hand side quaternion object
  * \param[in]       qb: pointer to right-hand side quaternion object
  * \param[out]      qo: pointer to resulting quaternion object
- *
- * \attention       qo can be different from qa/qb, or the same as qa/qb
  */
 void quaternionMult(const quaternion_t* qa, const quaternion_t* qb, quaternion_t* qo);
 

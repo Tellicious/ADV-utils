@@ -53,46 +53,46 @@ extern "C" {
 /**
  * \brief           Solve an Ax = B system with forward substitution
  *
+ * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
+ *
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
- *
- * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
  */
 void fwsub(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve an Ax = PB system with forward substitution (with permutation)
  *
+ * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
+ *
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[in]       P: pointer to P matrix object, containing the indexes of the permuted rows of B in a column vector
  * \param[out]      result: pointer to result matrix object
- *
- * \attention       Assumes that the matrix A is already a lower triangular one. No check is performed within function!
  */
 void fwsubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system with backward substitution
  *
+ * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
+ *
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
- *
- * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
  */
 void bksub(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system with backward substitution (with permutation)
  *
+ * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
+ *
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[in]       P: pointer to P matrix object, containing the indexes of the permuted rows of B in a column vector
  * \param[out]      result: pointer to result matrix object
- *
- * \attention       Assumes that the matrix A is already an upper triangular one. No check is performed within function!
  */
 void bksubPerm(const matrix_t* A, const matrix_t* B, const matrix_t* P, matrix_t* result);
 
@@ -187,6 +187,7 @@ utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, cons
 
 /**
  * \brief           Gauss-Newton sensor calibration with 9 parameters
+ *
  * \attention       Approximates Data to a sphere of radius k by calculating 6 gains (s) and 3 biases (b), useful to calibrate some sensors (meas_sphere=S*(meas-B) with S symmetric)
  * \attention       Data has n>=9 rows corresponding to the number of measures and 3 columns corresponding to the 3 axes
  * \attention       b1=out(0,0);
@@ -214,6 +215,7 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
 
 /**
  * \brief           Gauss-Newton sensor calibration with 6 parameters
+ * 
  * \attention       Approximates Data to a sphere of radius k by calculating 3 gains (s) and 3 biases (b), useful to calibrate some sensors (meas_sphere=S*(meas-B) with S symmetric)
  * \attention       Data has n>=6 rows corresponding to the number of measures and 3 columns corresponding to the 3 axes
  * \attention       b1=out(0,0);
@@ -307,6 +309,7 @@ utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q
 
 /**
  * \brief           Gauss-Newton sensor calibration with 9 parameters and static allocation
+ * 
  * \attention       Approximates Data to a sphere of radius k by calculating 6 gains (s) and 3 biases (b), useful to calibrate some sensors (meas_sphere=S*(meas-B) with S symmetric)
  * \attention       Data has n>=9 rows corresponding to the number of measures and 3 columns corresponding to the 3 axes
  * \attention       b1=out(0,0);
@@ -334,6 +337,7 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
 
 /**
  * \brief           Gauss-Newton sensor calibration with 6 parameters and static allocation
+ * 
  * \attention       Approximates Data to a sphere of radius k by calculating 3 gains (s) and 3 biases (b), useful to calibrate some sensors (meas_sphere=S*(meas-B) with S symmetric)
  * \attention       Data has n>=6 rows corresponding to the number of measures and 3 columns corresponding to the 3 axes
  * \attention       b1=out(0,0);
