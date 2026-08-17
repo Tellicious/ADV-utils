@@ -47,7 +47,7 @@ file(WRITE ${CMAKE_CURRENT_LIST_DIR}/../inc/cmocka_includes.h
 
 #include <cmocka.h>
 
-#define ADVUTILS_ASSERT(x) ADVUtils_testAssert((int)(x), #x, __FILE__, __LINE__);
+#define ADVUTILS_ASSERT(x) ADVUtils_testAssert((x), #x, __FILE__, __LINE__);
 
 void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size);
 void* ADVUtils_testMalloc(const size_t size);
