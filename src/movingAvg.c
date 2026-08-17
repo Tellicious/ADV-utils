@@ -69,14 +69,14 @@ utilsStatus_t movingAvgInit(movingAvg_t* movingAvg, MOVAVG_STYPE size) {
     movingAvg->data = ADVUTILS_CALLOC(size, sizeof(MOVAVG_TYPE));
     ADVUTILS_ASSERT(movingAvg->data != NULL);
     if (movingAvg->data == NULL) {
-        movingAvg->size = 0;
+        movingAvg->size = 0U;
         return UTILS_STATUS_ERROR;
     }
 
     movingAvg->size = size;
     movingAvg->sum = 0;
     movingAvg->inv_size = (MOVAVG_TYPE)1.0 / size;
-    movingAvg->_write = 0;
+    movingAvg->_write = 0U;
     return UTILS_STATUS_SUCCESS;
 }
 
@@ -88,8 +88,8 @@ void movingAvgInitStatic(movingAvg_t* movingAvg, MOVAVG_TYPE* data, MOVAVG_STYPE
     movingAvg->data = data;
     movingAvg->size = size;
     movingAvg->sum = 0;
-    movingAvg->inv_size = (MOVAVG_TYPE)1.0 / size;
-    movingAvg->_write = 0;
+    movingAvg->inv_size = 1.0f / (float)size;
+    movingAvg->_write = 0U;
     return;
 }
 
@@ -112,7 +112,7 @@ utilsStatus_t movingAvgFlush(movingAvg_t* movingAvg) {
     (void)memset(movingAvg->data, 0x00, movingAvg->size * sizeof(MOVAVG_TYPE));
 
     movingAvg->sum = 0;
-    movingAvg->_write = 0;
+    movingAvg->_write = 0U;
 
     return UTILS_STATUS_SUCCESS;
 }
