@@ -72,7 +72,7 @@ foreach(FILE ${TESTS_LIST})
     # Create an executable for testing
     add_executable(run_${FILE}Tests ${SOURCES_${FILE}})
     # Add the include directories
-    target_include_directories(run_${FILE}Tests PRIVATE 
+    target_include_directories(run_${FILE}Tests PRIVATE
         ${CMAKE_CURRENT_LIST_DIR}/../inc)
     # Link CMocka and the math library
     target_link_libraries(run_${FILE}Tests PRIVATE ADVUtils ${MATH_LIBRARY})

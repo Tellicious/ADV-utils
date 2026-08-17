@@ -18,7 +18,7 @@ parsers:
 ignore:
     - "**/test_*"
 comment:
-  layout: "header, diff, flags, components" 
+  layout: "header, diff, flags, components"
 component_management:
     default_rules:
         statuses:
