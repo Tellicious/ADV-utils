@@ -156,6 +156,20 @@ utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U);
 int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
 
 /**
+ * \brief           Economy Householder QR factorization A = Q*R for a tall matrix
+ *
+ * \attention       A must have rows >= cols. Q and R must be distinct from A
+ *
+ * \param[in]       A: pointer to A matrix object (rows >= cols)
+ * \param[out]      Q: pointer to Q matrix object (rows-by-cols, orthonormal columns)
+ * \param[out]      R: pointer to R matrix object (cols-by-cols, upper-triangular)
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found)
+ */
+utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R);
+
+/**
  * \brief           Solve AX = B system using LU factorization
  *
  * \param[in]       A: pointer to A matrix object
@@ -193,6 +207,18 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \retval          UTILS_STATUS_ERROR if A is not positive-definite
  */
 utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* result);
+
+/**
+ * \brief           Solve AX = B using economy Householder QR (least-squares when rows > cols)
+ *
+ * \param[in]       A: pointer to A matrix object (rows >= cols)
+ * \param[in]       B: pointer to B matrix object (can have multiple columns)
+ * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient
+ */
+utilsStatus_t LinSolveQR(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve discrete-time algebraic Riccati equation `P = A'*P*A - (B'*P*A)'*inv(R + B'*P*B)*B'*P*A + Q`
@@ -289,6 +315,20 @@ utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \return          factor to be multiplied by determinant of U to obtain determinant of A
  */
 int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
+
+/**
+ * \brief           Economy Householder QR factorization A = Q*R for a tall matrix with static memory allocation
+ *
+ * \attention       A must have rows >= cols. Q and R must be distinct from A
+ *
+ * \param[in]       A: pointer to A matrix object (rows >= cols)
+ * \param[out]      Q: pointer to Q matrix object (rows-by-cols, orthonormal columns)
+ * \param[out]      R: pointer to R matrix object (cols-by-cols, upper-triangular)
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found)
+ */
+utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R);
 
 /**
  * \brief           Solve AX = B system using LU factorization with static allocation
@@ -397,6 +437,18 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
  * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+
+/**
+ * \brief           Solve AX = B using economy Householder QR (least-squares when rows > cols) with static memory allocation
+ *
+ * \param[in]       A: pointer to A matrix object (rows >= cols)
+ * \param[in]       B: pointer to B matrix object (can have multiple columns)
+ * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient
+ */
+utilsStatus_t LinSolveQRStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 

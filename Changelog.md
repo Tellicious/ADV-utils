@@ -5,6 +5,9 @@
 **New features:**
 - Added `Cholesky` factorization for symmetric positive-definite matrices
 - Added `LinSolveCholesky` / `LinSolveCholeskyStatic` solvers for symmetric positive-definite linear systems
+- Added `QR_Householder` / `QR_HouseholderStatic` economy Householder QR factorization
+- Added `LinSolveQR` / `LinSolveQRStatic` least-squares linear solvers based on QR
+
   
 ## v1.26.1
 

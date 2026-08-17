@@ -16,7 +16,7 @@
 - ***LPHashTable:*** linear-probing hash-table object with auto-resize capability
 - ***matrix:*** handling of matrix objects and matrix operations
 - ***movingAvg:*** moving average object
-- ***numMethods:*** common numerical methods to solve linear systems (LU, Cholesky), perform Gauss-Newton sphere approximation and solve discrete-time algebraic Riccati equation
+- ***numMethods:*** common numerical methods to solve linear systems (LU, Cholesky, QR least-squares), perform Gauss-Newton sphere approximation and solve discrete-time algebraic Riccati equation
 - ***PID:*** PID controller with several anti-windup options (aero-specific, integral-clamping, back-calculation) and selectable derivative-on-error or derivative-on-measurement mode
 - ***quaternion:*** quaternion operations and conversion to Euler angles
 - ***queue:*** queue structure

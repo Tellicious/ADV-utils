@@ -40,6 +40,7 @@
 
 #include "numMethods.h"
 #include "ADVUtilsAssert.h"
+#include "basicMath.h"
 #include "math.h"
 
 /* -------------------Forward substitution---------------------- */
@@ -199,7 +200,7 @@ utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L) {
         if (sum <= 0.0f) {
             return UTILS_STATUS_ERROR;
         }
-        ELEMP(L, j, j) = sqrtf(sum);
+        ELEMP(L, j, j) = SQRT(sum);
         for (uint8_t i = (uint8_t)(j + 1U); i < A->rows; i++) {
             float s = ELEMP(A, i, j);
             for (uint8_t k = 0; k < j; k++) {
@@ -323,6 +324,93 @@ int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
     }
     (void)matrixDelete(&A_cp);
     return d_mult;
+}
+
+/* ------------------QR factorization (Householder)---------------------- */
+/* economy Householder QR of a tall matrix A (rows >= cols): A = Q*R, with Q rows-by-cols */
+/* orthonormal columns and R cols-by-cols upper-triangular. Returns error if rank-deficient */
+
+utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R) {
+    ADVUTILS_ASSERT(A->rows >= A->cols);
+    ADVUTILS_ASSERT(Q->rows == A->rows);
+    ADVUTILS_ASSERT(Q->cols == A->cols);
+    ADVUTILS_ASSERT(R->rows == A->cols);
+    ADVUTILS_ASSERT(R->cols == A->cols);
+    uint8_t m = A->rows;
+    uint8_t n = A->cols;
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
+    matrix_t Rw;
+    matrix_t Qf;
+    matrix_t v;
+    (void)matrixInit(&Rw, m, n);
+    (void)matrixInit(&Qf, m, m);
+    (void)matrixInit(&v, m, 1);
+    matrixCopy(A, &Rw);
+    matrixIdentity(&Qf);
+    for (uint8_t k = 0; k < n; k++) {
+        float norm = 0.0f;
+        for (uint8_t i = k; i < m; i++) {
+            norm += ELEMP(&Rw, i, k) * ELEMP(&Rw, i, k);
+        }
+        norm = SQRT(norm);
+        float alpha = (ELEMP(&Rw, k, k) >= 0.0f) ? -norm : norm;
+        ELEMP(&v, k, 0) = ELEMP(&Rw, k, k) - alpha;
+        for (uint8_t i = (uint8_t)(k + 1U); i < m; i++) {
+            ELEMP(&v, i, 0) = ELEMP(&Rw, i, k);
+        }
+        float vtv = 0.0f;
+        for (uint8_t i = k; i < m; i++) {
+            vtv += ELEMP(&v, i, 0) * ELEMP(&v, i, 0);
+        }
+        if (vtv > 1e-30f) {
+            float beta = 2.0f / vtv;
+            for (uint8_t j = k; j < n; j++) {
+                float s = 0.0f;
+                for (uint8_t i = k; i < m; i++) {
+                    s += ELEMP(&v, i, 0) * ELEMP(&Rw, i, j);
+                }
+                s *= beta;
+                for (uint8_t i = k; i < m; i++) {
+                    ELEMP(&Rw, i, j) -= s * ELEMP(&v, i, 0);
+                }
+            }
+            for (uint8_t i = 0; i < m; i++) {
+                float s = 0.0f;
+                for (uint8_t l = k; l < m; l++) {
+                    s += ELEMP(&Qf, i, l) * ELEMP(&v, l, 0);
+                }
+                s *= beta;
+                for (uint8_t l = k; l < m; l++) {
+                    ELEMP(&Qf, i, l) -= s * ELEMP(&v, l, 0);
+                }
+            }
+        }
+    }
+    float r00 = fabsf(ELEMP(&Rw, 0, 0));
+    if (r00 < 1e-20f) {
+        status = UTILS_STATUS_ERROR;
+    }
+    for (uint8_t k = 0; (k < n) && (status == UTILS_STATUS_SUCCESS); k++) {
+        if (fabsf(ELEMP(&Rw, k, k)) < (1e-6f * r00)) {
+            status = UTILS_STATUS_ERROR;
+        }
+    }
+    if (status == UTILS_STATUS_SUCCESS) {
+        for (uint8_t i = 0; i < m; i++) {
+            for (uint8_t j = 0; j < n; j++) {
+                ELEMP(Q, i, j) = ELEMP(&Qf, i, j);
+            }
+        }
+        for (uint8_t i = 0; i < n; i++) {
+            for (uint8_t j = 0; j < n; j++) {
+                ELEMP(R, i, j) = (j >= i) ? ELEMP(&Rw, i, j) : 0.0f;
+            }
+        }
+    }
+    (void)matrixDelete(&Rw);
+    (void)matrixDelete(&Qf);
+    (void)matrixDelete(&v);
+    return status;
 }
 
 /* -----------------------Linear system solver using LU factorization--------------------------- */
@@ -473,6 +561,35 @@ utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* r
     (void)matrixDelete(&L);
     (void)matrixDelete(&Lt);
     (void)matrixDelete(&Y);
+    return status;
+}
+
+/* ----------------------Linear system solver using QR factorization-------------------------- */
+/* solves A*X=B (least-squares when rows>cols) via economy Householder QR: X = R\(Q'*B) */
+
+utilsStatus_t LinSolveQR(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+    ADVUTILS_ASSERT(A->rows >= A->cols);
+    ADVUTILS_ASSERT(A->rows == B->rows);
+    ADVUTILS_ASSERT(result->rows == A->cols);
+    ADVUTILS_ASSERT(result->cols == B->cols);
+    utilsStatus_t status;
+    matrix_t Q;
+    matrix_t R;
+    matrix_t QtB;
+    (void)matrixInit(&Q, A->rows, A->cols);
+    (void)matrixInit(&R, A->cols, A->cols);
+    (void)matrixInit(&QtB, A->cols, B->cols);
+    status = QR_Householder(A, &Q, &R);
+    if (status == UTILS_STATUS_SUCCESS) {
+        matrixMult_lhsT(&Q, B, &QtB);
+        bksub(&R, &QtB, result);
+    }
+    (void)matrixDelete(&Q);
+    (void)matrixDelete(&R);
+    (void)matrixDelete(&QtB);
+    if (status != UTILS_STATUS_SUCCESS) {
+        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
+    }
     return status;
 }
 
@@ -902,6 +1019,93 @@ int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P
     return d_mult;
 }
 
+/* ------------------QR factorization (Householder) with static allocation---------------------- */
+/* economy Householder QR of a tall matrix A (rows >= cols): A = Q*R, with Q rows-by-cols */
+/* orthonormal columns and R cols-by-cols upper-triangular. Returns error if rank-deficient */
+
+utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R) {
+    ADVUTILS_ASSERT(A->rows >= A->cols);
+    ADVUTILS_ASSERT(Q->rows == A->rows);
+    ADVUTILS_ASSERT(Q->cols == A->cols);
+    ADVUTILS_ASSERT(R->rows == A->cols);
+    ADVUTILS_ASSERT(R->cols == A->cols);
+    uint8_t m = A->rows;
+    uint8_t n = A->cols;
+    float _RwData[m * n];
+    float _QfData[m * m];
+    float _vData[m];
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
+    matrix_t Rw;
+    matrix_t Qf;
+    matrix_t v;
+    matrixInitStatic(&Rw, _RwData, m, n);
+    matrixInitStatic(&Qf, _QfData, m, m);
+    matrixInitStatic(&v, _vData, m, 1);
+    matrixCopy(A, &Rw);
+    matrixIdentity(&Qf);
+    for (uint8_t k = 0; k < n; k++) {
+        float norm = 0.0f;
+        for (uint8_t i = k; i < m; i++) {
+            norm += ELEMP(&Rw, i, k) * ELEMP(&Rw, i, k);
+        }
+        norm = SQRT(norm);
+        float alpha = (ELEMP(&Rw, k, k) >= 0.0f) ? -norm : norm;
+        ELEMP(&v, k, 0) = ELEMP(&Rw, k, k) - alpha;
+        for (uint8_t i = (uint8_t)(k + 1U); i < m; i++) {
+            ELEMP(&v, i, 0) = ELEMP(&Rw, i, k);
+        }
+        float vtv = 0.0f;
+        for (uint8_t i = k; i < m; i++) {
+            vtv += ELEMP(&v, i, 0) * ELEMP(&v, i, 0);
+        }
+        if (vtv > 1e-30f) {
+            float beta = 2.0f / vtv;
+            for (uint8_t j = k; j < n; j++) {
+                float s = 0.0f;
+                for (uint8_t i = k; i < m; i++) {
+                    s += ELEMP(&v, i, 0) * ELEMP(&Rw, i, j);
+                }
+                s *= beta;
+                for (uint8_t i = k; i < m; i++) {
+                    ELEMP(&Rw, i, j) -= s * ELEMP(&v, i, 0);
+                }
+            }
+            for (uint8_t i = 0; i < m; i++) {
+                float s = 0.0f;
+                for (uint8_t l = k; l < m; l++) {
+                    s += ELEMP(&Qf, i, l) * ELEMP(&v, l, 0);
+                }
+                s *= beta;
+                for (uint8_t l = k; l < m; l++) {
+                    ELEMP(&Qf, i, l) -= s * ELEMP(&v, l, 0);
+                }
+            }
+        }
+    }
+    float r00 = fabsf(ELEMP(&Rw, 0, 0));
+    if (r00 < 1e-20f) {
+        status = UTILS_STATUS_ERROR;
+    }
+    for (uint8_t k = 0; (k < n) && (status == UTILS_STATUS_SUCCESS); k++) {
+        if (fabsf(ELEMP(&Rw, k, k)) < (1e-6f * r00)) {
+            status = UTILS_STATUS_ERROR;
+        }
+    }
+    if (status == UTILS_STATUS_SUCCESS) {
+        for (uint8_t i = 0; i < m; i++) {
+            for (uint8_t j = 0; j < n; j++) {
+                ELEMP(Q, i, j) = ELEMP(&Qf, i, j);
+            }
+        }
+        for (uint8_t i = 0; i < n; i++) {
+            for (uint8_t j = 0; j < n; j++) {
+                ELEMP(R, i, j) = (j >= i) ? ELEMP(&Rw, i, j) : 0.0f;
+            }
+        }
+    }
+    return status;
+}
+
 /* -----------------------Linear system solver using LU factorization--------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
@@ -1047,6 +1251,35 @@ utilsStatus_t LinSolveCholeskyStatic(const matrix_t* A, const matrix_t* B, matri
         fwsub(&L, B, &Y);
         bksub(&Lt, &Y, result);
     } else {
+        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
+    }
+    return status;
+}
+
+/* ----------------------Linear system solver using QR factorization with static allocation-------------------------- */
+/* solves A*X=B (least-squares when rows>cols) via economy Householder QR: X = R\(Q'*B) */
+
+utilsStatus_t LinSolveQRStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+    ADVUTILS_ASSERT(A->rows >= A->cols);
+    ADVUTILS_ASSERT(A->rows == B->rows);
+    ADVUTILS_ASSERT(result->rows == A->cols);
+    ADVUTILS_ASSERT(result->cols == B->cols);
+    float _QData[A->rows * A->cols];
+    float _RData[A->cols * A->cols];
+    float _QtBData[A->cols * B->cols];
+    utilsStatus_t status;
+    matrix_t Q;
+    matrix_t R;
+    matrix_t QtB;
+    matrixInitStatic(&Q, _QData, A->rows, A->cols);
+    matrixInitStatic(&R, _RData, A->cols, A->cols);
+    matrixInitStatic(&QtB, _QtBData, A->cols, B->cols);
+    status = QR_HouseholderStatic(A, &Q, &R);
+    if (status == UTILS_STATUS_SUCCESS) {
+        matrixMult_lhsT(&Q, B, &QtB);
+        bksub(&R, &QtB, result);
+    }
+    if (status != UTILS_STATUS_SUCCESS) {
         matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
     }
     return status;
