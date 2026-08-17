@@ -81,7 +81,8 @@ typedef struct {
  * \param[in]       itemSize: size in bytes of each item in the queue
  * \param[in]       size: required queue size (number of objects)
  *
- * \return          UTILS_STATUS_SUCCESS if queue is initialized, UTILS_STATUS_ERROR if data was not allocated correctly
+ * \retval          UTILS_STATUS_SUCCESS queue is initialized
+ * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 utilsStatus_t queueInit(queue_t* queue, size_t itemSize, QUEUE_STYPE size);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -95,7 +96,8 @@ utilsStatus_t queueInit(queue_t* queue, size_t itemSize, QUEUE_STYPE size);
  * \param[in]       itemSize: size in bytes of each item in the queue
  * \param[in]       size: required queue size (number of objects)
  *
- * \return          UTILS_STATUS_SUCCESS if queue is initialized, UTILS_STATUS_ERROR if data was not allocated correctly
+ * \retval          UTILS_STATUS_SUCCESS queue is initialized
+ * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 void queueInitStatic(queue_t* queue, uint8_t* data, size_t itemSize, QUEUE_STYPE size);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -106,7 +108,8 @@ void queueInitStatic(queue_t* queue, uint8_t* data, size_t itemSize, QUEUE_STYPE
  * \param[in]       queue: pointer to queue object
  * \param[in]       value: pointer to value to be pushed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_FULL if queue is full
+ * \retval          UTILS_STATUS_SUCCESS data pushed correctly
+ * \retval          UTILS_STATUS_FULL queue is full
  */
 utilsStatus_t queuePush(queue_t* queue, const void* value);
 
@@ -117,7 +120,8 @@ utilsStatus_t queuePush(queue_t* queue, const void* value);
  * \param[in]       data: pointer to array of data to be pushed
  * \param[in]       num: number of values to be pushed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_ERROR if queue cannot hold all elements
+ * \retval          UTILS_STATUS_SUCCESS data pushed correctly
+ * \retval          UTILS_STATUS_ERROR queue cannot hold all elements
  */
 utilsStatus_t queuePushArr(queue_t* queue, const void* data, QUEUE_STYPE num);
 
@@ -127,7 +131,8 @@ utilsStatus_t queuePushArr(queue_t* queue, const void* data, QUEUE_STYPE num);
  * \param[in]       queue: pointer to queue object
  * \param[in]       value: pointer to value to be pushed to front
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_FULL if queue is full
+ * \retval          UTILS_STATUS_SUCCESS data pushed to front correctly
+ * \retval          UTILS_STATUS_FULL queue is full
  */
 utilsStatus_t queuePushFront(queue_t* queue, const void* value);
 
@@ -138,7 +143,8 @@ utilsStatus_t queuePushFront(queue_t* queue, const void* value);
  * \param[in]       data: pointer to array of data to be pushed to front
  * \param[in]       num: number of values to be pushed to front
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_ERROR if queue cannot hold all elements
+ * \retval          UTILS_STATUS_SUCCESS data pushed to front correctly
+ * \retval          UTILS_STATUS_ERROR queue cannot hold all elements
  */
 utilsStatus_t queuePushFrontArr(queue_t* queue, const void* data, QUEUE_STYPE num);
 
@@ -148,7 +154,8 @@ utilsStatus_t queuePushFrontArr(queue_t* queue, const void* data, QUEUE_STYPE nu
  * \param[in]       queue: pointer to queue object
  * \param[out]      value: pointer to value to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_EMPTY if queue is empty
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_EMPTY queue is empty
  */
 utilsStatus_t queuePop(queue_t* queue, void* value);
 
@@ -159,7 +166,8 @@ utilsStatus_t queuePop(queue_t* queue, void* value);
  * \param[out]      data: pointer to array of data to be read and removed
  * \param[in]       num: number of values to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_ERROR if queue doesn't hold all requested items
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_ERROR queue doesn't hold all requested items
  */
 utilsStatus_t queuePopArr(queue_t* queue, void* data, QUEUE_STYPE num);
 
@@ -169,7 +177,8 @@ utilsStatus_t queuePopArr(queue_t* queue, void* data, QUEUE_STYPE num);
  * \param[in]       queue: pointer to queue object
  * \param[out]      value: pointer to value to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_EMPTY if queue is empty
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_EMPTY queue is empty
  */
 utilsStatus_t queuePopBack(queue_t* queue, void* value);
 
@@ -180,7 +189,8 @@ utilsStatus_t queuePopBack(queue_t* queue, void* value);
  * \param[out]      data: pointer to array of data to be read and removed
  * \param[in]       num: number of values to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_ERROR if queue doesn't hold all requested items
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_ERROR queue doesn't hold all requested items
  */
 utilsStatus_t queuePopBackArr(queue_t* queue, void* data, QUEUE_STYPE num);
 
@@ -190,7 +200,8 @@ utilsStatus_t queuePopBackArr(queue_t* queue, void* data, QUEUE_STYPE num);
  * \param[in]       queue: pointer to queue object
  * \param[out]      value: pointer to value to be read
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if queue is empty
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY queue is empty
  */
 utilsStatus_t queuePeek(queue_t* queue, void* value);
 
@@ -200,7 +211,8 @@ utilsStatus_t queuePeek(queue_t* queue, void* value);
  * \param[in]       queue: pointer to queue object
  * \param[out]      value: pointer to value to be read
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if queue is empty
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY queue is empty
  */
 utilsStatus_t queuePeekBack(queue_t* queue, void* value);
 
@@ -221,7 +233,8 @@ static inline void queueInfo(const queue_t* queue, QUEUE_STYPE* size, QUEUE_STYP
  *
  * \param[in]       queue: pointer to queue object
  *
- * \return          UTILS_STATUS_SUCCESS if queue is flushed correctly, UTILS_STATUS_ERROR if data cannot be flushed
+ * \retval          UTILS_STATUS_SUCCESS queue is flushed correctly
+ * \retval          UTILS_STATUS_ERROR data cannot be flushed
  */
 utilsStatus_t queueFlush(queue_t* queue);
 
@@ -231,7 +244,8 @@ utilsStatus_t queueFlush(queue_t* queue);
  *
  * \param[in]       queue: pointer to queue object
  *
- * \return          UTILS_STATUS_SUCCESS if queue data is deleted, UTILS_STATUS_ERROR if data was already deleted
+ * \retval          UTILS_STATUS_SUCCESS queue data is deleted
+ * \retval          UTILS_STATUS_ERROR data was already deleted
  */
 utilsStatus_t queueDelete(queue_t* queue);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

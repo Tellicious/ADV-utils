@@ -106,7 +106,9 @@ void listInit(list_t* list, size_t itemSize, LIST_STYPE size);
  * \param[in]       list: pointer to list object
  * \param[in]       value: pointer to value to be pushed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if pointer is NULL
+ * \retval          UTILS_STATUS_SUCCESS data pushed correctly
+ * \retval          UTILS_STATUS_FULL list is full
+ * \retval          UTILS_STATUS_ERROR pointer is NULL
  */
 utilsStatus_t listPush(list_t* list, const void* value);
 
@@ -116,7 +118,9 @@ utilsStatus_t listPush(list_t* list, const void* value);
  * \param[in]       list: pointer to list object
  * \param[in]       value: pointer to value to be pushed to front
  *
- * \return          UTILS_STATUS_SUCCESS if data can be pushed to front correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if pointer is NULL
+ * \retval          UTILS_STATUS_SUCCESS data pushed to front correctly
+ * \retval          UTILS_STATUS_FULL list is full
+ * \retval          UTILS_STATUS_ERROR pointer is NULL
  */
 utilsStatus_t listPushFront(list_t* list, const void* value);
 
@@ -127,7 +131,9 @@ utilsStatus_t listPushFront(list_t* list, const void* value);
  * \param[in]       value: pointer to value to be pushed to front
  * \param[in]       position: position where to add data
  *
- * \return          UTILS_STATUS_SUCCESS if data can be added correctly, UTILS_STATUS_FULL if list is full, UTILS_STATUS_ERROR if position is invalid or pointer is NULL
+ * \retval          UTILS_STATUS_SUCCESS data added correctly
+ * \retval          UTILS_STATUS_FULL list is full
+ * \retval          UTILS_STATUS_ERROR position is invalid or pointer is NULL
  */
 utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position);
 
@@ -138,7 +144,8 @@ utilsStatus_t listInsert(list_t* list, const void* value, LIST_STYPE position);
  * \param[in]       value: pointer to value to be updated
  * \param[in]       position: position where to update data
  *
- * \return          UTILS_STATUS_SUCCESS if data can be updated correctly, UTILS_STATUS_ERROR if position is invalid
+ * \retval          UTILS_STATUS_SUCCESS data updated correctly
+ * \retval          UTILS_STATUS_ERROR position is invalid
  */
 utilsStatus_t listUpdate(list_t* list, const void* value, LIST_STYPE position);
 
@@ -148,7 +155,8 @@ utilsStatus_t listUpdate(list_t* list, const void* value, LIST_STYPE position);
  * \param[in]       list: pointer to list object
  * \param[out]      value: pointer to value to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_EMPTY if list is empty
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
  */
 utilsStatus_t listPop(list_t* list, void* value);
 
@@ -158,7 +166,8 @@ utilsStatus_t listPop(list_t* list, void* value);
  * \param[in]       list: pointer to list object
  * \param[out]      value: pointer to value to be read and removed
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read and removed correctly, UTILS_STATUS_EMPTY if list is empty
+ * \retval          UTILS_STATUS_SUCCESS data read and removed correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
  */
 utilsStatus_t listPopBack(list_t* list, void* value);
 
@@ -169,7 +178,9 @@ utilsStatus_t listPopBack(list_t* list, void* value);
  * \param[out]      value: pointer to value to be read and removed
  * \param[in]       position: position where to read data
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty, UTILS_STATUS_ERROR if position is invalid
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
+ * \retval          UTILS_STATUS_ERROR position is invalid
  */
 utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position);
 
@@ -179,7 +190,8 @@ utilsStatus_t listRemove(list_t* list, void* value, LIST_STYPE position);
  * \param[in]       list: pointer to list object
  * \param[out]      value: pointer to value to be read
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
  */
 utilsStatus_t listPeek(const list_t* list, void* value);
 
@@ -189,7 +201,8 @@ utilsStatus_t listPeek(const list_t* list, void* value);
  * \param[in]       list: pointer to list object
  * \param[out]      value: pointer to value to be read
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
  */
 utilsStatus_t listPeekBack(const list_t* list, void* value);
 
@@ -200,7 +213,9 @@ utilsStatus_t listPeekBack(const list_t* list, void* value);
  * \param[out]      value: pointer to value to be read
  * \param[in]       position: position where to read data
  *
- * \return          UTILS_STATUS_SUCCESS if data can be read correctly, UTILS_STATUS_EMPTY if list is empty, UTILS_STATUS_ERROR if position is invalid
+ * \retval          UTILS_STATUS_SUCCESS data read correctly
+ * \retval          UTILS_STATUS_EMPTY list is empty
+ * \retval          UTILS_STATUS_ERROR position is invalid
  */
 utilsStatus_t listPeekAtPos(const list_t* list, void* value, LIST_STYPE position);
 
@@ -225,7 +240,8 @@ static inline void listInfo(const list_t* list, LIST_STYPE* size, LIST_STYPE* it
  *
  * \param[in]       list: pointer to list object
  *
- * \return          UTILS_STATUS_SUCCESS if list is flushed correctly, UTILS_STATUS_EMPTY if list is already empty
+ * \retval          UTILS_STATUS_SUCCESS list is flushed correctly
+ * \retval          UTILS_STATUS_EMPTY list is already empty
  */
 utilsStatus_t listFlush(list_t* list);
 
@@ -242,7 +258,8 @@ void listIt(listIterator_t* it, list_t* list);
  *
  * \param[in]       it: pointer to iterator object
  *
- * \return          UTILS_STATUS_SUCCESS if iterator is moved to next value, UTILS_STATUS_ERROR if there are no more items
+ * \retval          UTILS_STATUS_SUCCESS iterator is moved to next value
+ * \retval          UTILS_STATUS_ERROR there are no more items
  */
 utilsStatus_t listItNext(listIterator_t* it);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

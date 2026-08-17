@@ -77,7 +77,8 @@ typedef struct {
  * \param[in]       rows: number of rows
  * \param[in]       cols: number of columns
  *
- * \return          UTILS_STATUS_SUCCESS if matrix was initialized, UTILS_STATUS_ERROR if data was not allocated correctly
+ * \retval          UTILS_STATUS_SUCCESS matrix was initialized
+ * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 utilsStatus_t matrixInit(matrix_t* matrix, uint8_t rows, uint8_t cols);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -317,7 +318,8 @@ float matrixNorm(const matrix_t* matrix);
  *
  * \param[in]       matrix: pointer to matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if matrix data is deleted, UTILS_STATUS_ERROR if data was already deleted
+ * \retval          UTILS_STATUS_SUCCESS matrix data is deleted
+ * \retval          UTILS_STATUS_ERROR data was already deleted
  */
 utilsStatus_t matrixDelete(matrix_t* matrix);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

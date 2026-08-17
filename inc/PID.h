@@ -114,7 +114,8 @@ void PID_calc(PID_t* PID, float setPoint, float measure);
  * 
  * \attention       to be called regularly every dT ms
  * 
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_FULL if integral term is saturated
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_FULL integral term is saturated
  */
 utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure);
 
@@ -127,7 +128,8 @@ utilsStatus_t PID_calcAeroClamp(PID_t* PID, float setPoint, float measure);
  * 
  * \attention       to be called regularly every dT ms
  * 
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_FULL if integral term is saturated
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_FULL integral term is saturated
  */
 utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure);
 
@@ -140,7 +142,8 @@ utilsStatus_t PID_calcIntegralClamp(PID_t* PID, float setPoint, float measure);
  * 
  * \attention       to be called regularly every dT ms
  * 
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_FULL if integral term is saturated
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_FULL integral term is saturated
  */
 utilsStatus_t PID_calcBackCalc(PID_t* PID, float setPoint, float measure);
 

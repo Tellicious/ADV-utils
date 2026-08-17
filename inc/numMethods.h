@@ -112,7 +112,8 @@ void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[out]      L: pointer to L matrix object
  * \param[out]      U: pointer to U matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -124,7 +125,8 @@ utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \param[out]      L: pointer to L matrix object
  * \param[out]      U: pointer to U matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -178,7 +180,8 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to P matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
  */
 utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
@@ -203,7 +206,9 @@ utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, cons
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to result matrix object S
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
@@ -225,7 +230,9 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to result matrix object S
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -238,7 +245,8 @@ utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix
  * \param[out]      L: pointer to L matrix object
  * \param[out]      U: pointer to U matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -292,7 +300,8 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to P matrix object
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
  */
 utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
@@ -317,7 +326,9 @@ utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to result matrix object S
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
@@ -339,7 +350,9 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
  * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
  * \param[out]      result: pointer to result matrix object S
  *
- * \return          UTILS_STATUS_SUCCESS if success, UTILS_STATUS_TIMEOUT if nmax is reached, UTILS_STATUS_ERROR if errors
+ * \retval          UTILS_STATUS_SUCCESS success
+ * \retval          UTILS_STATUS_TIMEOUT nmax is reached
+ * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 

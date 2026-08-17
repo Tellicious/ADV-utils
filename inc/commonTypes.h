@@ -50,18 +50,18 @@ extern "C" {
 
 /* Typedefs ------------------------------------------------------------------*/
 
-/*
-* Generic return status
-*/
+/**
+ * \brief           Generic return status shared by all ADV-utils modules
+ */
 typedef enum {
-    UTILS_STATUS_SUCCESS = 0,
-    UTILS_STATUS_ERROR,
-    UTILS_STATUS_WARNING,
-    UTILS_STATUS_ONGOING,
-    UTILS_STATUS_TIMEOUT,
-    UTILS_STATUS_EMPTY,
-    UTILS_STATUS_FULL,
-    UTILS_STATUS_BUCKET_EMPTY,
+    UTILS_STATUS_SUCCESS = 0,  /**< Operation completed successfully */
+    UTILS_STATUS_ERROR,        /**< Generic failure (e.g. NULL pointer or invalid argument) */
+    UTILS_STATUS_WARNING,      /**< Completed, but a non-fatal condition was detected */
+    UTILS_STATUS_ONGOING,      /**< Operation still in progress; call again */
+    UTILS_STATUS_TIMEOUT,      /**< Did not converge/complete within the allotted iterations */
+    UTILS_STATUS_EMPTY,        /**< Container is empty (nothing to read or remove) */
+    UTILS_STATUS_FULL,         /**< Container is full (no room to add) */
+    UTILS_STATUS_BUCKET_EMPTY, /**< Requested hash-table bucket holds no entry */
 } utilsStatus_t;
 
 /*

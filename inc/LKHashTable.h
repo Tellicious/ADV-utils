@@ -86,7 +86,8 @@ typedef enum { LKHT_REMOVE_ITEM = 0, LKHT_DO_NOT_REMOVE_ITEM = 1 } lkHashTableRe
  * \param[in]       itemSize: size of items to be handled by hash-table
  * \param[in]       size: max number of items that can be allocated in the hash-table
  * 
- * \return          UTILS_STATUS_SUCCESS if hash-table was initialized, UTILS_STATUS_ERROR if data was not allocated correctly
+ * \retval          UTILS_STATUS_SUCCESS hash-table was initialized
+ * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t size);
 
@@ -97,7 +98,8 @@ utilsStatus_t lkHashTableInit(lkHashTable_t* lkht, size_t itemSize, uint32_t siz
  * \param[in]       key: pointer to key
  * \param[in]       value: pointer to value to be written
  * 
- * \return          UTILS_STATUS_SUCCESS if data is written correctly, UTILS_STATUS_ERROR otherwise
+ * \retval          UTILS_STATUS_SUCCESS data is written correctly
+ * \retval          UTILS_STATUS_ERROR otherwise
  */
 utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, const char* key, const void* value);
 
@@ -109,7 +111,8 @@ utilsStatus_t lkHashTablePut(lkHashTable_t* lkht, const char* key, const void* v
  * \param[out]      value: pointer to value to be read
  * \param[in]       remove: LKHT_REMOVE_ITEM if item should be removed after being read, LKHT_DO_NOT_REMOVE_ITEM if item should not be removed
  * 
- * \return          UTILS_STATUS_SUCCESS if data is read correctly, UTILS_STATUS_ERROR if data 
+ * \retval          UTILS_STATUS_SUCCESS data is read correctly
+ * \retval          UTILS_STATUS_ERROR data
  */
 utilsStatus_t lkHashTableGet(lkHashTable_t* lkht, const char* key, void* value, lkHashTableRemoval_t remove);
 
@@ -130,7 +133,8 @@ static inline void lkHashTableInfo(const lkHashTable_t* lkht, uint32_t* size, ui
  *
  * \param[in]       lkht: pointer to hash-table object
  *
- * \return          UTILS_STATUS_SUCCESS if list is flushed correctly, UTILS_STATUS_ERROR if data cannot be flushed
+ * \retval          UTILS_STATUS_SUCCESS list is flushed correctly
+ * \retval          UTILS_STATUS_ERROR data cannot be flushed
  */
 utilsStatus_t lkHashTableFlush(lkHashTable_t* lkht);
 
@@ -139,7 +143,8 @@ utilsStatus_t lkHashTableFlush(lkHashTable_t* lkht);
  *
  * \param[in]       lkht: pointer to hash-table object
  *
- * \return          UTILS_STATUS_SUCCESS if hash-table is deleted, UTILS_STATUS_ERROR if hash-table was already deleted
+ * \retval          UTILS_STATUS_SUCCESS hash-table is deleted
+ * \retval          UTILS_STATUS_ERROR hash-table was already deleted
  */
 utilsStatus_t lkHashTableDelete(lkHashTable_t* lkht);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

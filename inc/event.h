@@ -89,7 +89,8 @@ typedef struct {
  * \param[in]       eventType: type of event callback, either EVENT_TYPE_BASIC or EVENT_TYPE_EXTENDED
  * \param[in]       size: maximum number of event callbacks
  * 
- * \return          UTILS_STATUS_SUCCESS if event is initialized, UTILS_STATUS_ERROR if data was not allocated correctly
+ * \retval          UTILS_STATUS_SUCCESS event is initialized
+ * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 utilsStatus_t eventInit(event_t* event, eventType_t eventType, uint16_t size);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -111,7 +112,9 @@ void eventInitStatic(event_t* event, eventExtCBType_t* callbackData, eventType_t
  * \param[in]       event: pointer to event object
  * \param[in]       callback: pointer to callback with type void(fun)(void)
  *  
- * \return          UTILS_STATUS_SUCCESS if callback is registered correctly, UTILS_STATUS_FULL if event is full, UTILS_STATUS_ERROR otherwise
+ * \retval          UTILS_STATUS_SUCCESS callback is registered correctly
+ * \retval          UTILS_STATUS_FULL event is full
+ * \retval          UTILS_STATUS_ERROR otherwise
  */
 utilsStatus_t eventRegister(event_t* event, eventCBType_t callback);
 
@@ -121,7 +124,9 @@ utilsStatus_t eventRegister(event_t* event, eventCBType_t callback);
  * \param[in]       event: pointer to event object
  * \param[in]       callback: pointer to callback with type void(fun)(void* val)
  *  
- * \return          UTILS_STATUS_SUCCESS if callback is registered correctly, UTILS_STATUS_FULL if event is full, UTILS_STATUS_ERROR otherwise
+ * \retval          UTILS_STATUS_SUCCESS callback is registered correctly
+ * \retval          UTILS_STATUS_FULL event is full
+ * \retval          UTILS_STATUS_ERROR otherwise
  */
 utilsStatus_t eventRegisterExt(event_t* event, eventExtCBType_t callback);
 
@@ -130,7 +135,8 @@ utilsStatus_t eventRegisterExt(event_t* event, eventExtCBType_t callback);
  *
  * \param[in]       event: pointer to event object
  *  
- * \return          UTILS_STATUS_SUCCESS if event is dispatched correctly, UTILS_STATUS_ERROR otherwise
+ * \retval          UTILS_STATUS_SUCCESS event is dispatched correctly
+ * \retval          UTILS_STATUS_ERROR otherwise
  */
 utilsStatus_t eventDispatch(event_t* event);
 
@@ -140,7 +146,8 @@ utilsStatus_t eventDispatch(event_t* event);
  * \param[in]       event: pointer to event object
  * \param[in]       val: pointer to value to be passed to callback functions
  *  
- * \return          UTILS_STATUS_SUCCESS if event is dispatched correctly, UTILS_STATUS_ERROR otherwise
+ * \retval          UTILS_STATUS_SUCCESS event is dispatched correctly
+ * \retval          UTILS_STATUS_ERROR otherwise
  */
 utilsStatus_t eventDispatchEx(event_t* event, void* val);
 
@@ -150,7 +157,8 @@ utilsStatus_t eventDispatchEx(event_t* event, void* val);
  *
  * \param[in]       event: pointer to event object
  *
- * \return          UTILS_STATUS_SUCCESS if event data is deleted, UTILS_STATUS_ERROR if data was already deleted
+ * \retval          UTILS_STATUS_SUCCESS event data is deleted
+ * \retval          UTILS_STATUS_ERROR data was already deleted
  */
 utilsStatus_t eventDelete(event_t* event);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
