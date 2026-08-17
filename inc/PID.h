@@ -45,6 +45,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup PID PID controller
+ * \brief PID controller with anti-windup
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
@@ -259,6 +265,8 @@ static inline void PID_reset(PID_t* PID) {
     PID->DuD = 0.0f;
     PID->DuI = 0.0f;
 }
+
+/** @} */
 
 #ifdef __cplusplus
 }

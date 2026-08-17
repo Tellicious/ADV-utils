@@ -42,6 +42,12 @@ extern "C" {
 
 #include <stdint.h>
 
+/**
+ * \defgroup IIRFilters IIR filters
+ * \brief Discrete-time IIR filters
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
@@ -339,6 +345,8 @@ static inline void IIRFilterLeakyIntegratorSetValue(IIRFilterLeakyIntegrator_t* 
  * \param[in]       filter: pointer to IIR leaky integrator structure
  */
 #define IIRFilterLeakyIntegratorReset(filter) IIRFilterLeakyIntegratorSetValue(filter, 0.0f)
+
+/** @} */
 
 #ifdef __cplusplus
 }

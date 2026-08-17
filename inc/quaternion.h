@@ -42,6 +42,12 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "commonTypes.h"
 
+/**
+ * \defgroup quaternion Quaternion
+ * \brief Quaternion manipulation
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 #define AVOID_GIMBAL_LOCK
@@ -107,6 +113,8 @@ void quaternionConj(const quaternion_t* qa, quaternion_t* qo);
  * \param[out]      ea: pointer to resulting euler angles
  */
 void quaternionToEuler(quaternion_t* qr, axis3f_t* ea);
+
+/** @} */
 
 #ifdef __cplusplus
 }

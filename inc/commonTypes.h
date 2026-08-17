@@ -42,6 +42,12 @@ extern "C" {
 
 #include <stdint.h>
 
+/**
+ * \defgroup commonTypes Common types
+ * \brief Shared types and status codes
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /*
@@ -66,6 +72,8 @@ typedef struct {
     float y;
     float z;
 } axis3f_t;
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -42,6 +42,12 @@ extern "C" {
 
 #include <stdint.h>
 
+/**
+ * \defgroup hashFunctions Hash functions
+ * \brief Collection of hash functions
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Typedefs ------------------------------------------------------------------*/
@@ -75,6 +81,8 @@ uint32_t hash_djb(const char* key);
  * \return          hash
  */
 uint32_t hash_sdbm(const char* key);
+
+/** @} */
 
 #ifdef __cplusplus
 }

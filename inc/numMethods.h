@@ -42,6 +42,12 @@ extern "C" {
 /* Includes ------------------------------------------------------------------*/
 #include "matrix.h"
 
+/**
+ * \defgroup numMethods Numerical methods
+ * \brief Numerical methods
+ * @{
+ */
+
 /* Function prototypes -------------------------------------------------------*/
 
 /**
@@ -338,6 +344,8 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
 utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

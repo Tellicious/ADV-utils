@@ -44,6 +44,12 @@ extern "C" {
 #include ADVUTILS_ASSERT_HEADER
 #endif /* ADVUTILS_ASSERT_HEADER */
 
+/**
+ * \defgroup ADVUtilsAssert Assertions
+ * \brief Simple assert macro
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 #ifndef ADVUTILS_ASSERT
@@ -57,6 +63,8 @@ extern "C" {
 #define ADVUTILS_ASSERT(x)
 #endif /* DEBUG */
 #endif /* ADVUTILS_ASSERT */
+
+/** @} */
 
 #ifdef __cplusplus
 }

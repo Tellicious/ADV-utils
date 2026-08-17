@@ -43,6 +43,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup event Event manager
+ * \brief Event handler
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
@@ -148,6 +154,8 @@ utilsStatus_t eventDispatchEx(event_t* event, void* val);
  */
 utilsStatus_t eventDelete(event_t* event);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

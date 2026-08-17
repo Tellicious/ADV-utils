@@ -43,6 +43,12 @@ extern "C" {
 
 #include <stdint.h>
 
+/**
+ * \defgroup timer Timer
+ * \brief Timer utilities
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 typedef volatile struct {
@@ -121,6 +127,8 @@ void timerProcess(userTimer_t* t, uint32_t currentTick);
  * \return          number of events for the specified timer
  */
 static inline uint16_t timerEventExists(const userTimer_t* t) { return t->eventCnt; }
+
+/** @} */
 
 #ifdef __cplusplus
 }

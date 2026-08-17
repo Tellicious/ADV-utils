@@ -44,6 +44,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup queue Queue
+ * \brief Queue
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Type of queue size property */
@@ -229,6 +235,8 @@ utilsStatus_t queueFlush(queue_t* queue);
  */
 utilsStatus_t queueDelete(queue_t* queue);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

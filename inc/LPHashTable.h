@@ -44,6 +44,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup LPHashTable Linear-probing hash table
+ * \brief Linear-probing hash table
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
@@ -143,6 +149,8 @@ utilsStatus_t lpHashTableFlush(lpHashTable_t* lpht);
  */
 utilsStatus_t lpHashTableDelete(lpHashTable_t* lpht);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

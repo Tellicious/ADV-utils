@@ -45,6 +45,12 @@ extern "C" {
 #include "commonTypes.h"
 #include "list.h"
 
+/**
+ * \defgroup LKHashTable Linked hash table
+ * \brief Dynamic linked hash table
+ * @{
+ */
+
 /* Typedefs ------------------------------------------------------------------*/
 
 /*
@@ -137,6 +143,8 @@ utilsStatus_t lkHashTableFlush(lkHashTable_t* lkht);
  */
 utilsStatus_t lkHashTableDelete(lkHashTable_t* lkht);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

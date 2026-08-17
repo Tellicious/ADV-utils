@@ -44,6 +44,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup list Linked list
+ * \brief Linked list
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Type of list size property */
@@ -240,6 +246,8 @@ void listIt(listIterator_t* it, list_t* list);
  */
 utilsStatus_t listItNext(listIterator_t* it);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

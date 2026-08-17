@@ -40,6 +40,12 @@
 extern "C" {
 #endif
 
+/**
+ * \defgroup ADVUtilsMemory Memory management
+ * \brief Centralized dynamic memory configuration
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /*
@@ -61,6 +67,8 @@ extern "C" {
 #define ADVUTILS_CALLOC calloc
 #define ADVUTILS_FREE   free
 #endif /* ADVUTILS_MEMORY_MGMT_HEADER */
+
+/** @} */
 
 #ifdef __cplusplus
 }

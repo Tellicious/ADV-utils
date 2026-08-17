@@ -43,6 +43,12 @@ extern "C" {
 
 #include <stdint.h>
 
+/**
+ * \defgroup button Button
+ * \brief Debounced button with multi-press detection
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Typedefs ------------------------------------------------------------------*/
@@ -136,6 +142,8 @@ static inline buttonStatus_t buttonGetStatus(const button_t* button, uint32_t ti
                 ? button->status
                 : ((button->status == BUTTON_RELEASED) ? BUTTON_PRESSED : BUTTON_RELEASED));
 }
+
+/** @} */
 
 #ifdef __cplusplus
 }

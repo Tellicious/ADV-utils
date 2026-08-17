@@ -43,6 +43,12 @@ extern "C" {
 #include <stdint.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup movingAvg Moving average
+ * \brief Moving average
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Moving average data type */
@@ -125,6 +131,8 @@ utilsStatus_t movingAvgFlush(movingAvg_t* movingAvg);
  */
 utilsStatus_t movingAvgDelete(movingAvg_t* movingAvg);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

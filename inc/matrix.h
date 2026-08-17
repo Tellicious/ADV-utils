@@ -45,6 +45,12 @@ extern "C" {
 #include <string.h>
 #include "commonTypes.h"
 
+/**
+ * \defgroup matrix Matrix
+ * \brief Matrix manipulation
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 #define ELEMP(m, i, j) ((m)->data[((uint8_t)(i) * (uint8_t)(m)->cols) + (uint8_t)(j)])
@@ -315,6 +321,8 @@ float matrixNorm(const matrix_t* matrix);
  */
 utilsStatus_t matrixDelete(matrix_t* matrix);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/** @} */
 
 #ifdef __cplusplus
 }

@@ -43,6 +43,12 @@ extern "C" {
 #include <stdint.h>
 #include "math.h"
 
+/**
+ * \defgroup basicMath Basic math
+ * \brief Math helper macros and constants
+ * @{
+ */
+
 /* Macros --------------------------------------------------------------------*/
 
 /* Absolute value */
@@ -271,6 +277,8 @@ float fastSin(float angle);
  * \return          cosine value
  */
 float fastCos(float angle);
+
+/** @} */
 
 #ifdef __cplusplus
 }
