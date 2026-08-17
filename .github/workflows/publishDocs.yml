@@ -1,0 +1,66 @@
+name: Publish docs
+
+on:
+  push:
+    tags:
+      - 'v*' # Push events to matching v*, i.e. v1.0, v20.15.10
+  workflow_dispatch:
+
+# Allow the workflow to publish to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One concurrent deployment; don't cancel an in-flight publish
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0   # full history so git describe can derive the version
+
+      - name: Install Doxygen + Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Derive version
+        run: echo "PROJECT_NUMBER=$(git describe --tags --always --dirty 2>/dev/null || echo dev)" >> "$GITHUB_ENV"
+
+      - name: Generate documentation
+        run: |
+          mkdir -p build/doc
+          set +e
+          doxygen Doxyfile 2> doxygen_warnings.log
+          rc=$?
+          count=$(wc -l < doxygen_warnings.log)
+          echo "### Doxygen: ${count} warning line(s), exit ${rc}" >> "$GITHUB_STEP_SUMMARY"
+          if [ "${count}" -gt 0 ]; then
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+            head -n 50 doxygen_warnings.log >> "$GITHUB_STEP_SUMMARY"
+            echo '```' >> "$GITHUB_STEP_SUMMARY"
+          fi
+          exit ${rc}   # WARN_AS_ERROR=FAIL_ON_WARNINGS makes this fail the build on any warning
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: build/doc/html
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
