@@ -183,6 +183,35 @@ utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U) {
     return UTILS_STATUS_SUCCESS;
 }
 
+/* ------------------Cholesky factorization---------------------- */
+/* computes lower-triangular L such that L*(~L)=A for symmetric positive-definite A */
+/* only the lower triangle of A is read; returns error on a non-positive pivot */
+
+utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L) {
+    ADVUTILS_ASSERT(A->rows == A->cols);
+    ADVUTILS_ASSERT(L->rows == A->rows);
+    ADVUTILS_ASSERT(L->cols == A->cols);
+    for (uint8_t j = 0; j < A->cols; j++) {
+        float sum = ELEMP(A, j, j);
+        for (uint8_t k = 0; k < j; k++) {
+            sum -= ELEMP(L, j, k) * ELEMP(L, j, k);
+        }
+        if (sum <= 0.0f) {
+            return UTILS_STATUS_ERROR;
+        }
+        ELEMP(L, j, j) = sqrtf(sum);
+        for (uint8_t i = (uint8_t)(j + 1U); i < A->rows; i++) {
+            float s = ELEMP(A, i, j);
+            for (uint8_t k = 0; k < j; k++) {
+                s -= ELEMP(L, i, k) * ELEMP(L, j, k);
+            }
+            ELEMP(L, i, j) = s / ELEMP(L, j, j);
+            ELEMP(L, j, i) = 0.0f; /* zero strict upper triangle */
+        }
+    }
+    return UTILS_STATUS_SUCCESS;
+}
+
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 /* -------------------------LU factorization using Cormen's Method-------------------------------- */
@@ -399,7 +428,7 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
         }
 
         /* Row reduction */
-        tmp = 1.0f / ELEM(A_cp, i, i);                             /* invert pivot element */
+        tmp = 1.0f / ELEM(A_cp, i, i);                            /* invert pivot element */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
             float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
@@ -416,6 +445,35 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     (void)matrixDelete(&A_cp);
     (void)matrixDelete(&B_cp);
     return;
+}
+
+/* ----------------------Linear system solver using Cholesky factorization-------------------------- */
+/* solves the linear system A*X=B for symmetric positive-definite A, giving the n-by-m matrix X */
+
+utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+    ADVUTILS_ASSERT(A->rows == A->cols);
+    ADVUTILS_ASSERT(A->cols == result->rows);
+    ADVUTILS_ASSERT(A->rows == B->rows);
+    ADVUTILS_ASSERT(result->cols == B->cols);
+    utilsStatus_t status;
+    matrix_t L;
+    matrix_t Lt;
+    matrix_t Y;
+    (void)matrixInit(&L, A->rows, A->cols);
+    (void)matrixInit(&Lt, A->cols, A->rows);
+    (void)matrixInit(&Y, A->rows, B->cols);
+    status = Cholesky(A, &L);
+    if (status == UTILS_STATUS_SUCCESS) {
+        matrixTrans(&L, &Lt);
+        fwsub(&L, B, &Y);
+        bksub(&Lt, &Y, result);
+    } else {
+        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
+    }
+    (void)matrixDelete(&L);
+    (void)matrixDelete(&Lt);
+    (void)matrixDelete(&Y);
+    return status;
 }
 
 /* -------Iterative solver for discrete-time algebraic Riccati equation--------- */
@@ -948,7 +1006,7 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
         }
 
         /* Row reduction */
-        tmp = 1.0f / ELEM(A_cp, i, i);                             /* invert pivot element */
+        tmp = 1.0f / ELEM(A_cp, i, i);                            /* invert pivot element */
         for (uint8_t j = (uint8_t)(i + 1U); j < A_cp.cols; j++) { /* along rows */
             float tmp2 = ELEM(A_cp, j, i) * tmp;
             /* Perform row reduction of A */
@@ -963,6 +1021,35 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
     }
     bksub(&A_cp, &B_cp, result);
     return;
+}
+
+/* ----------------------Linear system solver using Cholesky factorization with static allocation-------------------------- */
+/* solves the linear system A*X=B for symmetric positive-definite A, giving the n-by-m matrix X */
+
+utilsStatus_t LinSolveCholeskyStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+    ADVUTILS_ASSERT(A->rows == A->cols);
+    ADVUTILS_ASSERT(A->cols == result->rows);
+    ADVUTILS_ASSERT(A->rows == B->rows);
+    ADVUTILS_ASSERT(result->cols == B->cols);
+    float _LData[A->rows * A->cols];
+    float _LtData[A->cols * A->rows];
+    float _YData[A->rows * B->cols];
+    utilsStatus_t status;
+    matrix_t L;
+    matrix_t Lt;
+    matrix_t Y;
+    matrixInitStatic(&L, _LData, A->rows, A->cols);
+    matrixInitStatic(&Lt, _LtData, A->cols, A->rows);
+    matrixInitStatic(&Y, _YData, A->rows, B->cols);
+    status = Cholesky(A, &L);
+    if (status == UTILS_STATUS_SUCCESS) {
+        matrixTrans(&L, &Lt);
+        fwsub(&L, B, &Y);
+        bksub(&Lt, &Y, result);
+    } else {
+        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
+    }
+    return status;
 }
 
 /* -------Iterative solver for discrete-time algebraic Riccati equation--------- */

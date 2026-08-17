@@ -117,6 +117,19 @@ void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result);
  */
 utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
 
+/**
+ * \brief           Cholesky factorization of a symmetric positive-definite matrix
+ *
+ * \param[in]       A: pointer to A matrix object (only the lower triangle is read)
+ * \param[out]      L: pointer to lower-triangular result such that L*(~L) = A
+ *
+ * \attention       A must be square and symmetric positive-definite; only its lower triangle is used. L must be distinct from A (not in-place)
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite (non-positive pivot)
+ */
+utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L);
+
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 /**
  * \brief           Calculate L (lower triangular) and U (upper triangular) matrices such that A = LU with Cormen's Method
@@ -168,6 +181,18 @@ void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[out]      result: pointer to result matrix object
  */
 void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
+
+/**
+ * \brief           Solve AX = B for symmetric positive-definite A using Cholesky factorization
+ *
+ * \param[in]       A: pointer to A matrix object (symmetric positive-definite, only lower triangle read)
+ * \param[in]       B: pointer to B matrix object (can have multiple columns)
+ * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite
+ */
+utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve discrete-time algebraic Riccati equation `P = A'*P*A - (B'*P*A)'*inv(R + B'*P*B)*B'*P*A + Q`
@@ -237,6 +262,7 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
  * \retval          UTILS_STATUS_ERROR errors
  */
 utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result);
+
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -290,6 +316,18 @@ void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[out]      result: pointer to result matrix object
  */
 void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
+
+/**
+ * \brief           Solve AX = B for symmetric positive-definite A using Cholesky factorization with static memory allocation
+ *
+ * \param[in]       A: pointer to A matrix object (symmetric positive-definite, only lower triangle read)
+ * \param[in]       B: pointer to B matrix object (can have multiple columns)
+ * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite
+ */
+utilsStatus_t LinSolveCholeskyStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve discrete-time algebraic Riccati equation `P = A'*P*A - (B'*P*A)'*inv(R + B'*P*B)*B'*P*A + Q` with static allocation

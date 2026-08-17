@@ -307,6 +307,21 @@ void matrixInversed_rob(const matrix_t* lhs, matrix_t* result) {
     return;
 }
 
+void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result) {
+    ADVUTILS_ASSERT(lhs->rows == lhs->cols);
+    ADVUTILS_ASSERT(result->rows == lhs->rows);
+    ADVUTILS_ASSERT(result->cols == lhs->cols);
+    matrix_t Eye;
+    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
+    matrixIdentity(&Eye);
+    if (LinSolveCholesky(lhs, &Eye, result) == UTILS_STATUS_ERROR) {
+        /* Cholesky failed, matrix is not SPD */
+        matrixIdentity(result);
+    }
+    (void)matrixDelete(&Eye);
+    return;
+}
+
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -334,6 +349,21 @@ void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
     matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
     LinSolveLUPStatic(lhs, &Eye, result);
+    return;
+}
+
+void matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result) {
+    ADVUTILS_ASSERT(lhs->rows == lhs->cols);
+    ADVUTILS_ASSERT(result->rows == lhs->rows);
+    ADVUTILS_ASSERT(result->cols == lhs->cols);
+    float _eyeData[lhs->rows * lhs->cols];
+    matrix_t Eye;
+    matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
+    matrixIdentity(&Eye);
+    if (LinSolveCholeskyStatic(lhs, &Eye, result) == UTILS_STATUS_ERROR) {
+        /* Cholesky failed, matrix is not SPD */
+        matrixIdentity(result);
+    }
     return;
 }
 

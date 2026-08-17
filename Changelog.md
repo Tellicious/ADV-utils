@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.27.0
+
+**New features:**
+- Added `Cholesky` factorization for symmetric positive-definite matrices
+- Added `LinSolveCholesky` / `LinSolveCholeskyStatic` solvers for symmetric positive-definite linear systems
+  
 ## v1.26.1
 
 **Bugfix:**

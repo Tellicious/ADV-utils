@@ -198,6 +198,14 @@ void matrixInversed(const matrix_t* lhs, matrix_t* result);
  * \param[out]      result: pointer to result matrix object
  */
 void matrixInversed_rob(const matrix_t* lhs, matrix_t* result);
+
+/**
+ * \brief           Matrix inversion for symmetric positive-definite matrices, performed with Cholesky decomposition
+ *
+ * \param[in]       lhs: pointer to left-hand side matrix object (must be symmetric positive-definite)
+ * \param[out]      result: pointer to result matrix object; set to zeros if lhs is not positive-definite
+ */
+void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -216,6 +224,14 @@ void matrixInversedStatic(const matrix_t* lhs, matrix_t* result);
  * \param[out]      result: pointer to result matrix object
  */
 void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result);
+
+/**
+ * \brief           Matrix inversion for symmetric positive-definite matrices, performed with Cholesky decomposition and static allocation
+ *
+ * \param[in]       lhs: pointer to left-hand side matrix object (must be symmetric positive-definite)
+ * \param[out]      result: pointer to result matrix object; set to zeros if lhs is not positive-definite
+ */
+void matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /**

@@ -438,6 +438,42 @@ static void test_matrixInversed_rob(void** state) {
     matrixDelete(&result);
 }
 
+static void test_matrixInversed_SPD(void** state) {
+    (void)state; /* unused */
+    matrix_t matrix, result;
+    assert_int_equal(matrixInit(&matrix, 4, 4), UTILS_STATUS_SUCCESS);
+    assert_int_equal(matrixInit(&result, 4, 4), UTILS_STATUS_SUCCESS);
+    float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
+    memcpy(matrix.data, matrix_data, 16 * sizeof(float));
+    matrixInversed_SPD(&matrix, &result);
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < 4; j++) {
+            assert_float_equal(result.data[i * 4 + j], (i == j) ? 1.0f : 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
+        }
+    }
+    float matrix_data2[] = {2.5431, 0.8124, 0.6213, 0.4172, 0.8124, 2.2698, 0.5341, 0.7156, 0.6213, 0.5341, 2.8017, 0.3288, 0.4172, 0.7156, 0.3288, 2.0459};
+    memcpy(matrix.data, matrix_data2, 16 * sizeof(float));
+    matrixInversedStatic_SPD(&matrix, &result);
+    assert_float_equal(result.data[0], 0.460176, 1e-5);
+    assert_float_equal(result.data[1], -0.136945, 1e-5);
+    assert_float_equal(result.data[2], -0.071906, 1e-5);
+    assert_float_equal(result.data[3], -0.034383, 1e-5);
+    assert_float_equal(result.data[4], -0.136945, 1e-5);
+    assert_float_equal(result.data[5], 0.552104, 1e-5);
+    assert_float_equal(result.data[6], -0.056562, 1e-5);
+    assert_float_equal(result.data[7], -0.156095, 1e-5);
+    assert_float_equal(result.data[8], -0.071906, 1e-5);
+    assert_float_equal(result.data[9], -0.056562, 1e-5);
+    assert_float_equal(result.data[10], 0.386909, 1e-5);
+    assert_float_equal(result.data[11], -0.027734, 1e-5);
+    assert_float_equal(result.data[12], -0.034383, 1e-5);
+    assert_float_equal(result.data[13], -0.156095, 1e-5);
+    assert_float_equal(result.data[14], -0.027734, 1e-5);
+    assert_float_equal(result.data[15], 0.554849, 1e-5);
+    matrixDelete(&matrix);
+    matrixDelete(&result);
+}
+
 static void test_matrixPseudoInv(void** state) {
     (void)state; /* unused */
     matrix_t matrix, result;
@@ -524,6 +560,40 @@ static void test_matrixInversedStatic_rob(void** state) {
     assert_float_equal(result.data[15], -2.813918, 1e-5);
 }
 
+static void test_matrixInversedStatic_SPD(void** state) {
+    (void)state; /* unused */
+    matrix_t matrix, result;
+    float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
+    float result_data[16];
+    matrixInitStatic(&matrix, matrix_data, 4, 4);
+    matrixInitStatic(&result, result_data, 4, 4);
+    matrixInversedStatic_SPD(&matrix, &result);
+    for (uint8_t i = 0; i < 4; i++) {
+        for (uint8_t j = 0; j < 4; j++) {
+            assert_float_equal(result.data[i * 4 + j], (i == j) ? 1.0f : 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
+        }
+    }
+    float matrix_data2[] = {2.5431, 0.8124, 0.6213, 0.4172, 0.8124, 2.2698, 0.5341, 0.7156, 0.6213, 0.5341, 2.8017, 0.3288, 0.4172, 0.7156, 0.3288, 2.0459};
+    memcpy(matrix.data, matrix_data2, 16 * sizeof(float));
+    matrixInversedStatic_SPD(&matrix, &result);
+    assert_float_equal(result.data[0], 0.460176, 1e-5);
+    assert_float_equal(result.data[1], -0.136945, 1e-5);
+    assert_float_equal(result.data[2], -0.071906, 1e-5);
+    assert_float_equal(result.data[3], -0.034383, 1e-5);
+    assert_float_equal(result.data[4], -0.136945, 1e-5);
+    assert_float_equal(result.data[5], 0.552104, 1e-5);
+    assert_float_equal(result.data[6], -0.056562, 1e-5);
+    assert_float_equal(result.data[7], -0.156095, 1e-5);
+    assert_float_equal(result.data[8], -0.071906, 1e-5);
+    assert_float_equal(result.data[9], -0.056562, 1e-5);
+    assert_float_equal(result.data[10], 0.386909, 1e-5);
+    assert_float_equal(result.data[11], -0.027734, 1e-5);
+    assert_float_equal(result.data[12], -0.034383, 1e-5);
+    assert_float_equal(result.data[13], -0.156095, 1e-5);
+    assert_float_equal(result.data[14], -0.027734, 1e-5);
+    assert_float_equal(result.data[15], 0.554849, 1e-5);
+}
+
 static void test_matrixPseudoInvStatic(void** state) {
     (void)state; /* unused */
     matrix_t matrix, result;
@@ -545,11 +615,13 @@ int main(void) {
         cmocka_unit_test(test_matrixDet),
         cmocka_unit_test(test_matrixInversed),
         cmocka_unit_test(test_matrixInversed_rob),
+        cmocka_unit_test(test_matrixInversed_SPD),
         cmocka_unit_test(test_matrixPseudoInv),
         cmocka_unit_test(test_matrixInitStatic),
         cmocka_unit_test(test_matrixDetStatic),
         cmocka_unit_test(test_matrixInversedStatic),
         cmocka_unit_test(test_matrixInversedStatic_rob),
+        cmocka_unit_test(test_matrixInversedStatic_SPD),
         cmocka_unit_test(test_matrixPseudoInvStatic),
         cmocka_unit_test(test_matrixIdentity),
         cmocka_unit_test(test_matrixZeros),

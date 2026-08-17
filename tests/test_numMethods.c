@@ -173,6 +173,33 @@ static void test_LU_Crout(void** state) {
     assert_int_equal(LU_Crout(&A, &L, &U), UTILS_STATUS_ERROR);
 }
 
+static void test_Cholesky(void** state) {
+    (void)state; /* unused */
+    matrix_t A, L;
+    float A_data[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+    float L_data[9];
+    matrixInitStatic(&A, A_data, 3, 3);
+    matrixInitStatic(&L, L_data, 3, 3);
+    assert_int_equal(Cholesky(&A, &L), UTILS_STATUS_SUCCESS);
+    float L_exp[9] = {2, 0, 0, 6, 1, 0, -8, 5, 3};
+    for (uint8_t i = 0; i < 9; i++) {
+        assert_float_equal(L.data[i], L_exp[i], 1e-5);
+    }
+    /* non-SPD matrix -> error */
+    matrix_t N, L2;
+    float N_data[9] = {1, 2, 3, 2, 1, 4, 3, 4, 1};
+    float L2_data[9];
+    matrixInitStatic(&N, N_data, 3, 3);
+    matrixInitStatic(&L2, L2_data, 3, 3);
+    assert_int_equal(Cholesky(&N, &L2), UTILS_STATUS_ERROR);
+    /* dimension mismatch -> assert */
+    matrix_t ANS;
+    float ANS_data[6] = {1, 0, 0, 1, 0, 0};
+    matrixInitStatic(&ANS, ANS_data, 3, 2);
+    skipAssert = 0;
+    expect_assert_failure(Cholesky(&ANS, &L));
+}
+
 static void test_LU_Cormen(void** state) {
     (void)state; /* unused */
     matrix_t A, L, U;
@@ -362,6 +389,33 @@ static void test_LinSolveGauss(void** state) {
     matrixDelete(&A);
     matrixDelete(&B);
     matrixDelete(&result);
+}
+
+static void test_LinSolveCholesky(void** state) {
+    (void)state; /* unused */
+    matrix_t A, B, result;
+    float A_data[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+    float B_data[6] = {1, 2, 2, 1, 3, 0};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 2);
+    matrixInit(&result, 3, 2);
+    memcpy(A.data, A_data, 9 * sizeof(float));
+    memcpy(B.data, B_data, 6 * sizeof(float));
+    assert_int_equal(LinSolveCholesky(&A, &B, &result), UTILS_STATUS_SUCCESS);
+    float X_exp[6] = {28.583333f, 85.166667f, -7.666667f, -23.333333f, 1.333333f, 3.666667f};
+    for (uint8_t i = 0; i < 6; i++) {
+        assert_float_equal(result.data[i], X_exp[i], 1e-5);
+    }
+    /* non-SPD A -> error propagated */
+    matrix_t N;
+    float N_data[9] = {1, 2, 3, 2, 1, 4, 3, 4, 1};
+    matrixInit(&N, 3, 3);
+    memcpy(N.data, N_data, 9 * sizeof(float));
+    assert_int_equal(LinSolveCholesky(&N, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
+    matrixDelete(&N);
 }
 
 static void test_DARE(void** state) {
@@ -654,6 +708,27 @@ static void test_LinSolveGaussStatic(void** state) {
     assert_float_equal(result.data[2], 0.f, 1e-5);
 }
 
+static void test_LinSolveCholeskyStatic(void** state) {
+    (void)state; /* unused */
+    matrix_t A, B, result;
+    float A_data[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+    float B_data[6] = {1, 2, 2, 1, 3, 0};
+    float result_data[6];
+    matrixInitStatic(&A, A_data, 3, 3);
+    matrixInitStatic(&B, B_data, 3, 2);
+    matrixInitStatic(&result, result_data, 3, 2);
+    assert_int_equal(LinSolveCholeskyStatic(&A, &B, &result), UTILS_STATUS_SUCCESS);
+    float X_exp[6] = {28.583333f, 85.166667f, -7.666667f, -23.333333f, 1.333333f, 3.666667f};
+    for (uint8_t i = 0; i < 6; i++) {
+        assert_float_equal(result.data[i], X_exp[i], 1e-5);
+    }
+    /* non-SPD A -> error propagated */
+    matrix_t N;
+    float N_data[9] = {1, 2, 3, 2, 1, 4, 3, 4, 1};
+    matrixInitStatic(&N, N_data, 3, 3);
+    assert_int_equal(LinSolveCholeskyStatic(&N, &B, &result), UTILS_STATUS_ERROR);
+}
+
 static void test_DAREStatic(void** state) {
     (void)state; /* unused */
     matrix_t A, B, Q, R, result;
@@ -774,11 +849,13 @@ int main(void) {
         cmocka_unit_test(test_bksubPerm),
         cmocka_unit_test(test_QuadProd),
         cmocka_unit_test(test_LU_Crout),
+        cmocka_unit_test(test_Cholesky),
         cmocka_unit_test(test_LU_Cormen),
         cmocka_unit_test(test_LUP_Cormen),
         cmocka_unit_test(test_LinSolveLU),
         cmocka_unit_test(test_LinSolveLUP),
         cmocka_unit_test(test_LinSolveGauss),
+        cmocka_unit_test(test_LinSolveCholesky),
         cmocka_unit_test(test_DARE),
         cmocka_unit_test(test_GaussNewton_Sens_Cal_9),
         cmocka_unit_test(test_GaussNewton_Sens_Cal_6),
@@ -787,6 +864,7 @@ int main(void) {
         cmocka_unit_test(test_LinSolveLUStatic),
         cmocka_unit_test(test_LinSolveLUPStatic),
         cmocka_unit_test(test_LinSolveGaussStatic),
+        cmocka_unit_test(test_LinSolveCholeskyStatic),
         cmocka_unit_test(test_DAREStatic),
         cmocka_unit_test(test_GaussNewton_Sens_Cal_9Static),
         cmocka_unit_test(test_GaussNewton_Sens_Cal_6Static),
