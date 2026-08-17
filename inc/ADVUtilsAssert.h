@@ -52,6 +52,10 @@ extern "C" {
 
 /* Macros --------------------------------------------------------------------*/
 
+/**
+ * \def ADVUTILS_ASSERT
+ * \brief User-overridable assertion; active when DEBUG is defined, compiled out otherwise
+ */
 #ifndef ADVUTILS_ASSERT
 #ifdef DEBUG
 #define ADVUTILS_ASSERT(x)                                                                                                                                     \

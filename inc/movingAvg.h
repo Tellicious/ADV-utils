@@ -53,11 +53,19 @@ extern "C" {
 
 /* Moving average data type */
 #ifndef MOVAVG_TYPE
+/**
+ * \def MOVAVG_TYPE
+ * \brief Data type of the samples stored and averaged (default float)
+ */
 #define MOVAVG_TYPE float
 #endif /* MOVAVG_TYPE */
 
 /* Type of moving average size property */
 #ifndef MOVAVG_STYPE
+/**
+ * \def MOVAVG_STYPE
+ * \brief Unsigned integer type for the window size/index (default uint16_t)
+ */
 #define MOVAVG_STYPE uint16_t
 #endif /* MOVAVG_STYPE */
 

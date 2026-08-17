@@ -54,6 +54,10 @@ extern "C" {
 
 /* Type of list size property */
 #ifndef LIST_STYPE
+/**
+ * \def LIST_STYPE
+ * \brief Unsigned integer type for list length and indices (default uint16_t)
+ */
 #define LIST_STYPE uint16_t
 #endif /* LIST_STYPE */
 

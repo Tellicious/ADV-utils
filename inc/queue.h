@@ -54,6 +54,10 @@ extern "C" {
 
 /* Type of queue size property */
 #ifndef QUEUE_STYPE
+/**
+ * \def QUEUE_STYPE
+ * \brief Unsigned integer type for queue length and indices (default uint16_t)
+ */
 #define QUEUE_STYPE uint16_t
 #endif /* QUEUE_STYPE */
 

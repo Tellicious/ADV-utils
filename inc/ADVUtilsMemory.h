@@ -63,8 +63,20 @@ extern "C" {
 #endif /* !defined(ADVUTILS_MALLOC) || !defined(ADVUTILS_CALLOC) || !defined(ADVUTILS_FREE) */
 #else
 #include <stdlib.h>
+/**
+ * \def ADVUTILS_MALLOC
+ * \brief Allocation hook mapped to malloc by default; redefine to route through a custom or RTOS allocator
+ */
 #define ADVUTILS_MALLOC malloc
+/**
+ * \def ADVUTILS_CALLOC
+ * \brief Zero-initialising allocation hook mapped to calloc by default
+ */
 #define ADVUTILS_CALLOC calloc
+/**
+ * \def ADVUTILS_FREE
+ * \brief Deallocation hook mapped to free by default; must match ADVUTILS_MALLOC/ADVUTILS_CALLOC
+ */
 #define ADVUTILS_FREE   free
 #endif /* ADVUTILS_MEMORY_MGMT_HEADER */
 
