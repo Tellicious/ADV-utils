@@ -301,7 +301,7 @@ int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P) {
             }
         }
         /* check for singularity */
-        if (ELEM(A_cp, pivrow, i) == 0) {
+        if ((ELEM(A_cp, pivrow, i) == 0) || (isfinite(ELEM(A_cp, pivrow, i)) == 0)) {
             (void)matrixDelete(&A_cp);
             return 0;
         }
@@ -432,30 +432,36 @@ utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R) {
 /* -----------------------Linear system solver using LU factorization--------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     matrix_t L;
     matrix_t U;
+    utilsStatus_t status;
     (void)matrixInit(&L, A->rows, A->cols);
     (void)matrixInit(&U, A->cols, A->cols);
-    /* matrix_t *tmp1 = matrixInit(A->rows, B->cols); */
-    (void)LU_Cormen(A, &L, &U);
-    /* fwsub(L, B, tmp1); */
-    /* bksub(U, tmp1, result); */
-    fwsub(&L, B, result);
-    bksub(&U, result, result); /* hope it can work in-place */
+    status = LU_Cormen(A, &L, &U);
+    if (status == UTILS_STATUS_SUCCESS) {
+        fwsub(&L, B, result);
+        bksub(&U, result, result); /* hope it can work in-place */
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
     (void)matrixDelete(&L);
     (void)matrixDelete(&U);
-    return;
+    return status;
 }
 
 /* ----------------------Linear system solver using LUP factorization-------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -464,31 +470,42 @@ void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     matrix_t U;
     matrix_t P;
     matrix_t tmp;
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
     (void)matrixInit(&L, A->rows, A->cols);
     (void)matrixInit(&U, A->cols, A->cols);
     (void)matrixInit(&P, A->rows, 1);
     (void)matrixInit(&tmp, A->rows, B->cols);
-
-    (void)LUP_Cormen(A, &L, &U, &P);
-    fwsubPerm(&L, B, &P, &tmp);
-    bksub(&U, &tmp, result);
+    if (LUP_Cormen(A, &L, &U, &P) == 0) {
+        status = UTILS_STATUS_ERROR; /* singular matrix */
+    }
+    if (status == UTILS_STATUS_SUCCESS) {
+        fwsubPerm(&L, B, &P, &tmp);
+        bksub(&U, &tmp, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
     (void)matrixDelete(&L);
     (void)matrixDelete(&U);
     (void)matrixDelete(&P);
     (void)matrixDelete(&tmp);
-    return;
+    return status;
 }
 
 /* ------------Linear system solver using Gauss elimination with partial pivoting--------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
     ADVUTILS_ASSERT(result->cols == B->cols);
     matrix_t A_cp;
     matrix_t B_cp;
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
     (void)matrixInit(&A_cp, A->rows, A->cols);
     (void)matrixInit(&B_cp, B->rows, B->cols);
     matrixCopy(A, &A_cp);
@@ -507,12 +524,10 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
             }
         }
 
-        /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, i) == 0.0f) {
-            matrixZeros(result);
-            (void)matrixDelete(&A_cp);
-            (void)matrixDelete(&B_cp);
-            return;
+        /* check for singular or non-finite pivot */
+        if ((ELEM(A_cp, pivrow, i) == 0.0f) || (isfinite(ELEM(A_cp, pivrow, i)) == 0)) {
+            status = UTILS_STATUS_ERROR;
+            break;
         }
 
         /* Execute pivot (row swap) if needed */
@@ -545,10 +560,18 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result) {
             }
         }
     }
-    bksub(&A_cp, &B_cp, result);
+    if (status == UTILS_STATUS_SUCCESS) {
+        bksub(&A_cp, &B_cp, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
     (void)matrixDelete(&A_cp);
     (void)matrixDelete(&B_cp);
-    return;
+    return status;
 }
 
 /* ----------------------Linear system solver using Cholesky factorization-------------------------- */
@@ -645,7 +668,7 @@ utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, cons
     (void)matrixInit(&tmp3, A->rows, A->cols);
 
     matrixCopy(A, &_Ak);
-    matrixInversed(R, &tmp1);
+    (void)matrixInversed(R, &tmp1);
     QuadProd(B, &tmp1, &_G);
     matrixCopy(Q, result);
 
@@ -656,7 +679,7 @@ utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, cons
         for (uint8_t i = 0; i < tmp2.rows; i++) {
             ELEM(tmp2, i, i) += 1.f;
         }
-        matrixInversed(&tmp2, &_IGP);
+        (void)matrixInversed(&tmp2, &_IGP);
         /* Calculation of Ak1 = Ak*inverse(I+G*H)*Ak */
         matrixMult(&_Ak, &_IGP, &tmp2);
         matrixMult(&tmp2, &_Ak, &_Ak1);
@@ -982,7 +1005,7 @@ int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P
             }
         }
         /* check for singularity */
-        if (ELEM(A_cp, pivrow, i) == 0) {
+        if ((ELEM(A_cp, pivrow, i) == 0) || (isfinite(ELEM(A_cp, pivrow, i)) == 0)) {
             return 0;
         }
 
@@ -1112,7 +1135,7 @@ utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R) 
 /* -----------------------Linear system solver using LU factorization--------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -1121,21 +1144,27 @@ void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     float _UData[A->cols * A->cols];
     matrix_t L;
     matrix_t U;
+    utilsStatus_t status;
     matrixInitStatic(&L, _LData, A->rows, A->cols);
     matrixInitStatic(&U, _UData, A->cols, A->cols);
-    /* matrix_t *tmp1 = matrixInit(A->rows, B->cols); */
-    (void)LU_CormenStatic(A, &L, &U);
-    /* fwsub(L, B, tmp1); */
-    /* bksub(U, tmp1, result); */
-    fwsub(&L, B, result);
-    bksub(&U, result, result); /* hope it can work in-place */
-    return;
+    status = LU_CormenStatic(A, &L, &U);
+    if (status == UTILS_STATUS_SUCCESS) {
+        fwsub(&L, B, result);
+        bksub(&U, result, result); /* hope it can work in-place */
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
+    return status;
 }
 
 /* ----------------------Linear system solver using LUP factorization-------------------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -1148,21 +1177,31 @@ void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     matrix_t U;
     matrix_t P;
     matrix_t tmp;
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
     matrixInitStatic(&L, _LData, A->rows, A->cols);
     matrixInitStatic(&U, _UData, A->cols, A->cols);
     matrixInitStatic(&P, _PData, A->rows, 1);
     matrixInitStatic(&tmp, _tmpData, A->rows, B->cols);
-
-    (void)LUP_CormenStatic(A, &L, &U, &P);
-    fwsubPerm(&L, B, &P, &tmp);
-    bksub(&U, &tmp, result);
-    return;
+    if (LUP_CormenStatic(A, &L, &U, &P) == 0) {
+        status = UTILS_STATUS_ERROR; /* singular matrix */
+    }
+    if (status == UTILS_STATUS_SUCCESS) {
+        fwsubPerm(&L, B, &P, &tmp);
+        bksub(&U, &tmp, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
+    return status;
 }
 
 /* ------------Linear system solver using Gauss elimination with partial pivoting--------------- */
 /* solves the linear system A*X=B, where A is a n-by-n matrix and B an n-by-m matrix, giving the n-by-m matrix X */
 
-void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
+utilsStatus_t LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->rows == A->cols);
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -1172,6 +1211,7 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
     float _B_cp_Data[B->rows * B->cols];
     matrix_t A_cp;
     matrix_t B_cp;
+    utilsStatus_t status = UTILS_STATUS_SUCCESS;
     matrixInitStatic(&A_cp, _A_cp_Data, A->rows, A->cols);
     matrixInitStatic(&B_cp, _B_cp_Data, B->rows, B->cols);
     matrixCopy(A, &A_cp);
@@ -1190,10 +1230,10 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
             }
         }
 
-        /* check for singular Matrix */
-        if (ELEM(A_cp, pivrow, i) == 0.0f) {
-            matrixZeros(result);
-            return;
+        /* check for singular or non-finite pivot */
+        if ((ELEM(A_cp, pivrow, i) == 0.0f) || (isfinite(ELEM(A_cp, pivrow, i)) == 0)) {
+            status = UTILS_STATUS_ERROR;
+            break;
         }
 
         /* Execute pivot (row swap) if needed */
@@ -1226,8 +1266,16 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
             }
         }
     }
-    bksub(&A_cp, &B_cp, result);
-    return;
+    if (status == UTILS_STATUS_SUCCESS) {
+        bksub(&A_cp, &B_cp, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result);
+    }
+    return status;
 }
 
 /* ----------------------Linear system solver using Cholesky factorization with static allocation-------------------------- */
@@ -1332,7 +1380,7 @@ utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q
     matrixInitStatic(&tmp3, _tmp3Data, A->rows, A->cols);
 
     matrixCopy(A, &_Ak);
-    matrixInversedStatic(R, &tmp1);
+    (void)matrixInversedStatic(R, &tmp1);
     QuadProd(B, &tmp1, &_G);
     matrixCopy(Q, result);
 
@@ -1343,7 +1391,7 @@ utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q
         for (uint8_t i = 0; i < tmp2.rows; i++) {
             ELEM(tmp2, i, i) += 1.f;
         }
-        matrixInversedStatic(&tmp2, &_IGP);
+        (void)matrixInversedStatic(&tmp2, &_IGP);
         /* Calculation of Ak1 = Ak*inverse(I+G*H)*Ak */
         matrixMult(&_Ak, &_IGP, &tmp2);
         matrixMult(&tmp2, &_Ak, &_Ak1);

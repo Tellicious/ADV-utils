@@ -188,24 +188,33 @@ void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is singular, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversed(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversed(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Robust matrix inversion performed with LUP decomposition
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is singular, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversed_rob(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversed_rob(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Matrix inversion for symmetric positive-definite matrices, performed with Cholesky decomposition
  *
  * \param[in]       lhs: pointer to left-hand side matrix object (must be symmetric positive-definite)
  * \param[out]      result: pointer to result matrix object; set to zeros if lhs is not positive-definite
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is not positive-definite, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversed_SPD(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -214,24 +223,33 @@ void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is singular, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversedStatic(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversedStatic(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Robust matrix inversion performed with LUP decomposition and static allocation
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is singular, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result);
 
 /**
  * \brief           Matrix inversion for symmetric positive-definite matrices, performed with Cholesky decomposition and static allocation
  *
  * \param[in]       lhs: pointer to left-hand side matrix object (must be symmetric positive-definite)
  * \param[out]      result: pointer to result matrix object; set to zeros if lhs is not positive-definite
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the matrix is not positive-definite, or if the computed inverse is non-finite (NaN/Inf)
  */
-void matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /**
@@ -264,8 +282,11 @@ void matrixNormalized(const matrix_t* lhs, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the pseudo-inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the normal-equations system is singular, or if the computed pseudo-inverse is non-finite (NaN/Inf)
  */
-void matrixPseudoInv(matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixPseudoInv(matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
 
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
@@ -274,8 +295,11 @@ void matrixPseudoInv(matrix_t* lhs, matrix_t* result);
  *
  * \param[in]       lhs: pointer to left-hand side matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the pseudo-inverse is computed
+ * \retval          UTILS_STATUS_ERROR if the normal-equations system is singular, or if the computed pseudo-inverse is non-finite (NaN/Inf)
  */
-void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result);
+utilsStatus_t matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
 
 /**

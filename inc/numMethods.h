@@ -151,7 +151,7 @@ utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \param[out]      U: pointer to U matrix object
  * \param[in]       P: pointer to P matrix object
  *
- * \return          factor to be multiplied by determinant of U to obtain determinant of A
+ * \return          factor to be multiplied by determinant of U to obtain determinant of A, or 0 if A is singular (a zero or non-finite pivot is found)
  */
 int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
 
@@ -175,8 +175,11 @@ utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular, or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using LUP factorization
@@ -184,8 +187,11 @@ void LinSolveLU(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular, or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using Gauss elimination with partial pivoting
@@ -193,8 +199,11 @@ void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular (zero or non-finite pivot), or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B for symmetric positive-definite A using Cholesky factorization
@@ -312,7 +321,7 @@ utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \param[out]       U: pointer to U matrix object
  * \param[in]       P: pointer to P matrix object
  *
- * \return          factor to be multiplied by determinant of U to obtain determinant of A
+ * \return          factor to be multiplied by determinant of U to obtain determinant of A, or 0 if A is singular (a zero or non-finite pivot is found)
  */
 int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
 
@@ -336,8 +345,11 @@ utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular, or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using LUP factorization with static allocation
@@ -345,8 +357,11 @@ void LinSolveLUStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular, or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B system using Gauss elimination with partial pivoting and static allocation
@@ -354,8 +369,11 @@ void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[in]       A: pointer to A matrix object
  * \param[in]       B: pointer to B matrix object
  * \param[out]      result: pointer to result matrix object
+ *
+ * \retval          UTILS_STATUS_SUCCESS if the system is solved
+ * \retval          UTILS_STATUS_ERROR if A is singular (zero or non-finite pivot), or if the computed result is non-finite (NaN/Inf)
  */
-void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
+utilsStatus_t LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
  * \brief           Solve AX = B for symmetric positive-definite A using Cholesky factorization with static memory allocation

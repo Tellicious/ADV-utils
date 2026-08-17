@@ -33,8 +33,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 
-#include <setjmp.h>
 #include <math.h>
+#include <setjmp.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -252,13 +252,13 @@ static void test_LU_Cormen(void** state) {
         float infd[9] = {INFINITY, 0, 0, 0, 1, 0, 0, 0, 1};
         float sing[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
         float lg[9], ug[9];
-        matrix_t Ainf, Sg, Lg, Ug;
+        matrix_t Ainf, A2, Lg, Ug;
         matrixInitStatic(&Ainf, infd, 3, 3);
-        matrixInitStatic(&Sg, sing, 3, 3);
+        matrixInitStatic(&A2, sing, 3, 3);
         matrixInitStatic(&Lg, lg, 3, 3);
         matrixInitStatic(&Ug, ug, 3, 3);
         assert_int_equal(LU_Cormen(&Ainf, &Lg, &Ug), UTILS_STATUS_ERROR);
-        assert_int_equal(LU_Cormen(&Sg, &Lg, &Ug), UTILS_STATUS_ERROR);
+        assert_int_equal(LU_Cormen(&A2, &Lg, &Ug), UTILS_STATUS_ERROR);
     }
 }
 
@@ -368,18 +368,19 @@ static void test_QR_Householder(void** state) {
     matrixDelete(&W);
     matrixDelete(&Qw);
     matrixDelete(&Rw);
-    { /* finite-value guard: non-finite and column-overflow -> ERROR */
-        float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
-        float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
-        float qg[6], rg[4];
-        matrix_t Tinf, Tov, Qg, Rg;
-        matrixInitStatic(&Tinf, tinf, 3, 2);
-        matrixInitStatic(&Tov, tov, 3, 2);
-        matrixInitStatic(&Qg, qg, 3, 2);
-        matrixInitStatic(&Rg, rg, 2, 2);
-        assert_int_equal(QR_Householder(&Tinf, &Qg, &Rg), UTILS_STATUS_ERROR);
-        assert_int_equal(QR_Householder(&Tov, &Qg, &Rg), UTILS_STATUS_ERROR);
-    }
+    /* finite-value guard: non-finite and column-overflow -> ERROR */
+    float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
+    float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
+    matrixInit(&A, 3, 2);
+    matrixInit(&Q, 3, 2);
+    matrixInit(&R, 2, 2);
+    memcpy(A.data, tinf, 6 * sizeof(float));
+    assert_int_equal(QR_Householder(&A, &Q, &R), UTILS_STATUS_ERROR);
+    memcpy(A.data, tov, 6 * sizeof(float));
+    assert_int_equal(QR_Householder(&A, &Q, &R), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&Q);
+    matrixDelete(&R);
 }
 
 static void test_LinSolveLU(void** state) {
@@ -392,7 +393,7 @@ static void test_LinSolveLU(void** state) {
     matrixInit(&result, 4, 4);
     memcpy(A.data, A_data, 16 * sizeof(float));
     memcpy(B.data, B_data, 16 * sizeof(float));
-    LinSolveLU(&A, &B, &result);
+    assert_int_equal(LinSolveLU(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -409,6 +410,30 @@ static void test_LinSolveLU(void** state) {
     assert_float_equal(result.data[13], -3.205921f, 1e-5);
     assert_float_equal(result.data[14], 0.489882f, 1e-5);
     assert_float_equal(result.data[15], -2.882036f, 1e-5);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
+    /* singular matrix -> ERROR */
+    float A2_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B2_data[3] = {1, 2, 3};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 3, 1);
+    memcpy(A.data, A2_data, 9 * sizeof(float));
+    memcpy(B.data, B2_data, 3 * sizeof(float));
+    assert_int_equal(LinSolveLU(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
+    /* overflow --> ERROR */
+    float A3_data[4] = {1e-30f, 0.0f, 0.0f, 1e-30f};
+    float B3_data[2] = {1e20f, 1e20f};
+    matrixInit(&A, 2, 2);
+    matrixInit(&B, 2, 1);
+    matrixInit(&result, 2, 1);
+    memcpy(A.data, A3_data, 4 * sizeof(float));
+    memcpy(B.data, B3_data, 2 * sizeof(float));
+    assert_int_equal(LinSolveLU(&A, &B, &result), UTILS_STATUS_ERROR);
     matrixDelete(&A);
     matrixDelete(&B);
     matrixDelete(&result);
@@ -424,7 +449,7 @@ static void test_LinSolveLUP(void** state) {
     matrixInit(&result, 4, 4);
     memcpy(A.data, A_data, 16 * sizeof(float));
     memcpy(B.data, B_data, 16 * sizeof(float));
-    LinSolveLUP(&A, &B, &result);
+    assert_int_equal(LinSolveLUP(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -444,6 +469,30 @@ static void test_LinSolveLUP(void** state) {
     matrixDelete(&A);
     matrixDelete(&B);
     matrixDelete(&result);
+    /* singular matrix -> ERROR */
+    float A2_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B2_data[3] = {1, 2, 3};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 3, 1);
+    memcpy(A.data, A2_data, 9 * sizeof(float));
+    memcpy(B.data, B2_data, 3 * sizeof(float));
+    assert_int_equal(LinSolveLUP(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
+    /* singular matrix with a zero pivot column -> LUP_CormenStatic returns 0 -> ERROR */
+    float A3_data[9] = {0.0f, 1.0f, 2.0f, 0.0f, 3.0f, 4.0f, 0.0f, 5.0f, 6.0f};
+    float B3_data[3] = {1.0f, 2.0f, 3.0f};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 3, 1);
+    memcpy(A.data, A3_data, 9 * sizeof(float));
+    memcpy(B.data, B3_data, 3 * sizeof(float));
+    assert_int_equal(LinSolveLUP(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
 }
 
 static void test_LinSolveGauss(void** state) {
@@ -456,7 +505,7 @@ static void test_LinSolveGauss(void** state) {
     matrixInit(&result, 4, 4);
     memcpy(A.data, A_data, 16 * sizeof(float));
     memcpy(B.data, B_data, 16 * sizeof(float));
-    LinSolveGauss(&A, &B, &result);
+    assert_int_equal(LinSolveGauss(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -493,6 +542,18 @@ static void test_LinSolveGauss(void** state) {
     matrixDelete(&A);
     matrixDelete(&B);
     matrixDelete(&result);
+    /* singular matrix -> ERROR */
+    float A3_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B3_data[3] = {1, 2, 3};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 3, 1);
+    memcpy(A.data, A3_data, 9 * sizeof(float));
+    memcpy(B.data, B3_data, 3 * sizeof(float));
+    assert_int_equal(LinSolveGauss(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
 }
 
 static void test_LinSolveCholesky(void** state) {
@@ -520,16 +581,18 @@ static void test_LinSolveCholesky(void** state) {
     matrixDelete(&B);
     matrixDelete(&result);
     matrixDelete(&N);
-    { /* finite-value guard: non-finite result -> ERROR */
-        float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
-        float bnan[3] = {NAN, 1.0f, 2.0f};
-        float xg[3];
-        matrix_t Ag, Bn, Xg;
-        matrixInitStatic(&Ag, spd, 3, 3);
-        matrixInitStatic(&Bn, bnan, 3, 1);
-        matrixInitStatic(&Xg, xg, 3, 1);
-        assert_int_equal(LinSolveCholesky(&Ag, &Bn, &Xg), UTILS_STATUS_ERROR);
-    }
+    /* finite-value guard: non-finite result -> ERROR */
+    float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+    float bnan[3] = {NAN, 1.0f, 2.0f};
+    matrixInit(&A, 3, 3);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 3, 1);
+    memcpy(A.data, spd, 9 * sizeof(float));
+    memcpy(B.data, bnan, 3 * sizeof(float));
+    assert_int_equal(LinSolveCholesky(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
 }
 
 static void test_LinSolveQR(void** state) {
@@ -563,45 +626,45 @@ static void test_LinSolveQR(void** state) {
     matrixDelete(&B);
     matrixDelete(&result);
     /* tall least-squares 4x3 */
-    matrix_t At, Bt, xt;
     float At_data[12] = {1, 2, 3, 4, 5, 6, 7, 8, 10, 1, 0, 1};
     float Bt_data[8] = {1, 2, 0, 1, 3, 0, 1, 1};
-    matrixInit(&At, 4, 3);
-    matrixInit(&Bt, 4, 2);
-    matrixInit(&xt, 3, 2);
-    memcpy(At.data, At_data, 12 * sizeof(float));
-    memcpy(Bt.data, Bt_data, 8 * sizeof(float));
-    assert_int_equal(LinSolveQR(&At, &Bt, &xt), UTILS_STATUS_SUCCESS);
-    float xt_exp[6] = {0.287671f, -1.260274f, -1.260274f, -1.383562f, 1.041096f, 2.034247f};
+    matrixInit(&A, 4, 3);
+    matrixInit(&B, 4, 2);
+    matrixInit(&result, 3, 2);
+    memcpy(A.data, At_data, 12 * sizeof(float));
+    memcpy(B.data, Bt_data, 8 * sizeof(float));
+    assert_int_equal(LinSolveQR(&A, &B, &result), UTILS_STATUS_SUCCESS);
+    float result_exp[6] = {0.287671f, -1.260274f, -1.260274f, -1.383562f, 1.041096f, 2.034247f};
     for (uint8_t i = 0; i < 6; i++) {
-        assert_float_equal(xt.data[i], xt_exp[i], 1e-5);
+        assert_float_equal(result.data[i], result_exp[i], 1e-5);
     }
-    matrixDelete(&At);
-    matrixDelete(&Bt);
-    matrixDelete(&xt);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
     /* rank-deficient -> error */
-    matrix_t D, Bd, xd;
     float D_data[6] = {1, 2, 2, 4, 3, 6};
     float Bd_data[3] = {1, 2, 3};
-    matrixInit(&D, 3, 2);
-    matrixInit(&Bd, 3, 1);
-    matrixInit(&xd, 2, 1);
-    memcpy(D.data, D_data, 6 * sizeof(float));
-    memcpy(Bd.data, Bd_data, 3 * sizeof(float));
-    assert_int_equal(LinSolveQR(&D, &Bd, &xd), UTILS_STATUS_ERROR);
-    matrixDelete(&D);
-    matrixDelete(&Bd);
-    matrixDelete(&xd);
-    { /* finite-value guard: non-finite result -> ERROR */
-        float tall[6] = {1, 2, 3, 4, 5, 7};
-        float bnan[3] = {NAN, 2.0f, 3.0f};
-        float xg[2];
-        matrix_t Tg, Bn, Xg;
-        matrixInitStatic(&Tg, tall, 3, 2);
-        matrixInitStatic(&Bn, bnan, 3, 1);
-        matrixInitStatic(&Xg, xg, 2, 1);
-        assert_int_equal(LinSolveQR(&Tg, &Bn, &Xg), UTILS_STATUS_ERROR);
-    }
+    matrixInit(&A, 3, 2);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 2, 1);
+    memcpy(A.data, D_data, 6 * sizeof(float));
+    memcpy(B.data, Bd_data, 3 * sizeof(float));
+    assert_int_equal(LinSolveQR(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
+    /* finite-value guard: non-finite result -> ERROR */
+    float tall[6] = {1, 2, 3, 4, 5, 7};
+    float bnan[3] = {NAN, 2.0f, 3.0f};
+    matrixInit(&A, 3, 2);
+    matrixInit(&B, 3, 1);
+    matrixInit(&result, 2, 1);
+    memcpy(A.data, tall, 6 * sizeof(float));
+    memcpy(B.data, bnan, 3 * sizeof(float));
+    assert_int_equal(LinSolveQR(&A, &B, &result), UTILS_STATUS_ERROR);
+    matrixDelete(&A);
+    matrixDelete(&B);
+    matrixDelete(&result);
 }
 
 static void test_DARE(void** state) {
@@ -854,18 +917,17 @@ static void test_QR_HouseholderStatic(void** state) {
     matrixInitStatic(&Rw, Rw_data, 3, 3);
     skipAssert = 0;
     expect_assert_failure(QR_HouseholderStatic(&W, &Qw, &Rw));
-    { /* finite-value guard: non-finite and column-overflow -> ERROR */
-        float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
-        float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
-        float qg[6], rg[4];
-        matrix_t Tinf, Tov, Qg, Rg;
-        matrixInitStatic(&Tinf, tinf, 3, 2);
-        matrixInitStatic(&Tov, tov, 3, 2);
-        matrixInitStatic(&Qg, qg, 3, 2);
-        matrixInitStatic(&Rg, rg, 2, 2);
-        assert_int_equal(QR_HouseholderStatic(&Tinf, &Qg, &Rg), UTILS_STATUS_ERROR);
-        assert_int_equal(QR_HouseholderStatic(&Tov, &Qg, &Rg), UTILS_STATUS_ERROR);
-    }
+    /* finite-value guard: non-finite and column-overflow -> ERROR */
+    float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
+    float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
+    float qg[6], rg[4];
+    matrix_t Tinf, Tov, Qg, Rg;
+    matrixInitStatic(&Tinf, tinf, 3, 2);
+    matrixInitStatic(&Tov, tov, 3, 2);
+    matrixInitStatic(&Qg, qg, 3, 2);
+    matrixInitStatic(&Rg, rg, 2, 2);
+    assert_int_equal(QR_HouseholderStatic(&Tinf, &Qg, &Rg), UTILS_STATUS_ERROR);
+    assert_int_equal(QR_HouseholderStatic(&Tov, &Qg, &Rg), UTILS_STATUS_ERROR);
 }
 
 static void test_LinSolveLUStatic(void** state) {
@@ -877,7 +939,7 @@ static void test_LinSolveLUStatic(void** state) {
     matrixInitStatic(&A, A_data, 4, 4);
     matrixInitStatic(&B, B_data, 4, 4);
     matrixInitStatic(&result, result_data, 4, 4);
-    LinSolveLUStatic(&A, &B, &result);
+    assert_int_equal(LinSolveLUStatic(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -894,6 +956,20 @@ static void test_LinSolveLUStatic(void** state) {
     assert_float_equal(result.data[13], -3.205921f, 1e-5);
     assert_float_equal(result.data[14], 0.489882f, 1e-5);
     assert_float_equal(result.data[15], -2.882036f, 1e-5);
+    /* singular matrix -> ERROR */
+    float A2_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B2_data[3] = {1, 2, 3};
+    matrixInitStatic(&A, A2_data, 3, 3);
+    matrixInitStatic(&B, B2_data, 3, 1);
+    matrixInitStatic(&result, result_data, 3, 1);
+    assert_int_equal(LinSolveLUStatic(&A, &B, &result), UTILS_STATUS_ERROR);
+    /* overflow --> ERROR */
+    float A3_data[4] = {1e-30f, 0.0f, 0.0f, 1e-30f};
+    float B3_data[2] = {1e20f, 1e20f};
+    matrixInitStatic(&A, A3_data, 2, 2);
+    matrixInitStatic(&B, B3_data, 2, 1);
+    matrixInitStatic(&result, result_data, 2, 1);
+    assert_int_equal(LinSolveLUStatic(&A, &B, &result), UTILS_STATUS_ERROR);
 }
 
 static void test_LinSolveLUPStatic(void** state) {
@@ -905,7 +981,7 @@ static void test_LinSolveLUPStatic(void** state) {
     matrixInitStatic(&A, A_data, 4, 4);
     matrixInitStatic(&B, B_data, 4, 4);
     matrixInitStatic(&result, result_data, 4, 4);
-    LinSolveLUPStatic(&A, &B, &result);
+    assert_int_equal(LinSolveLUPStatic(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -922,6 +998,20 @@ static void test_LinSolveLUPStatic(void** state) {
     assert_float_equal(result.data[13], -3.205921f, 1e-5);
     assert_float_equal(result.data[14], 0.489882f, 1e-5);
     assert_float_equal(result.data[15], -2.882036f, 1e-5);
+    /* singular matrix -> ERROR */
+    float A2_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B2_data[3] = {1, 2, 3};
+    matrixInitStatic(&A, A2_data, 3, 3);
+    matrixInitStatic(&B, B2_data, 3, 1);
+    matrixInitStatic(&result, result_data, 3, 1);
+    assert_int_equal(LinSolveLUPStatic(&A, &B, &result), UTILS_STATUS_ERROR);
+    /* singular matrix with a zero pivot column -> LUP_CormenStatic returns 0 -> ERROR */
+    float A3_data[9] = {0.0f, 1.0f, 2.0f, 0.0f, 3.0f, 4.0f, 0.0f, 5.0f, 6.0f};
+    float B3_data[3] = {1.0f, 2.0f, 3.0f};
+    matrixInitStatic(&A, A3_data, 3, 3);
+    matrixInitStatic(&B, B3_data, 3, 1);
+    matrixInitStatic(&result, result_data, 3, 1);
+    assert_int_equal(LinSolveLUPStatic(&A, &B, &result), UTILS_STATUS_ERROR);
 }
 
 static void test_LinSolveGaussStatic(void** state) {
@@ -933,7 +1023,7 @@ static void test_LinSolveGaussStatic(void** state) {
     matrixInitStatic(&A, A_data, 4, 4);
     matrixInitStatic(&B, B_data, 4, 4);
     matrixInitStatic(&result, result_data, 4, 4);
-    LinSolveGaussStatic(&A, &B, &result);
+    assert_int_equal(LinSolveGaussStatic(&A, &B, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -0.142065f, 1e-5);
     assert_float_equal(result.data[1], 1.492795f, 1e-5);
     assert_float_equal(result.data[2], -0.310884f, 1e-5);
@@ -961,6 +1051,13 @@ static void test_LinSolveGaussStatic(void** state) {
     assert_float_equal(result.data[0], 0.f, 1e-5);
     assert_float_equal(result.data[1], 0.f, 1e-5);
     assert_float_equal(result.data[2], 0.f, 1e-5);
+    /* singular matrix -> ERROR */
+    float A3_data[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+    float B3_data[3] = {1, 2, 3};
+    matrixInitStatic(&A, A3_data, 3, 3);
+    matrixInitStatic(&B, B3_data, 3, 1);
+    matrixInitStatic(&result, result_data, 3, 1);
+    assert_int_equal(LinSolveGaussStatic(&A, &B, &result), UTILS_STATUS_ERROR);
 }
 
 static void test_LinSolveCholeskyStatic(void** state) {
@@ -982,16 +1079,13 @@ static void test_LinSolveCholeskyStatic(void** state) {
     float N_data[9] = {1, 2, 3, 2, 1, 4, 3, 4, 1};
     matrixInitStatic(&N, N_data, 3, 3);
     assert_int_equal(LinSolveCholeskyStatic(&N, &B, &result), UTILS_STATUS_ERROR);
-    { /* finite-value guard: non-finite result -> ERROR */
-        float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
-        float bnan[3] = {NAN, 1.0f, 2.0f};
-        float xg[3];
-        matrix_t Ag, Bn, Xg;
-        matrixInitStatic(&Ag, spd, 3, 3);
-        matrixInitStatic(&Bn, bnan, 3, 1);
-        matrixInitStatic(&Xg, xg, 3, 1);
-        assert_int_equal(LinSolveCholeskyStatic(&Ag, &Bn, &Xg), UTILS_STATUS_ERROR);
-    }
+    /* finite-value guard: non-finite result -> ERROR */
+    float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+    float bnan[3] = {NAN, 1.0f, 2.0f};
+    matrixInitStatic(&A, spd, 3, 3);
+    matrixInitStatic(&B, bnan, 3, 1);
+    matrixInitStatic(&result, result_data, 3, 1);
+    assert_int_equal(LinSolveCholeskyStatic(&A, &B, &result), UTILS_STATUS_ERROR);
 }
 
 static void test_LinSolveQRStatic(void** state) {
@@ -1023,37 +1117,30 @@ static void test_LinSolveQRStatic(void** state) {
     assert_float_equal(result.data[14], 0.489882f, 1e-5);
     assert_float_equal(result.data[15], -2.882036f, 1e-5);
     /* tall least-squares 4x3 */
-    matrix_t At, Bt, xt;
     float At_data[12] = {1, 2, 3, 4, 5, 6, 7, 8, 10, 1, 0, 1};
     float Bt_data[8] = {1, 2, 0, 1, 3, 0, 1, 1};
-    float xt_data[6];
-    matrixInitStatic(&At, At_data, 4, 3);
-    matrixInitStatic(&Bt, Bt_data, 4, 2);
-    matrixInitStatic(&xt, xt_data, 3, 2);
-    assert_int_equal(LinSolveQRStatic(&At, &Bt, &xt), UTILS_STATUS_SUCCESS);
-    float xt_exp[6] = {0.287671f, -1.260274f, -1.260274f, -1.383562f, 1.041096f, 2.034247f};
+    matrixInitStatic(&A, At_data, 4, 3);
+    matrixInitStatic(&B, Bt_data, 4, 2);
+    matrixInitStatic(&result, result_data, 3, 2);
+    assert_int_equal(LinSolveQRStatic(&A, &B, &result), UTILS_STATUS_SUCCESS);
+    float result_exp[6] = {0.287671f, -1.260274f, -1.260274f, -1.383562f, 1.041096f, 2.034247f};
     for (uint8_t i = 0; i < 6; i++) {
-        assert_float_equal(xt.data[i], xt_exp[i], 1e-5);
+        assert_float_equal(result.data[i], result_exp[i], 1e-5);
     }
     /* rank-deficient -> error */
-    matrix_t D, Bd, xd;
-    float D_data[6] = {1, 2, 2, 4, 3, 6};
+    float Ad_data[6] = {1, 2, 2, 4, 3, 6};
     float Bd_data[3] = {1, 2, 3};
-    float xd_data[2];
-    matrixInitStatic(&D, D_data, 3, 2);
-    matrixInitStatic(&Bd, Bd_data, 3, 1);
-    matrixInitStatic(&xd, xd_data, 2, 1);
-    assert_int_equal(LinSolveQRStatic(&D, &Bd, &xd), UTILS_STATUS_ERROR);
-    { /* finite-value guard: non-finite result -> ERROR */
-        float tall[6] = {1, 2, 3, 4, 5, 7};
-        float bnan[3] = {NAN, 2.0f, 3.0f};
-        float xg[2];
-        matrix_t Tg, Bn, Xg;
-        matrixInitStatic(&Tg, tall, 3, 2);
-        matrixInitStatic(&Bn, bnan, 3, 1);
-        matrixInitStatic(&Xg, xg, 2, 1);
-        assert_int_equal(LinSolveQRStatic(&Tg, &Bn, &Xg), UTILS_STATUS_ERROR);
-    }
+    matrixInitStatic(&A, Ad_data, 3, 2);
+    matrixInitStatic(&B, Bd_data, 3, 1);
+    matrixInitStatic(&result, result_data, 2, 1);
+    assert_int_equal(LinSolveQRStatic(&A, &B, &result), UTILS_STATUS_ERROR);
+    /* finite-value guard: non-finite result -> ERROR */
+    float tall[6] = {1, 2, 3, 4, 5, 7};
+    float bnan[3] = {NAN, 2.0f, 3.0f};
+    matrixInitStatic(&A, tall, 3, 2);
+    matrixInitStatic(&B, bnan, 3, 1);
+    matrixInitStatic(&result, result_data, 2, 1);
+    assert_int_equal(LinSolveQRStatic(&A, &B, &result), UTILS_STATUS_ERROR);
 }
 
 static void test_DAREStatic(void** state) {

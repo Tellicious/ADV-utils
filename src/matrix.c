@@ -282,44 +282,45 @@ void matrixMultScalar(const matrix_t* lhs, float sc, matrix_t* result) {
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 /* --------------------Inverse LU------------------------ */
-void matrixInversed(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversed(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     matrix_t Eye;
     (void)matrixInit(&Eye, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    LinSolveLU(lhs, &Eye, result);
+    utilsStatus_t status = LinSolveLU(lhs, &Eye, result);
     (void)matrixDelete(&Eye);
-    return;
+    return status;
 }
 
 /* -----------------Robust Inverse LUP------------------- */
-void matrixInversed_rob(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversed_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     matrix_t Eye;
     (void)matrixInit(&Eye, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    LinSolveLUP(lhs, &Eye, result);
+    utilsStatus_t status = LinSolveLUP(lhs, &Eye, result);
     (void)matrixDelete(&Eye);
-    return;
+    return status;
 }
 
-void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversed_SPD(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
     matrix_t Eye;
     (void)matrixInit(&Eye, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    if (LinSolveCholesky(lhs, &Eye, result) == UTILS_STATUS_ERROR) {
+    utilsStatus_t status = LinSolveCholesky(lhs, &Eye, result);
+    if (status == UTILS_STATUS_ERROR) {
         /* Cholesky failed, matrix is not SPD */
         matrixIdentity(result);
     }
     (void)matrixDelete(&Eye);
-    return;
+    return status;
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -327,7 +328,7 @@ void matrixInversed_SPD(const matrix_t* lhs, matrix_t* result) {
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
 
 /* -----------------Static Inverse LU-------------------- */
-void matrixInversedStatic(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversedStatic(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
@@ -335,12 +336,12 @@ void matrixInversedStatic(const matrix_t* lhs, matrix_t* result) {
     matrix_t Eye;
     matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    LinSolveLUStatic(lhs, &Eye, result);
-    return;
+    utilsStatus_t status = LinSolveLUStatic(lhs, &Eye, result);
+    return status;
 }
 
 /* --------------Static Robust Inverse LUP--------------- */
-void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
@@ -348,11 +349,11 @@ void matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
     matrix_t Eye;
     matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    LinSolveLUPStatic(lhs, &Eye, result);
-    return;
+    utilsStatus_t status = LinSolveLUPStatic(lhs, &Eye, result);
+    return status;
 }
 
-void matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
@@ -360,11 +361,12 @@ void matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result) {
     matrix_t Eye;
     matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
     matrixIdentity(&Eye);
-    if (LinSolveCholeskyStatic(lhs, &Eye, result) == UTILS_STATUS_ERROR) {
+    utilsStatus_t status = LinSolveCholeskyStatic(lhs, &Eye, result);
+    if (status == UTILS_STATUS_ERROR) {
         /* Cholesky failed, matrix is not SPD */
         matrixIdentity(result);
     }
-    return;
+    return status;
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -410,7 +412,7 @@ void matrixNormalized(const matrix_t* lhs, matrix_t* result) {
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
 
 /* -------Moore-Penrose pseudo inverse--------- */
-void matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
     matrix_t tran;
@@ -419,10 +421,10 @@ void matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
     (void)matrixInit(&mult1, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
     matrixMult(&tran, lhs, &mult1);
-    LinSolveLUP(&mult1, &tran, result);
+    utilsStatus_t status = LinSolveLUP(&mult1, &tran, result);
     (void)matrixDelete(&tran);
     (void)matrixDelete(&mult1);
-    return;
+    return status;
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -430,7 +432,7 @@ void matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
 #ifdef ADVUTILS_USE_STATIC_ALLOCATION
 
 /* -------Moore-Penrose pseudo inverse--------- */
-void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
+utilsStatus_t matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
     float _tranData[lhs->cols * lhs->rows];
@@ -441,8 +443,8 @@ void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
     matrixInitStatic(&mult1, _mult1Data, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
     matrixMult(&tran, lhs, &mult1);
-    LinSolveLUPStatic(&mult1, &tran, result);
-    return;
+    utilsStatus_t status = LinSolveLUPStatic(&mult1, &tran, result);
+    return status;
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
