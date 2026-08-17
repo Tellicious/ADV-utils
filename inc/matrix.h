@@ -53,18 +53,20 @@ extern "C" {
 
 /* Macros --------------------------------------------------------------------*/
 
+/** \brief Access element (i,j) of a matrix via pointer \hideinitializer */
 #define ELEMP(m, i, j) ((m)->data[((uint8_t)(i) * (uint8_t)(m)->cols) + (uint8_t)(j)])
+/** \brief Access element (i,j) of a matrix value \hideinitializer */
 #define ELEM(m, i, j)  ((m).data[((uint8_t)(i) * (uint8_t)(m).cols) + (uint8_t)(j)])
 
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * Matrix struct
+ * \brief           Dense row-major matrix
  */
 typedef struct {
-    float* data;
-    uint8_t rows;
-    uint8_t cols;
+    float* data;  /**< Row-major element storage */
+    uint8_t rows; /**< Number of rows */
+    uint8_t cols; /**< Number of columns */
 } matrix_t;
 
 /* Function prototypes -------------------------------------------------------*/

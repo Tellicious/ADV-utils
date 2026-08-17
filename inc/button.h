@@ -79,20 +79,20 @@ typedef enum {
 } buttonPressType_t;
 
 /**
- * Button struct
+ * \brief           Button instance
  */
 typedef struct {
-    buttonType_t type       : 1;
-    buttonStatus_t status   : 1;
-    buttonPressType_t press : 5;
-    uint8_t event           : 1;
-    uint8_t pulses;
-    uint16_t debounceTicks;
-    uint16_t resetTicks;
-    uint16_t longPressTicks;
-    uint16_t veryLongPressTicks;
-    uint32_t validTick[2];
-    uint32_t lastTick[2];
+    buttonType_t type       : 1; /**< Button type (normal or pulsating) */
+    buttonStatus_t status   : 1; /**< Last debounced status */
+    buttonPressType_t press : 5; /**< Detected press type */
+    uint8_t event           : 1; /**< Internal event flag */
+    uint8_t pulses;              /**< Pulse count for pulsating mode */
+    uint16_t debounceTicks;      /**< Debounce window, in ticks */
+    uint16_t resetTicks;         /**< Pulse-count reset window, in ticks */
+    uint16_t longPressTicks;     /**< Long-press threshold, in ticks */
+    uint16_t veryLongPressTicks; /**< Very-long-press threshold, in ticks */
+    uint32_t validTick[2];       /**< Last valid tick per status */
+    uint32_t lastTick[2];        /**< Last transition tick per status */
 } __attribute__((packed)) button_t;
 
 /* Function prototypes -------------------------------------------------------*/

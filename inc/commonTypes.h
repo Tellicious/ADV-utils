@@ -64,13 +64,13 @@ typedef enum {
     UTILS_STATUS_BUCKET_EMPTY, /**< Requested hash-table bucket holds no entry */
 } utilsStatus_t;
 
-/*
-* 3-axis float vector
-*/
+/**
+ * \brief           3-axis floating-point vector
+ */
 typedef struct {
-    float x;
-    float y;
-    float z;
+    float x; /**< X component */
+    float y; /**< Y component */
+    float z; /**< Z component */
 } axis3f_t;
 
 /** @} */

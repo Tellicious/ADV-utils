@@ -64,32 +64,32 @@ extern "C" {
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * Node struct
+ * \brief           Singly-linked list node
  */
 typedef struct node_str {
-    void* data;
-    struct node_str* next;
+    void* data;            /**< Pointer to the stored item */
+    struct node_str* next; /**< Next node, or NULL at the tail */
 } listNode_t;
 
 /**
- * List struct
+ * \brief           Linked-list handle
  */
 typedef struct {
-    uint8_t itemSize;
-    listNode_t* _front;
-    listNode_t* _rear;
-    LIST_STYPE size;
-    LIST_STYPE items;
+    uint8_t itemSize;   /**< Size in bytes of each stored item */
+    listNode_t* _front; /**< First node (internal) */
+    listNode_t* _rear;  /**< Last node (internal) */
+    LIST_STYPE size;    /**< Maximum number of items */
+    LIST_STYPE items;   /**< Current number of items */
 } list_t;
 
 /**
- * List iterator 
+ * \brief           Forward iterator over a list
  */
 typedef struct {
-    list_t* _list;
-    listNode_t* _prev;
-    listNode_t* ptr;
-    LIST_STYPE idx;
+    list_t* _list;     /**< List being traversed (internal) */
+    listNode_t* _prev; /**< Previous node (internal) */
+    listNode_t* ptr;   /**< Current node; read ptr->data after listItNext() */
+    LIST_STYPE idx;    /**< Current index */
 } listIterator_t;
 
 /* Function prototypes -------------------------------------------------------*/

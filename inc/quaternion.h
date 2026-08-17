@@ -57,13 +57,16 @@ extern "C" {
 #ifndef ADVUTILS_QUATERNION_TYPEDEF
 #define ADVUTILS_QUATERNION_TYPEDEF
 
+/**
+ * \brief           Unit quaternion (q0 + q1 i + q2 j + q3 k)
+ */
 typedef struct {
-    float q0;
-    float q1;
-    float q2;
-    float q3;
+    float q0; /**< Scalar (real) component */
+    float q1; /**< i component */
+    float q2; /**< j component */
+    float q3; /**< k component */
 #ifdef AVOID_GIMBAL_LOCK
-    axis3f_t ea_pre;
+    axis3f_t ea_pre; /**< Previous Euler angles, used to avoid gimbal lock */
 #endif
 } quaternion_t;
 

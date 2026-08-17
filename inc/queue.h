@@ -64,15 +64,15 @@ extern "C" {
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * Queue struct
+ * \brief           Circular-buffer queue handle
  */
 typedef struct {
-    uint8_t* data;
-    uint8_t itemSize;
-    QUEUE_STYPE size;
-    QUEUE_STYPE _front;
-    QUEUE_STYPE _rear;
-    QUEUE_STYPE items;
+    uint8_t* data;      /**< Backing storage */
+    uint8_t itemSize;   /**< Size in bytes of each item */
+    QUEUE_STYPE size;   /**< Capacity in items */
+    QUEUE_STYPE _front; /**< Head index (internal) */
+    QUEUE_STYPE _rear;  /**< Tail index (internal) */
+    QUEUE_STYPE items;  /**< Current number of items */
 } queue_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -99,9 +99,6 @@ utilsStatus_t queueInit(queue_t* queue, size_t itemSize, QUEUE_STYPE size);
  * \param[in]       data: pointer to data array with size = size * itemSize
  * \param[in]       itemSize: size in bytes of each item in the queue
  * \param[in]       size: required queue size (number of objects)
- *
- * \retval          UTILS_STATUS_SUCCESS queue is initialized
- * \retval          UTILS_STATUS_ERROR data was not allocated correctly
  */
 void queueInitStatic(queue_t* queue, uint8_t* data, size_t itemSize, QUEUE_STYPE size);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */

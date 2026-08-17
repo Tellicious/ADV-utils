@@ -51,126 +51,138 @@ extern "C" {
 
 /* Macros --------------------------------------------------------------------*/
 
-/* Absolute value */
+/** \brief Absolute value */
 #define ABS(value)                               (((value) >= 0) ? (value) : (-(value)))
 
-/* Get sign of value */
+/** \brief Get sign of value */
 #define SIGN(x)                                  (((x) >= 0) ? 1 : -1)
 
-/* Constrain value between low and high */
+/** \brief Constrain value between low and high */
 #define CONSTRAIN(value, low, high)              ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
 
-/* Re-map value according to new scale */
+/** \brief Re-map value according to new scale */
 #define MAP(x, fromLow, fromHigh, toLow, toHigh) (((x) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow)) + (toLow))
 
-/* Apply a deadband to value */
+/** \brief Apply a deadband to value */
 #define DEADBAND(value, threshold)               ((ABS(value) <= (threshold)) ? 0 : (((value) > 0) ? ((value) - (threshold)) : ((value) + (threshold))))
 
-/* Get maximum between 2 values */
 #ifdef __GNUC__
+/** \brief Get maximum between 2 values */
 #define MAX(a, b)                                                                                                                                              \
-    ({                                                                                                                                                         \
-        __typeof__(a) _a = (a);                                                                                                                                \
-        __typeof__(b) _b = (b);                                                                                                                                \
-        _a > _b ? _a : _b;                                                                                                                                     \
-    })
+({                                                                                                                                                         \
+    __typeof__(a) _a = (a);                                                                                                                                \
+    __typeof__(b) _b = (b);                                                                                                                                \
+    _a > _b ? _a : _b;                                                                                                                                     \
+})
 #else
+/** \brief Get maximum between 2 values */
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 #endif
 
-/* Get minimum between 2 values */
 #ifdef __GNUC__
+/** \brief Get minimum between 2 values */
 #define MIN(a, b)                                                                                                                                              \
-    ({                                                                                                                                                         \
-        __typeof__(a) _a = (a);                                                                                                                                \
-        __typeof__(b) _b = (b);                                                                                                                                \
-        _a < _b ? _a : _b;                                                                                                                                     \
-    })
+({                                                                                                                                                         \
+    __typeof__(a) _a = (a);                                                                                                                                \
+    __typeof__(b) _b = (b);                                                                                                                                \
+    _a < _b ? _a : _b;                                                                                                                                     \
+})
 #else
+/** \brief Get minimum between 2 values */
 #define MIN(a, b) ((a) < (b) ? (a) : (b))
 #endif
 
-/* Conversion between rad and deg */
+/** \brief Conversion between rad and deg */
 #define RAD2DEG(x)                     ((x) * 57.29578f)
 
-/* Conversion between deg and rad */
+/** \brief Conversion between deg and rad */
 #define DEG2RAD(x)                     ((x) * 0.0174533f)
 
-/* Conversion between rad/s and milliDegrees-per-second */
+/** \brief Conversion between rad/s and milliDegrees-per-second */
 #define RADPS2MDPS(x)                  ((x) * 57295.779513f)
 
-/* Conversion between milliDegrees-per-second and rad/s */
+/** \brief Conversion between milliDegrees-per-second and rad/s */
 #define MDPS2RADPS(x)                  ((x) * 1.745329252e-5f)
 
-/* Conversion between C and K */
+/** \brief Conversion between C and K */
 #define C2K(x)                         ((x) + 273.15f)
 
-/* Conversion between K and C */
+/** \brief Conversion between K and C */
 #define K2C(x)                         ((x) - 273.15f)
 
-/* Conversion between milliG and m/s^2 */
+/** \brief Conversion between milliG and m/s^2 */
 #define MG2MS2(x)                      ((x) * 0.00980665f)
 
-/* Conversion between m/s^2 and milliG  */
+/** \brief Conversion between m/s^2 and milliG  */
 #define MS22MG(x)                      ((x) * 101.9716212978f)
 
-/* Bit shift left */
+/** \brief Bit shift left */
 #define SHIFT(val, shift)              ((val) << (shift))
 
-/* Bit shift left in place */
+/** \brief Bit shift left in place */
 #define SHIFT_IN_PLACE(val, shift)     (val) <<= (shift)
 
-/* Bit shift right */
+/** \brief Bit shift right */
 #define UNSHIFT(val, shift)            ((val) >> (shift))
 
-/* Bit shift right in place */
+/** \brief Bit shift right in place */
 #define UNSHIFT_IN_PLACE(val, shift)   (val) >>= (shift)
 
-/* Check if all bit are set */
+/** \brief Check if all bit are set */
 #define IS_BIT_SET_ALL(val, mask)      (((val) & (mask)) == (mask))
 
-/* Check if any bit is set */
+/** \brief Check if any bit is set */
 #define IS_BIT_SET_ANY(val, mask)      (((val) & (mask)) != 0U)
 
-/* Check if all bit are not set */
+/** \brief Check if all bit are not set */
 #define IS_BIT_NOT_SET_ALL(val, mask)  (((val) & (mask)) != (mask))
 
-/* Check if none bit is set */
+/** \brief Check if none bit is set */
 #define IS_BIT_NOT_SET_ANY(val, mask)  (((val) & (mask)) == 0U)
 
-/* Mask bits */
+/** \brief Mask bits */
 #define BIT_MASK(val, mask)            ((val) & (mask))
 
-/* Set bits */
+/** \brief Set bits */
 #define BIT_SET(val, mask)             ((val) | (mask))
 
-/* Set bits in place */
+/** \brief Set bits in place */
 #define BIT_SET_IN_PLACE(val, mask)    (val) |= (mask)
 
-/* Clear bits */
+/** \brief Clear bits */
 #define BIT_CLEAR(val, mask)           ((val) & ~(mask))
 
-/* Clear bits in place */
+/** \brief Clear bits in place */
 #define BIT_CLEAR_IN_PLACE(val, mask)  (val) &= ~(mask)
 
-/* Toggle bits */
+/** \brief Toggle bits */
 #define BIT_TOGGLE(val, mask)          ((val) ^ (mask))
 
-/* Toggle bits in place */
+/** \brief Toggle bits in place */
 #define BIT_TOGGLE_IN_PLACE(val, mask) (val) ^= (mask)
 
 /* Faster math operations */
 #ifdef USE_FAST_MATH
+/** \brief Sine \hideinitializer */
 #define SIN(x)     fastSin(x)
+/** \brief Cosine \hideinitializer */
 #define COS(x)     fastCos(x)
+/** \brief Square root \hideinitializer */
 #define SQRT(x)    fastSqrt(x)
+/** \brief Inverse square root (1/sqrt) \hideinitializer */
 #define INVSQRT(x) fastInvSqrt(x)
+/** \brief Tangent \hideinitializer */
 #define TAN(x)     (SIN(x) / COS(x))
 #else
+/** \brief Sine \hideinitializer */
 #define SIN(x)     sinf(x)
+/** \brief Cosine \hideinitializer */
 #define COS(x)     cosf(x)
+/** \brief Square root \hideinitializer */
 #define SQRT(x)    sqrtf(x)
+/** \brief Inverse square root (1/sqrt) \hideinitializer */
 #define INVSQRT(x) 1.0f / sqrtf(x)
+/** \brief Tangent \hideinitializer */
 #define TAN(x)     tanf(x)
 #endif /* USE_FAST_MATH */
 
@@ -178,64 +190,77 @@ extern "C" {
 
 /* Pi value */
 #ifdef M_PI
+/** \brief pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constPI M_PI
 #else
+/** \brief pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constPI 3.14159265358979323846f
 #endif
 
 #ifdef M_PI_2
+/** \brief pi / 2 value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constPI_2 M_PI_2
 #else
+/** \brief pi / 2 value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constPI_2 1.57079632679489661923f
 #endif
 
 #ifdef M_TWOPI
+/** \brief 2 * pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constTWOPI M_TWOPI
 #else
+/** \brief 2 * pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constTWOPI 6.28318530717958647692f
 #endif
 
-/* G value in m/s^2 */
+/** \brief G value in m/s^2 */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constG 9.80665f
 
-/* e value */
 #ifdef M_E
+/** \brief e value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constE M_E
 #else
+/** \brief e value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constE 2.7182818284590452354f
 #endif
 
 /* sqrt(2) */
 #ifdef M_SQRT2
+/** \brief sqrt(2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT2 M_SQRT2
 #else
+/** \brief sqrt(2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT2 1.41421356237309504880f
 #endif
 
 #ifdef M_SQRT1_2
+/** \brief sqrt(1/2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT1_2 M_SQRT1_2
 #else
+/** \brief sqrt(1/2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT1_2 0.70710678118654752440f
 #endif
 
 /* sqrt(3) */
 #ifdef M_SQRT3
+/** \brief sqrt(3) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT3 M_SQRT3
 #else
+/** \brief sqrt(3) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
 #define constSQRT3 1.73205080756887719000f
 #endif

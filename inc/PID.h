@@ -54,27 +54,30 @@ extern "C" {
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * \brief   Derivative term source
+ * \brief           Source signal for the PID derivative term
  */
 typedef enum {
-    PID_DERIV_ON_ERROR = 0, /* derivative computed on the error e = setPoint - measure */
-    PID_DERIV_ON_MEASURE,   /* derivative computed on -measure */
+    PID_DERIV_ON_ERROR = 0, /**< Derivative computed on the error e = setPoint - measure */
+    PID_DERIV_ON_MEASURE,   /**< Derivative computed on -measure */
 } PID_DerivMode_t;
 
+/**
+ * \brief           PID controller instance
+ */
 typedef struct {
-    float output;              /* output value */
-    float kp;                  /* proportional gain */
-    float ki;                  /* integral gain */
-    float kd;                  /* derivative gain */
-    float nd;                  /* derivative filter constant N: derivative in Laplace=s/(1+s/N) */
-    float dT;                  /* loop time in s */
-    float kb;                  /* back-calculation coefficient */
-    float kf;                  /* derivative filter constant */
-    float satMin;              /* lower integral saturation limit */
-    float satMax;              /* upper integral saturation limit */
-    float DuD;                 /* derivative action contribution */
-    float DuI;                 /* integral action contribution */
-    PID_DerivMode_t derivMode; /* derivative term source */
+    float output;              /**< Output value */
+    float kp;                  /**< Proportional gain */
+    float ki;                  /**< Integral gain */
+    float kd;                  /**< Derivative gain */
+    float nd;                  /**< Derivative filter constant N: derivative in Laplace = s/(1+s/N) */
+    float dT;                  /**< Loop time in s */
+    float kb;                  /**< Back-calculation coefficient */
+    float kf;                  /**< Derivative filter constant */
+    float satMin;              /**< Lower integral saturation limit */
+    float satMax;              /**< Upper integral saturation limit */
+    float DuD;                 /**< Derivative action contribution */
+    float DuI;                 /**< Integral action contribution */
+    PID_DerivMode_t derivMode; /**< Derivative term source */
 } PID_t;
 
 /* Function prototypes -------------------------------------------------------*/

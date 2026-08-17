@@ -70,13 +70,13 @@ typedef void (*eventCBType_t)(void);
 typedef void (*eventExtCBType_t)(void* val);
 
 /**
- * Event
+ * \brief           Event handler instance
  */
 typedef struct {
-    eventExtCBType_t* eventsList;
-    eventType_t type;
-    uint16_t count;
-    uint16_t size;
+    eventExtCBType_t* eventsList; /**< Array of registered callbacks */
+    eventType_t type;             /**< Dispatch type */
+    uint16_t count;               /**< Number of registered callbacks */
+    uint16_t size;                /**< Callback array capacity */
 } event_t;
 
 /* Function prototypes -------------------------------------------------------*/

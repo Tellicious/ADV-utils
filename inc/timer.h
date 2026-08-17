@@ -51,11 +51,14 @@ extern "C" {
 
 /* Typedefs ------------------------------------------------------------------*/
 
+/**
+ * \brief           Software timer instance
+ */
 typedef volatile struct {
-    uint32_t lastTick;
-    uint32_t interval;
-    uint8_t flag;
-    uint16_t eventCnt;
+    uint32_t lastTick; /**< Tick captured at the last expiry */
+    uint32_t interval; /**< Interval between expiries, in ticks */
+    uint8_t flag;      /**< Set when the interval has elapsed */
+    uint16_t eventCnt; /**< Number of elapsed intervals */
 } userTimer_t;
 
 /* Function prototypes -------------------------------------------------------*/

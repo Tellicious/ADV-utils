@@ -53,22 +53,22 @@ extern "C" {
 
 /* Typedefs ------------------------------------------------------------------*/
 
-/*
- * Hash-Table entry struct
+/**
+ * \brief           Linked hash-table entry
  */
 typedef struct {
-    char* key; /* key is NULL if this slot is empty */
-    void* value;
+    char* key;   /**< Entry key; NULL if the slot is empty */
+    void* value; /**< Pointer to the stored value */
 } lkHashTableEntry_t;
 
-/*
- * Hash-Table struct
+/**
+ * \brief           Linked hash-table handle
  */
 typedef struct {
-    list_t* entries; /* hash slots */
-    uint32_t size;
-    uint32_t items;
-    size_t itemSize;
+    list_t* entries; /**< Array of hash slots (buckets) */
+    uint32_t size;   /**< Number of buckets */
+    uint32_t items;  /**< Current number of stored items */
+    size_t itemSize; /**< Size in bytes of each stored value */
 } lkHashTable_t;
 
 /**

@@ -57,23 +57,23 @@ extern "C" {
  */
 typedef enum { LPHT_NOT_RESIZABLE = 0, LPHT_RESIZABLE = 1 } lpHashTableResizable_t;
 
-/*
- * Hash-Table entry struct
+/**
+ * \brief           Linear-probing hash-table entry
  */
 typedef struct {
-    char* key; /* key is NULL if this slot is empty */
-    void* value;
+    char* key;   /**< Entry key; NULL if the slot is empty */
+    void* value; /**< Pointer to the stored value */
 } lpHashTableEntry_t;
 
-/*
- * Hash-Table struct
+/**
+ * \brief           Linear-probing hash-table handle
  */
 typedef struct {
-    lpHashTableEntry_t* entries; /* hash slots */
-    uint32_t size;
-    uint32_t items;
-    size_t itemSize;
-    lpHashTableResizable_t resizable;
+    lpHashTableEntry_t* entries;      /**< Array of hash slots */
+    uint32_t size;                    /**< Number of slots */
+    uint32_t items;                   /**< Current number of stored items */
+    size_t itemSize;                  /**< Size in bytes of each stored value */
+    lpHashTableResizable_t resizable; /**< Whether the table may auto-resize */
 } lpHashTable_t;
 
 /**

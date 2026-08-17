@@ -51,62 +51,67 @@ extern "C" {
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * Generic IIR filter struct
+ * \brief           Generic 3rd-order IIR filter state
  */
 typedef struct {
-    float d1;
-    float d2;
-    float d3; /* denominator coefficients */
-    float n0;
-    float n1;
-    float n2;
-    float n3; /* numerator coefficients */
-    float i1;
-    float i2;
-    float i3; /* previous input values */
-    float o1;
-    float o2;
-    float o3; /* previous output values */
+    float d1; /**< Denominator coefficient 1 */
+    float d2; /**< Denominator coefficient 2 */
+    float d3; /**< Denominator coefficient 3 */
+    float n0; /**< Numerator coefficient 0 */
+    float n1; /**< Numerator coefficient 1 */
+    float n2; /**< Numerator coefficient 2 */
+    float n3; /**< Numerator coefficient 3 */
+    float i1; /**< Previous input value (t-1) */
+    float i2; /**< Previous input value (t-2) */
+    float i3; /**< Previous input value (t-3) */
+    float o1; /**< Previous output value (t-1) */
+    float o2; /**< Previous output value (t-2) */
+    float o3; /**< Previous output value (t-3) */
 } IIRFilterGeneric_t;
 
 /**
- * Derivative filter struct
+ * \brief           First-order derivative filter state
  */
 typedef struct {
-    float d1;     /* denominator coefficient */
-    float n0;     /* numerator coefficient */
-    float i1;     /* previous input value */
-    float output; /* output value */
+    float d1;     /**< Denominator coefficient */
+    float n0;     /**< Numerator coefficient */
+    float i1;     /**< Previous input value */
+    float output; /**< Output value */
 } IIRFilterDerivative_t;
 
 /**
- * Integrator filter struct
+ * \brief           Integrator filter state
  */
 typedef struct {
-    float n0;     /* numerator coefficients */
-    float i1;     /* previous input values */
-    float output; /* output values */
+    float n0;     /**< Numerator coefficient */
+    float i1;     /**< Previous input value */
+    float output; /**< Output value */
 } IIRFilterIntegrator_t;
 
 /**
- * Leaky integrator filter struct
+ * \brief           Leaky-integrator filter state
  */
 typedef struct {
-    float n0;     /* numerator coefficients */
-    float leak;   /* leak coefficient */
-    float i1;     /* previous input values */
-    float output; /* output values */
+    float n0;     /**< Numerator coefficient */
+    float leak;   /**< Leak coefficient */
+    float i1;     /**< Previous input value */
+    float output; /**< Output value */
 } IIRFilterLeakyIntegrator_t;
 
 /* Function prototypes -------------------------------------------------------*/
 
 /**
- * \brief           Initialize generic IIR filter with custom coefficients
+ * \brief           Initialize generic IIR filter with custom coefficients in the form y[k] = n0·x[k] + n1·x[k-1] + n2·x[k-2] + n3·x[k-3] − d1·y[k-1] − d2·y[k-2] − d3·y[k-3]
  *
  *
  * \param[in]       filter: pointer to IIR filter structure
- * \param[in]       n0...n3: IIR numerator coefficients
- * \param[in]       d1...d3: IIR denominator coefficients
+ * \param[in]       n0: IIR numerator coefficient 0
+ * \param[in]       n1: IIR numerator coefficient 1
+ * \param[in]       n2: IIR numerator coefficient 2
+ * \param[in]       n3: IIR numerator coefficient 3
+ * \param[in]       d1: IIR denominator coefficient 4
+ * \param[in]       d2: IIR denominator coefficient 5
+ * \param[in]       d3: IIR denominator coefficient 6
  */
 void IIRFilterInit(IIRFilterGeneric_t* filter, float n0, float n1, float n2, float n3, float d1, float d2, float d3);
 

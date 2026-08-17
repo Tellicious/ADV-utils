@@ -170,19 +170,19 @@ void LinSolveLUP(const matrix_t* A, const matrix_t* B, matrix_t* result);
 void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
- * \brief           Solve discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q
- *
- * \param[in]       A: pointer to A matrix object
- * \param[in]       B: pointer to B matrix object
- * \param[in]       Q: pointer to Q matrix object
- * \param[in]       R: pointer to R matrix object
- * \param[in]       nmax: maximum number of iterations (200 is generally fine, even if it usually converges within 15 iterations)
- * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
- * \param[out]      result: pointer to P matrix object
+ * \brief           Solve discrete-time algebraic Riccati equation `P = A'*P*A - (B'*P*A)'*inv(R + B'*P*B)*B'*P*A + Q`
+ *
+ * \param[in]       A: pointer to A matrix object
+ * \param[in]       B: pointer to B matrix object
+ * \param[in]       Q: pointer to Q matrix object
+ * \param[in]       R: pointer to R matrix object
+ * \param[in]       nmax: maximum number of iterations (200 is generally fine, even if it usually converges within 15 iterations)
+ * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
+ * \param[out]      result: pointer to P matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_TIMEOUT nmax is reached
- */
+ */
 utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
 /**
@@ -244,8 +244,8 @@ utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix
  * \brief           Calculate L (lower triangular) and U (upper triangular) matrices such that A = LU with Cormen's Method and static allocation
  *
  * \param[in]       A: pointer to A matrix object
- * \param[out]      L: pointer to L matrix object
- * \param[out]      U: pointer to U matrix object
+ * \param[out]       L: pointer to L matrix object
+ * \param[out]       U: pointer to U matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_ERROR errors
@@ -256,8 +256,8 @@ utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \brief           Calculate L (lower triangular), U (upper triangular) and P (permutation) matrices such that A = LUP with Cormen's Method and static allocation
  *
  * \param[in]       A: pointer to A matrix object
- * \param[out]      L: pointer to L matrix object
- * \param[out]      U: pointer to U matrix object
+ * \param[out]       L: pointer to L matrix object
+ * \param[out]       U: pointer to U matrix object
  * \param[in]       P: pointer to P matrix object
  *
  * \return          factor to be multiplied by determinant of U to obtain determinant of A
@@ -292,19 +292,19 @@ void LinSolveLUPStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
 /**
- * \brief           Solve discrete-time algebraic Riccati equation P = A'*P*A-(B'*P*A)'*inv(R+B'*P*B)*B'*P*A+Q with static allocation
- *
- * \param[in]       A: pointer to A matrix object
- * \param[in]       B: pointer to B matrix object
- * \param[in]       Q: pointer to Q matrix object
- * \param[in]       R: pointer to R matrix object
- * \param[in]       nmax: maximum number of iterations (200 is generally fine, even if it usually converges within 15 iterations)
- * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
- * \param[out]      result: pointer to P matrix object
+ * \brief           Solve discrete-time algebraic Riccati equation `P = A'*P*A - (B'*P*A)'*inv(R + B'*P*B)*B'*P*A + Q` with static allocation
+ *
+ * \param[in]       A: pointer to A matrix object
+ * \param[in]       B: pointer to B matrix object
+ * \param[in]       Q: pointer to Q matrix object
+ * \param[in]       R: pointer to R matrix object
+ * \param[in]       nmax: maximum number of iterations (200 is generally fine, even if it usually converges within 15 iterations)
+ * \param[in]       tol: stopping tolerance (1e-6 is generally fine)
+ * \param[out]      result: pointer to P matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
  * \retval          UTILS_STATUS_TIMEOUT nmax is reached
- */
+ */
 utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q, const matrix_t* R, uint16_t nmax, float tol, matrix_t* result);
 
 /**

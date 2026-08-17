@@ -72,14 +72,14 @@ extern "C" {
 /* Typedefs ------------------------------------------------------------------*/
 
 /**
- * Moving average struct
+ * \brief           Moving-average filter instance
  */
 typedef struct {
-    MOVAVG_TYPE* data;
-    MOVAVG_TYPE sum;
-    MOVAVG_TYPE inv_size;
-    MOVAVG_STYPE size;
-    MOVAVG_STYPE _write;
+    MOVAVG_TYPE* data;    /**< Sample window storage */
+    MOVAVG_TYPE sum;      /**< Running sum of the window */
+    MOVAVG_TYPE inv_size; /**< Precomputed 1/size */
+    MOVAVG_STYPE size;    /**< Window length */
+    MOVAVG_STYPE _write;  /**< Next write index (internal) */
 } movingAvg_t;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -90,6 +90,9 @@ typedef struct {
  *
  * \param[in]       movingAvg: pointer to moving average object
  * \param[in]       size: required queue size
+ * 
+ * \retval         UTILS_STATUS_SUCCESS moving average was initialized
+ * \retval         UTILS_STATUS_ERROR data was not allocated correctly
  */
 utilsStatus_t movingAvgInit(movingAvg_t* movingAvg, MOVAVG_STYPE size);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -128,6 +131,8 @@ static inline MOVAVG_TYPE movingAvgGetLatest(const movingAvg_t* movingAvg) { ret
  * \brief           Flush moving average setting all values to 0
  *
  * \param[in]       movingAvg: pointer to moving average object
+ * \retval          UTILS_STATUS_SUCCESS moving average was flushed
+ * \retval          UTILS_STATUS_ERROR moving average was not initialized
  */
 utilsStatus_t movingAvgFlush(movingAvg_t* movingAvg);
 
@@ -136,6 +141,8 @@ utilsStatus_t movingAvgFlush(movingAvg_t* movingAvg);
  * \brief           Delete moving average
  *
  * \param[in]       movingAvg: pointer to moving average object
+ * \retval          UTILS_STATUS_SUCCESS moving average was deleted
+ * \retval          UTILS_STATUS_ERROR moving average was not initialized
  */
 utilsStatus_t movingAvgDelete(movingAvg_t* movingAvg);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
