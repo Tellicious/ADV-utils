@@ -8,6 +8,8 @@
 - Added `QR_Householder` / `QR_HouseholderStatic` economy Householder QR factorization
 - Added `LinSolveQR` / `LinSolveQRStatic` least-squares linear solvers based on QR
 
+**Improvements:**
+- Changed `GaussNewton_Sens_Cal_9` / `GaussNewton_Sens_Cal_6` / `GaussNewton_Sens_Cal_9Static` / `GaussNewton_Sens_Cal_6Static` to use `QR` linear solver to improve performance 
   
 ## v1.26.1
 

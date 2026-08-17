@@ -687,24 +687,18 @@ utilsStatus_t DARE(const matrix_t* A, const matrix_t* B, const matrix_t* Q, cons
  s33=out(8,0);*/
 
 utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0.0f;
-    float d2 = 0.0f;
-    float d3 = 0.0f;
     float k2;
     matrix_t Jr;
     matrix_t res;
     matrix_t delta;
-    matrix_t tmp1;
     (void)matrixInit(&Jr, Data->rows, 9);
     (void)matrixInit(&res, Data->rows, 1);
     (void)matrixInit(&delta, 9, 1);
-    (void)matrixInit(&tmp1, 9, Data->rows);
 
     if ((Data->rows < 9U) || (Data->cols != 3U)) {
         (void)matrixDelete(&Jr);
         (void)matrixDelete(&res);
         (void)matrixDelete(&delta);
-        (void)matrixDelete(&tmp1);
         return UTILS_STATUS_ERROR;
     }
 
@@ -747,9 +741,9 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
         for (uint8_t i = 0; i < Data->rows; i++) {
-            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            float d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            float d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
             float rx1 = -2.0f * ((ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3));
             float rx2 = -2.0f * ((ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3));
             float rx3 = -2.0f * ((ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3));
@@ -767,29 +761,23 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
             float t3 = (ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3);
             ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
-        matrixPseudoInv(&Jr, &tmp1);
-        matrixMult(&tmp1, &res, &delta);
+        if (LinSolveQR(&Jr, &res, &delta) == UTILS_STATUS_ERROR) {
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            return UTILS_STATUS_ERROR;
+        }
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
             (void)matrixDelete(&Jr);
             (void)matrixDelete(&res);
             (void)matrixDelete(&delta);
-            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_SUCCESS;
-        } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            (void)matrixDelete(&Jr);
-            (void)matrixDelete(&res);
-            (void)matrixDelete(&delta);
-            (void)matrixDelete(&tmp1);
-            return UTILS_STATUS_ERROR;
-        } else {
-            /* no action required (MISRA 15.7) */
         }
     }
     (void)matrixDelete(&Jr);
     (void)matrixDelete(&res);
     (void)matrixDelete(&delta);
-    (void)matrixDelete(&tmp1);
     return UTILS_STATUS_TIMEOUT;
 }
 
@@ -805,25 +793,19 @@ utilsStatus_t GaussNewton_Sens_Cal_9(const matrix_t* Data, float k, const matrix
  s33=out(5,0);*/
 
 utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0.0f;
-    float d2 = 0.0f;
-    float d3 = 0.0f;
     float k2;
 
     matrix_t Jr;
     matrix_t res;
     matrix_t delta;
-    matrix_t tmp1;
     (void)matrixInit(&Jr, Data->rows, 6);
     (void)matrixInit(&res, Data->rows, 1);
     (void)matrixInit(&delta, 6, 1);
-    (void)matrixInit(&tmp1, 6, Data->rows);
 
     if ((Data->rows < 6U) || (Data->cols != 3U)) {
         (void)matrixDelete(&Jr);
         (void)matrixDelete(&res);
         (void)matrixDelete(&delta);
-        (void)matrixDelete(&tmp1);
         return UTILS_STATUS_ERROR;
     }
 
@@ -866,9 +848,9 @@ utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
         for (uint8_t i = 0; i < Data->rows; i++) {
-            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            float d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            float d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
             ELEM(Jr, i, 0) = -2.0f * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
             ELEM(Jr, i, 1) = -2.0f * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
             ELEM(Jr, i, 2) = -2.0f * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
@@ -880,29 +862,23 @@ utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix
             float t3 = ELEMP(result, 5, 0) * d3;
             ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
-        matrixPseudoInv(&Jr, &tmp1);
-        matrixMult(&tmp1, &res, &delta);
+        if (LinSolveQR(&Jr, &res, &delta) == UTILS_STATUS_ERROR) {
+            (void)matrixDelete(&Jr);
+            (void)matrixDelete(&res);
+            (void)matrixDelete(&delta);
+            return UTILS_STATUS_ERROR;
+        }
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
             (void)matrixDelete(&Jr);
             (void)matrixDelete(&res);
             (void)matrixDelete(&delta);
-            (void)matrixDelete(&tmp1);
             return UTILS_STATUS_SUCCESS;
-        } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            (void)matrixDelete(&Jr);
-            (void)matrixDelete(&res);
-            (void)matrixDelete(&delta);
-            (void)matrixDelete(&tmp1);
-            return UTILS_STATUS_ERROR;
-        } else {
-            /* no action required (MISRA 15.7) */
         }
     }
     (void)matrixDelete(&Jr);
     (void)matrixDelete(&res);
     (void)matrixDelete(&delta);
-    (void)matrixDelete(&tmp1);
     return UTILS_STATUS_TIMEOUT;
 }
 
@@ -1369,22 +1345,17 @@ utilsStatus_t DAREStatic(const matrix_t* A, const matrix_t* B, const matrix_t* Q
  s33=out(8,0);*/
 
 utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0.0f;
-    float d2 = 0.0f;
-    float d3 = 0.0f;
     float k2;
+
     float _JrData[Data->rows * 9U];
     float _resData[Data->rows];
     float _deltaData[9];
-    float _tmp1Data[9U * Data->rows];
     matrix_t Jr;
     matrix_t res;
     matrix_t delta;
-    matrix_t tmp1;
     matrixInitStatic(&Jr, _JrData, Data->rows, 9);
     matrixInitStatic(&res, _resData, Data->rows, 1);
     matrixInitStatic(&delta, _deltaData, 9, 1);
-    matrixInitStatic(&tmp1, _tmp1Data, 9, Data->rows);
 
     if ((Data->rows < 9U) || (Data->cols != 3U)) {
         return UTILS_STATUS_ERROR;
@@ -1429,9 +1400,9 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
         for (uint8_t i = 0; i < Data->rows; i++) {
-            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            float d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            float d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
             float rx1 = -2.0f * ((ELEMP(result, 3, 0) * d1) + (ELEMP(result, 4, 0) * d2) + (ELEMP(result, 5, 0) * d3));
             float rx2 = -2.0f * ((ELEMP(result, 4, 0) * d1) + (ELEMP(result, 6, 0) * d2) + (ELEMP(result, 7, 0) * d3));
             float rx3 = -2.0f * ((ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3));
@@ -1449,15 +1420,12 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
             float t3 = (ELEMP(result, 5, 0) * d1) + (ELEMP(result, 7, 0) * d2) + (ELEMP(result, 8, 0) * d3);
             ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
-        matrixPseudoInvStatic(&Jr, &tmp1);
-        matrixMult(&tmp1, &res, &delta);
+        if (LinSolveQRStatic(&Jr, &res, &delta) == UTILS_STATUS_ERROR) {
+            return UTILS_STATUS_ERROR;
+        }
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
             return UTILS_STATUS_SUCCESS;
-        } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            return UTILS_STATUS_ERROR;
-        } else {
-            /* no action required (MISRA 15.7) */
         }
     }
     return UTILS_STATUS_TIMEOUT;
@@ -1475,23 +1443,17 @@ utilsStatus_t GaussNewton_Sens_Cal_9Static(const matrix_t* Data, float k, const 
  s33=out(5,0);*/
 
 utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const matrix_t* X0, uint16_t nmax, float tol, matrix_t* result) {
-    float d1 = 0.0f;
-    float d2 = 0.0f;
-    float d3 = 0.0f;
     float k2;
 
     float _JrData[Data->rows * 6U];
     float _resData[Data->rows];
     float _deltaData[6];
-    float _tmp1Data[6U * Data->rows];
     matrix_t Jr;
     matrix_t res;
     matrix_t delta;
-    matrix_t tmp1;
     matrixInitStatic(&Jr, _JrData, Data->rows, 6);
     matrixInitStatic(&res, _resData, Data->rows, 1);
     matrixInitStatic(&delta, _deltaData, 6, 1);
-    matrixInitStatic(&tmp1, _tmp1Data, 6, Data->rows);
 
     if ((Data->rows < 6U) || (Data->cols != 3U)) {
         return UTILS_STATUS_ERROR;
@@ -1536,9 +1498,9 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const 
     /* Perform best-fit algorithm */
     for (uint16_t n_iter = 0; n_iter < nmax; n_iter++) {
         for (uint8_t i = 0; i < Data->rows; i++) {
-            d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
-            d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
-            d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
+            float d1 = ELEMP(Data, i, 0) - ELEMP(result, 0, 0);
+            float d2 = ELEMP(Data, i, 1) - ELEMP(result, 1, 0);
+            float d3 = ELEMP(Data, i, 2) - ELEMP(result, 2, 0);
             ELEM(Jr, i, 0) = -2.0f * d1 * ELEMP(result, 3, 0) * ELEMP(result, 3, 0);
             ELEM(Jr, i, 1) = -2.0f * d2 * ELEMP(result, 4, 0) * ELEMP(result, 4, 0);
             ELEM(Jr, i, 2) = -2.0f * d3 * ELEMP(result, 5, 0) * ELEMP(result, 5, 0);
@@ -1550,15 +1512,12 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const 
             float t3 = ELEMP(result, 5, 0) * d3;
             ELEM(res, i, 0) = (t1 * t1) + (t2 * t2) + (t3 * t3) - k2;
         }
-        matrixPseudoInvStatic(&Jr, &tmp1);
-        matrixMult(&tmp1, &res, &delta);
+        if (LinSolveQRStatic(&Jr, &res, &delta) == UTILS_STATUS_ERROR) {
+            return UTILS_STATUS_ERROR;
+        }
         matrixSub(result, &delta, result);
         if (matrixNorm(&delta) < tol) {
             return UTILS_STATUS_SUCCESS;
-        } else if (isnan(d1) || isnan(d2) || isnan(d3)) {
-            return UTILS_STATUS_ERROR;
-        } else {
-            /* no action required (MISRA 15.7) */
         }
     }
     return UTILS_STATUS_TIMEOUT;
