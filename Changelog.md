@@ -7,10 +7,13 @@
 - Added `LinSolveCholesky` / `LinSolveCholeskyStatic` solvers for symmetric positive-definite linear systems
 - Added `QR_Householder` / `QR_HouseholderStatic` economy Householder QR factorization
 - Added `LinSolveQR` / `LinSolveQRStatic` least-squares linear solvers based on QR
+- Added `ADVUTILS_USE_ASSERT_ALWAYS` to keep `ADVUTILS_ASSERT` active in release builds, routed to the same handler as in debug
 
 **Improvements:**
 - Changed `matrixPseudoInv` / `matrixPseudoInvStatic` to use `LUP` linear solver to improve robustness
 - Changed `GaussNewton_Sens_Cal_9` / `GaussNewton_Sens_Cal_6` / `GaussNewton_Sens_Cal_9Static` / `GaussNewton_Sens_Cal_6Static` to use `QR` linear solver to improve performance 
+- Float linear-algebra solvers now guard against non-finite (NaN/Inf) values: the `Cholesky`, `LU_Crout` and `LU_Cormen` factorizations (and their `Static` twins) reject non-finite pivots, and `LinSolveCholesky`, `LinSolveQR` and `QR_Householder` additionally validate their computed result/factors, returning `UTILS_STATUS_ERROR` instead of propagating NaN/Inf
+- Documented the assertion model (debug vs. release, override hooks and example handlers) in the Readme
   
 ## v1.26.1
 

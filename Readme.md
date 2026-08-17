@@ -16,7 +16,7 @@
 - ***LPHashTable:*** linear-probing hash-table object with auto-resize capability
 - ***matrix:*** handling of matrix objects and matrix operations
 - ***movingAvg:*** moving average object
-- ***numMethods:*** common numerical methods to solve linear systems (LU, Cholesky, QR least-squares), perform Gauss-Newton sphere approximation and solve discrete-time algebraic Riccati equation
+- ***numMethods:*** common numerical methods to solve linear systems (LU, Cholesky, QR least-squares), perform Gauss-Newton sphere approximation and solve discrete-time algebraic Riccati equation. The float solvers return `UTILS_STATUS_ERROR` on non-finite (NaN/Inf) pivots or results instead of propagating them
 - ***PID:*** PID controller with several anti-windup options (aero-specific, integral-clamping, back-calculation) and selectable derivative-on-error or derivative-on-measurement mode
 - ***quaternion:*** quaternion operations and conversion to Euler angles
 - ***queue:*** queue structure
@@ -38,7 +38,27 @@
     - `ADVUTILS_CALLOC`
     - `ADVUTILS_FREE`
 - User can select to use faster (and less precise) math functions from `basicMath` by adding `USE_FAST_MATH` to compile definitions
-- Library implements an infinite loop assert to check for input parameters when `DEBUG` is defined. User can override it by defining `ADVUTILS_ASSERT` as any function that checks for the input value to be true. User can also define `ADVUTILS_ASSERT_HEADER` to include the file where the preferred assert is declared.
+- Assertion model: when `DEBUG` is defined the library checks input parameters with `ADVUTILS_ASSERT`, whose built-in handler traps in an infinite loop; it is compiled out in release builds. To keep the checks active in release as well, define `ADVUTILS_USE_ASSERT_ALWAYS`. The handler is fully overridable, either by defining `ADVUTILS_ASSERT(x)` directly, or by defining `ADVUTILS_ASSERT_HEADER` to point at a header that declares your own assert. Two common override patterns:
+    - Log and trap:
+        ```c
+        #define ADVUTILS_ASSERT(x)                                       \
+            do {                                                         \
+                if (!(x)) {                                              \
+                    printf("assert failed: %s:%d\n", __FILE__, __LINE__); \
+                    for (;;) { }                                         \
+                }                                                        \
+            } while (0)
+        ```
+    - Forward to a user handler (e.g. a weak `ADVUtils_assertFailed` you can breakpoint or override at link time):
+        ```c
+        void ADVUtils_assertFailed(const char* file, int line);
+        #define ADVUTILS_ASSERT(x)                                       \
+            do {                                                         \
+                if (!(x)) {                                              \
+                    ADVUtils_assertFailed(__FILE__, __LINE__);           \
+                }                                                        \
+            } while (0)
+        ```
 
 ## Specific configurations (via defines):
   

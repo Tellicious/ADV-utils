@@ -46,6 +46,19 @@
 /* -------------------Forward substitution---------------------- */
 /* assumes that the matrix A is already a lower triangular one. No check! */
 
+/* returns 1 if every element of the matrix is finite, 0 otherwise */
+static uint8_t isMatrixFinite(const matrix_t* m) {
+    uint8_t finite = 1U;
+    uint16_t size = (uint16_t)((uint16_t)m->rows * (uint16_t)m->cols);
+    for (uint16_t i = 0U; i < size; i++) {
+        if (isfinite(m->data[i]) == 0) {
+            finite = 0U;
+            break;
+        }
+    }
+    return finite;
+}
+
 void fwsub(const matrix_t* A, const matrix_t* B, matrix_t* result) {
     ADVUTILS_ASSERT(A->cols == result->rows);
     ADVUTILS_ASSERT(A->rows == B->rows);
@@ -175,7 +188,7 @@ utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U) {
             for (uint8_t k = 0; k < i; k++) {
                 sum += ELEMP(L, i, k) * ELEMP(U, k, j);
             }
-            if (ELEMP(L, i, i) == 0) {
+            if ((ELEMP(L, i, i) == 0) || (isfinite(ELEMP(L, i, i)) == 0)) {
                 return UTILS_STATUS_ERROR;
             }
             ELEMP(U, i, j) = (ELEMP(A, i, j) - sum) / ELEMP(L, i, i);
@@ -197,7 +210,7 @@ utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L) {
         for (uint8_t k = 0; k < j; k++) {
             sum -= ELEMP(L, j, k) * ELEMP(L, j, k);
         }
-        if (sum <= 0.0f) {
+        if ((sum <= 0.0f) || (isfinite(sum) == 0)) {
             return UTILS_STATUS_ERROR;
         }
         ELEMP(L, j, j) = SQRT(sum);
@@ -232,7 +245,7 @@ utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U) {
 
     for (uint8_t i = 0; i < A_cp.rows; i++) {
         ELEMP(U, i, i) = ELEM(A_cp, i, i);
-        if (ELEM(A_cp, i, i) == 0) {
+        if ((ELEM(A_cp, i, i) == 0) || (isfinite(ELEM(A_cp, i, i)) == 0)) {
             (void)matrixDelete(&A_cp);
             return UTILS_STATUS_ERROR;
         }
@@ -387,7 +400,7 @@ utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R) {
         }
     }
     float r00 = fabsf(ELEMP(&Rw, 0, 0));
-    if (r00 < 1e-20f) {
+    if ((r00 < 1e-20f) || (isfinite(r00) == 0)) {
         status = UTILS_STATUS_ERROR;
     }
     for (uint8_t k = 0; (k < n) && (status == UTILS_STATUS_SUCCESS); k++) {
@@ -405,6 +418,9 @@ utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R) {
             for (uint8_t j = 0; j < n; j++) {
                 ELEMP(R, i, j) = (j >= i) ? ELEMP(&Rw, i, j) : 0.0f;
             }
+        }
+        if ((isMatrixFinite(Q) == 0U) || (isMatrixFinite(R) == 0U)) {
+            status = UTILS_STATUS_ERROR;
         }
     }
     (void)matrixDelete(&Rw);
@@ -555,6 +571,10 @@ utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* r
         matrixTrans(&L, &Lt);
         fwsub(&L, B, &Y);
         bksub(&Lt, &Y, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
     } else {
         matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
     }
@@ -583,13 +603,16 @@ utilsStatus_t LinSolveQR(const matrix_t* A, const matrix_t* B, matrix_t* result)
     if (status == UTILS_STATUS_SUCCESS) {
         matrixMult_lhsT(&Q, B, &QtB);
         bksub(&R, &QtB, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
+        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
     }
     (void)matrixDelete(&Q);
     (void)matrixDelete(&R);
     (void)matrixDelete(&QtB);
-    if (status != UTILS_STATUS_SUCCESS) {
-        matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
-    }
     return status;
 }
 
@@ -904,7 +927,7 @@ utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U) {
 
     for (uint8_t i = 0; i < A_cp.rows; i++) {
         ELEMP(U, i, i) = ELEM(A_cp, i, i);
-        if (ELEM(A_cp, i, i) == 0) {
+        if ((ELEM(A_cp, i, i) == 0) || (isfinite(ELEM(A_cp, i, i)) == 0)) {
             return UTILS_STATUS_ERROR;
         }
         float tmp = 1.0f / ELEMP(U, i, i);
@@ -1059,12 +1082,13 @@ utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R) 
         }
     }
     float r00 = fabsf(ELEMP(&Rw, 0, 0));
-    if (r00 < 1e-20f) {
+    if ((r00 < 1e-20f) || (isfinite(r00) == 0)) {
         status = UTILS_STATUS_ERROR;
     }
-    for (uint8_t k = 0; (k < n) && (status == UTILS_STATUS_SUCCESS); k++) {
+    for (uint8_t k = 0; (k < n); k++) {
         if (fabsf(ELEMP(&Rw, k, k)) < (1e-6f * r00)) {
             status = UTILS_STATUS_ERROR;
+            break;
         }
     }
     if (status == UTILS_STATUS_SUCCESS) {
@@ -1077,6 +1101,9 @@ utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R) 
             for (uint8_t j = 0; j < n; j++) {
                 ELEMP(R, i, j) = (j >= i) ? ELEMP(&Rw, i, j) : 0.0f;
             }
+        }
+        if ((isMatrixFinite(Q) == 0U) || (isMatrixFinite(R) == 0U)) {
+            status = UTILS_STATUS_ERROR;
         }
     }
     return status;
@@ -1226,6 +1253,10 @@ utilsStatus_t LinSolveCholeskyStatic(const matrix_t* A, const matrix_t* B, matri
         matrixTrans(&L, &Lt);
         fwsub(&L, B, &Y);
         bksub(&Lt, &Y, result);
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
     } else {
         matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
     }
@@ -1254,8 +1285,11 @@ utilsStatus_t LinSolveQRStatic(const matrix_t* A, const matrix_t* B, matrix_t* r
     if (status == UTILS_STATUS_SUCCESS) {
         matrixMult_lhsT(&Q, B, &QtB);
         bksub(&R, &QtB, result);
-    }
-    if (status != UTILS_STATUS_SUCCESS) {
+        if (isMatrixFinite(result) == 0U) {
+            status = UTILS_STATUS_ERROR;
+            matrixZeros(result);
+        }
+    } else {
         matrixZeros(result); /* defined (zero) output for rank-deficient/failed solve */
     }
     return status;

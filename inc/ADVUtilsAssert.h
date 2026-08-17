@@ -52,20 +52,33 @@ extern "C" {
 
 /* Macros --------------------------------------------------------------------*/
 
+#ifdef DOXYGEN
+/**
+ * \def ADVUTILS_USE_ASSERT_ALWAYS
+ * \brief Define to keep ADVUTILS_ASSERT active in release builds, routed to the same handler as in debug
+ */
+#define ADVUTILS_USE_ASSERT_ALWAYS
+#endif /* DOXYGEN */
+
+#ifndef ADVUTILS_ASSERT
 /**
  * \def ADVUTILS_ASSERT
- * \brief User-overridable assertion; active when DEBUG is defined, compiled out otherwise
+ * \brief User-overridable assertion. Active when either DEBUG or ADVUTILS_USE_ASSERT_ALWAYS is defined, and compiled out
+ *        otherwise. The built-in handler traps in an infinite loop; define ADVUTILS_ASSERT directly, or supply
+ *        ADVUTILS_ASSERT_HEADER, to log, trap to a fault handler or invoke a user callback instead
  */
-#ifndef ADVUTILS_ASSERT
-#ifdef DEBUG
+#if defined(DEBUG) || defined(ADVUTILS_USE_ASSERT_ALWAYS) || defined(DOXYGEN)
 #define ADVUTILS_ASSERT(x)                                                                                                                                     \
-    if ((x) == 0) {                                                                                                                                            \
-        for (;;)                                                                                                                                               \
-            ;                                                                                                                                                  \
-    }
+    do {                                                                                                                                                       \
+        if ((x) == 0) {                                                                                                                                        \
+            for (;;) {                                                                                                                                         \
+                ;                                                                                                                                              \
+            }                                                                                                                                                  \
+        }                                                                                                                                                      \
+    } while (0)
 #else
-#define ADVUTILS_ASSERT(x)
-#endif /* DEBUG */
+#define ADVUTILS_ASSERT(x) ((void)0)
+#endif /* DEBUG || ADVUTILS_USE_ASSERT_ALWAYS || DOXYGEN */
 #endif /* ADVUTILS_ASSERT */
 
 /** @} */

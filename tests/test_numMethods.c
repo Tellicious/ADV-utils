@@ -34,6 +34,7 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include <setjmp.h>
+#include <math.h>
 #include <stdarg.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -171,6 +172,15 @@ static void test_LU_Crout(void** state) {
     float A2_data[] = {0, 7, 6, 2};
     memcpy(A_data, A2_data, 4 * sizeof(float));
     assert_int_equal(LU_Crout(&A, &L, &U), UTILS_STATUS_ERROR);
+    { /* finite-value guard: non-finite pivot -> ERROR */
+        float infd[9] = {INFINITY, 0, 0, 0, 1, 0, 0, 0, 1};
+        float lg[9], ug[9];
+        matrix_t Ainf, Lg, Ug;
+        matrixInitStatic(&Ainf, infd, 3, 3);
+        matrixInitStatic(&Lg, lg, 3, 3);
+        matrixInitStatic(&Ug, ug, 3, 3);
+        assert_int_equal(LU_Crout(&Ainf, &Lg, &Ug), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_Cholesky(void** state) {
@@ -198,6 +208,14 @@ static void test_Cholesky(void** state) {
     matrixInitStatic(&ANS, ANS_data, 3, 2);
     skipAssert = 0;
     expect_assert_failure(Cholesky(&ANS, &L));
+    { /* finite-value guard: non-finite pivot -> ERROR */
+        float infd[9] = {INFINITY, 0, 0, 0, 1, 0, 0, 0, 1};
+        float lg[9];
+        matrix_t Ainf, Lg;
+        matrixInitStatic(&Ainf, infd, 3, 3);
+        matrixInitStatic(&Lg, lg, 3, 3);
+        assert_int_equal(Cholesky(&Ainf, &Lg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LU_Cormen(void** state) {
@@ -230,6 +248,18 @@ static void test_LU_Cormen(void** state) {
     matrixDelete(&A);
     matrixDelete(&L);
     matrixDelete(&U);
+    { /* finite-value guard: non-finite pivot and singular -> ERROR */
+        float infd[9] = {INFINITY, 0, 0, 0, 1, 0, 0, 0, 1};
+        float sing[9] = {1, 2, 3, 2, 4, 6, 7, 8, 10};
+        float lg[9], ug[9];
+        matrix_t Ainf, Sg, Lg, Ug;
+        matrixInitStatic(&Ainf, infd, 3, 3);
+        matrixInitStatic(&Sg, sing, 3, 3);
+        matrixInitStatic(&Lg, lg, 3, 3);
+        matrixInitStatic(&Ug, ug, 3, 3);
+        assert_int_equal(LU_Cormen(&Ainf, &Lg, &Ug), UTILS_STATUS_ERROR);
+        assert_int_equal(LU_Cormen(&Sg, &Lg, &Ug), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LUP_Cormen(void** state) {
@@ -338,6 +368,18 @@ static void test_QR_Householder(void** state) {
     matrixDelete(&W);
     matrixDelete(&Qw);
     matrixDelete(&Rw);
+    { /* finite-value guard: non-finite and column-overflow -> ERROR */
+        float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
+        float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
+        float qg[6], rg[4];
+        matrix_t Tinf, Tov, Qg, Rg;
+        matrixInitStatic(&Tinf, tinf, 3, 2);
+        matrixInitStatic(&Tov, tov, 3, 2);
+        matrixInitStatic(&Qg, qg, 3, 2);
+        matrixInitStatic(&Rg, rg, 2, 2);
+        assert_int_equal(QR_Householder(&Tinf, &Qg, &Rg), UTILS_STATUS_ERROR);
+        assert_int_equal(QR_Householder(&Tov, &Qg, &Rg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LinSolveLU(void** state) {
@@ -478,6 +520,16 @@ static void test_LinSolveCholesky(void** state) {
     matrixDelete(&B);
     matrixDelete(&result);
     matrixDelete(&N);
+    { /* finite-value guard: non-finite result -> ERROR */
+        float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+        float bnan[3] = {NAN, 1.0f, 2.0f};
+        float xg[3];
+        matrix_t Ag, Bn, Xg;
+        matrixInitStatic(&Ag, spd, 3, 3);
+        matrixInitStatic(&Bn, bnan, 3, 1);
+        matrixInitStatic(&Xg, xg, 3, 1);
+        assert_int_equal(LinSolveCholesky(&Ag, &Bn, &Xg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LinSolveQR(void** state) {
@@ -540,6 +592,16 @@ static void test_LinSolveQR(void** state) {
     matrixDelete(&D);
     matrixDelete(&Bd);
     matrixDelete(&xd);
+    { /* finite-value guard: non-finite result -> ERROR */
+        float tall[6] = {1, 2, 3, 4, 5, 7};
+        float bnan[3] = {NAN, 2.0f, 3.0f};
+        float xg[2];
+        matrix_t Tg, Bn, Xg;
+        matrixInitStatic(&Tg, tall, 3, 2);
+        matrixInitStatic(&Bn, bnan, 3, 1);
+        matrixInitStatic(&Xg, xg, 2, 1);
+        assert_int_equal(LinSolveQR(&Tg, &Bn, &Xg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_DARE(void** state) {
@@ -699,6 +761,15 @@ static void test_LU_CormenStatic(void** state) {
     float A2_data[] = {0, 7, 6, 2};
     memcpy(A_data, A2_data, 4 * sizeof(float));
     assert_int_equal(LU_CormenStatic(&A, &L, &U), UTILS_STATUS_ERROR);
+    { /* finite-value guard: non-finite pivot -> ERROR */
+        float infd[9] = {INFINITY, 0, 0, 0, 1, 0, 0, 0, 1};
+        float lg[9], ug[9];
+        matrix_t Ainf, Lg, Ug;
+        matrixInitStatic(&Ainf, infd, 3, 3);
+        matrixInitStatic(&Lg, lg, 3, 3);
+        matrixInitStatic(&Ug, ug, 3, 3);
+        assert_int_equal(LU_CormenStatic(&Ainf, &Lg, &Ug), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LUP_CormenStatic(void** state) {
@@ -783,6 +854,18 @@ static void test_QR_HouseholderStatic(void** state) {
     matrixInitStatic(&Rw, Rw_data, 3, 3);
     skipAssert = 0;
     expect_assert_failure(QR_HouseholderStatic(&W, &Qw, &Rw));
+    { /* finite-value guard: non-finite and column-overflow -> ERROR */
+        float tinf[6] = {INFINITY, 2, 3, 4, 5, 7};
+        float tov[6] = {1, 1e20f, 0, 1e20f, 0, 1e20f};
+        float qg[6], rg[4];
+        matrix_t Tinf, Tov, Qg, Rg;
+        matrixInitStatic(&Tinf, tinf, 3, 2);
+        matrixInitStatic(&Tov, tov, 3, 2);
+        matrixInitStatic(&Qg, qg, 3, 2);
+        matrixInitStatic(&Rg, rg, 2, 2);
+        assert_int_equal(QR_HouseholderStatic(&Tinf, &Qg, &Rg), UTILS_STATUS_ERROR);
+        assert_int_equal(QR_HouseholderStatic(&Tov, &Qg, &Rg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LinSolveLUStatic(void** state) {
@@ -899,6 +982,16 @@ static void test_LinSolveCholeskyStatic(void** state) {
     float N_data[9] = {1, 2, 3, 2, 1, 4, 3, 4, 1};
     matrixInitStatic(&N, N_data, 3, 3);
     assert_int_equal(LinSolveCholeskyStatic(&N, &B, &result), UTILS_STATUS_ERROR);
+    { /* finite-value guard: non-finite result -> ERROR */
+        float spd[9] = {4, 12, -16, 12, 37, -43, -16, -43, 98};
+        float bnan[3] = {NAN, 1.0f, 2.0f};
+        float xg[3];
+        matrix_t Ag, Bn, Xg;
+        matrixInitStatic(&Ag, spd, 3, 3);
+        matrixInitStatic(&Bn, bnan, 3, 1);
+        matrixInitStatic(&Xg, xg, 3, 1);
+        assert_int_equal(LinSolveCholeskyStatic(&Ag, &Bn, &Xg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_LinSolveQRStatic(void** state) {
@@ -951,6 +1044,16 @@ static void test_LinSolveQRStatic(void** state) {
     matrixInitStatic(&Bd, Bd_data, 3, 1);
     matrixInitStatic(&xd, xd_data, 2, 1);
     assert_int_equal(LinSolveQRStatic(&D, &Bd, &xd), UTILS_STATUS_ERROR);
+    { /* finite-value guard: non-finite result -> ERROR */
+        float tall[6] = {1, 2, 3, 4, 5, 7};
+        float bnan[3] = {NAN, 2.0f, 3.0f};
+        float xg[2];
+        matrix_t Tg, Bn, Xg;
+        matrixInitStatic(&Tg, tall, 3, 2);
+        matrixInitStatic(&Bn, bnan, 3, 1);
+        matrixInitStatic(&Xg, xg, 2, 1);
+        assert_int_equal(LinSolveQRStatic(&Tg, &Bn, &Xg), UTILS_STATUS_ERROR);
+    }
 }
 
 static void test_DAREStatic(void** state) {

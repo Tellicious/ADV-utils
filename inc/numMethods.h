@@ -113,7 +113,7 @@ void QuadProd(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[out]      U: pointer to U matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
- * \retval          UTILS_STATUS_ERROR errors
+ * \retval          UTILS_STATUS_ERROR on a zero pivot, or if a non-finite (NaN/Inf) pivot is encountered
  */
 utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -126,7 +126,7 @@ utilsStatus_t LU_Crout(const matrix_t* A, matrix_t* L, matrix_t* U);
  * \attention       A must be square and symmetric positive-definite; only its lower triangle is used. L must be distinct from A (not in-place)
  *
  * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
- * \retval          UTILS_STATUS_ERROR if A is not positive-definite (non-positive pivot)
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite, or if a non-finite (NaN/Inf) pivot is encountered
  */
 utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L);
 
@@ -139,7 +139,7 @@ utilsStatus_t Cholesky(const matrix_t* A, matrix_t* L);
  * \param[out]      U: pointer to U matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
- * \retval          UTILS_STATUS_ERROR errors
+ * \retval          UTILS_STATUS_ERROR on a zero pivot, or if a non-finite (NaN/Inf) pivot is encountered
  */
 utilsStatus_t LU_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -165,7 +165,7 @@ int8_t LUP_Cormen(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P);
  * \param[out]      R: pointer to R matrix object (cols-by-cols, upper-triangular)
  *
  * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
- * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found)
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found), or if the factorization is non-finite (NaN/Inf)
  */
 utilsStatus_t QR_Householder(const matrix_t* A, matrix_t* Q, matrix_t* R);
 
@@ -204,7 +204,7 @@ void LinSolveGauss(const matrix_t* A, const matrix_t* B, matrix_t* result);
  * \param[out]      result: pointer to result matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS if the system is solved
- * \retval          UTILS_STATUS_ERROR if A is not positive-definite
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite, or if the computed result is non-finite (NaN/Inf)
  */
 utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
@@ -216,7 +216,7 @@ utilsStatus_t LinSolveCholesky(const matrix_t* A, const matrix_t* B, matrix_t* r
  * \param[out]      result: pointer to result matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS if the system is solved
- * \retval          UTILS_STATUS_ERROR if A is rank-deficient
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient, or if the computed result is non-finite (NaN/Inf)
  */
 utilsStatus_t LinSolveQR(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
@@ -300,7 +300,7 @@ utilsStatus_t GaussNewton_Sens_Cal_6(const matrix_t* Data, float k, const matrix
  * \param[out]       U: pointer to U matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS success
- * \retval          UTILS_STATUS_ERROR errors
+ * \retval          UTILS_STATUS_ERROR on a zero pivot, or if a non-finite (NaN/Inf) pivot is encountered
  */
 utilsStatus_t LU_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U);
 
@@ -326,7 +326,7 @@ int8_t LUP_CormenStatic(const matrix_t* A, matrix_t* L, matrix_t* U, matrix_t* P
  * \param[out]      R: pointer to R matrix object (cols-by-cols, upper-triangular)
  *
  * \retval          UTILS_STATUS_SUCCESS if the factorization succeeds
- * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found)
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient (a near-zero pivot is found), or if the factorization is non-finite (NaN/Inf)
  */
 utilsStatus_t QR_HouseholderStatic(const matrix_t* A, matrix_t* Q, matrix_t* R);
 
@@ -365,7 +365,7 @@ void LinSolveGaussStatic(const matrix_t* A, const matrix_t* B, matrix_t* result)
  * \param[out]      result: pointer to result matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS if the system is solved
- * \retval          UTILS_STATUS_ERROR if A is not positive-definite
+ * \retval          UTILS_STATUS_ERROR if A is not positive-definite, or if the computed result is non-finite (NaN/Inf)
  */
 utilsStatus_t LinSolveCholeskyStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
@@ -446,7 +446,7 @@ utilsStatus_t GaussNewton_Sens_Cal_6Static(const matrix_t* Data, float k, const 
  * \param[out]      result: pointer to result matrix object
  *
  * \retval          UTILS_STATUS_SUCCESS if the system is solved
- * \retval          UTILS_STATUS_ERROR if A is rank-deficient
+ * \retval          UTILS_STATUS_ERROR if A is rank-deficient, or if the computed result is non-finite (NaN/Inf)
  */
 utilsStatus_t LinSolveQRStatic(const matrix_t* A, const matrix_t* B, matrix_t* result);
 
