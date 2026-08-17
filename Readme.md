@@ -18,7 +18,7 @@
 - ***movingAvg:*** moving average object
 - ***numMethods:*** common numerical methods to solve linear systems (LU, Cholesky, QR least-squares), perform Gauss-Newton sphere approximation and solve discrete-time algebraic Riccati equation. The float linear solvers return `UTILS_STATUS_ERROR` on a singular system or on non-finite (NaN/Inf) pivots or results instead of propagating them
 - ***PID:*** PID controller with several anti-windup options (aero-specific, integral-clamping, back-calculation) and selectable derivative-on-error or derivative-on-measurement mode
-- ***quaternion:*** quaternion operations and conversion to Euler angles
+- ***quaternion:*** quaternion operations, conversion to Euler angles and to active rotation matrix, and construction from axis-angle
 - ***queue:*** queue structure
 - ***timer:*** user-configurable timers
 

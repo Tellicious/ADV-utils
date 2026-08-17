@@ -7,6 +7,8 @@
 - Added `LinSolveCholesky` / `LinSolveCholeskyStatic` solvers for symmetric positive-definite linear systems
 - Added `QR_Householder` / `QR_HouseholderStatic` economy Householder QR factorization
 - Added `LinSolveQR` / `LinSolveQRStatic` least-squares linear solvers based on QR
+- Added `quaternionToMatrix` to build the active rotation matrix (DCM) from a quaternion
+- Added `quaternionFromAxisAngle` to build a quaternion from a unit axis and rotation angle
 - Added `ADVUTILS_USE_ASSERT_ALWAYS` to keep `ADVUTILS_ASSERT` active in release builds, routed to the same handler as in debug
 
 **Improvements:**

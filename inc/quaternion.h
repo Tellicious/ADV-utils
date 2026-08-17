@@ -41,6 +41,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "commonTypes.h"
+#include "matrix.h"
 
 /**
  * \defgroup quaternion Quaternion
@@ -116,6 +117,27 @@ void quaternionConj(const quaternion_t* qa, quaternion_t* qo);
  * \param[out]      ea: pointer to resulting euler angles
  */
 void quaternionToEuler(quaternion_t* qr, axis3f_t* ea);
+
+/**
+ * \brief           Build the active rotation matrix (direction cosine matrix) from a quaternion
+ *
+ * \param[in]       q: pointer to input quaternion object
+ * \param[out]      result: pointer to resulting 3-by-3 matrix object (active DCM)
+ *
+ * \attention       result must be a 3-by-3 matrix. The matrix is the active rotation (transpose of the frame rotation applied by quaternionRotation)
+ */
+void quaternionToMatrix(const quaternion_t* q, matrix_t* result);
+
+/**
+ * \brief           Build a quaternion from a rotation axis and angle
+ *
+ * \param[in]       axis: pointer to rotation axis (must be a unit vector)
+ * \param[in]       angle: rotation angle in radians
+ * \param[out]      q: pointer to resulting quaternion object (normalized)
+ *
+ * \attention       axis is assumed to be a unit vector
+ */
+void quaternionFromAxisAngle(const axis3f_t* axis, float angle, quaternion_t* q);
 
 /** @} */
 

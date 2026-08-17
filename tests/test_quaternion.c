@@ -43,6 +43,34 @@
 
 #include <cmocka.h>
 
+/* Support functions ---------------------------------------------------------*/
+
+void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size) {
+    if (number_of_elements > 0) {
+        return test_calloc(number_of_elements, size);
+    } else {
+        return NULL;
+    }
+}
+
+void* ADVUtils_testMalloc(const size_t size) {
+    if (size > 0) {
+        return test_malloc(size);
+    } else {
+        return NULL;
+    }
+}
+
+static uint8_t skipAssert = 0;
+
+void ADVUtils_testAssert(const int result, const char* const expression, const char* const file, const int line) {
+    if (skipAssert) {
+        return;
+    } else {
+        mock_assert(result, expression, file, line);
+    }
+}
+
 /* Functions -----------------------------------------------------------------*/
 
 static void test_quaternionNorm(void** state) {
@@ -177,10 +205,67 @@ static void test_quaternionToEuler(void** state) {
     assert_float_equal(ea.z, 0.0f, 1e-5);
 }
 
+static void test_quaternionToMatrix(void** state) {
+    (void)state; /* unused */
+    /* 40 deg about unit axis [1,2,2]/3; active DCM values from reference */
+    quaternion_t q = {0.9396926f, 0.1140067f, 0.2280134f, 0.2280134f, {0.0f, 0.0f, 0.0f}};
+    float M_data[9];
+    matrix_t M;
+    matrixInitStatic(&M, M_data, 3, 3);
+    quaternionToMatrix(&q, &M);
+    float M_exp[9] = {0.792040f, -0.376535f, 0.480515f, 0.480515f, 0.870025f, -0.110282f, -0.376535f, 0.318243f, 0.870025f};
+    for (uint8_t i = 0; i < 9; i++) {
+        assert_float_equal(M.data[i], M_exp[i], 1e-4);
+    }
+    /* cross-check: active matrix applied to v equals quaternionRotation(conj(q), v) */
+    quaternion_t qc;
+    quaternionConj(&q, &qc);
+    quaternion_t qv = {0.0f, 1.0f, -2.0f, 0.5f, {0.0f, 0.0f, 0.0f}};
+    quaternion_t qo;
+    quaternionRotation(&qc, &qv, &qo);
+    float vx = 1.0f, vy = -2.0f, vz = 0.5f;
+    float mx = (ELEM(M, 0, 0) * vx) + (ELEM(M, 0, 1) * vy) + (ELEM(M, 0, 2) * vz);
+    float my = (ELEM(M, 1, 0) * vx) + (ELEM(M, 1, 1) * vy) + (ELEM(M, 1, 2) * vz);
+    float mz = (ELEM(M, 2, 0) * vx) + (ELEM(M, 2, 1) * vy) + (ELEM(M, 2, 2) * vz);
+    assert_float_equal(mx, qo.q1, 1e-5);
+    assert_float_equal(my, qo.q2, 1e-5);
+    assert_float_equal(mz, qo.q3, 1e-5);
+    /* dimension assert (result not 3x3) */
+    float bad_data[6];
+    matrix_t bad;
+    matrixInitStatic(&bad, bad_data, 2, 3);
+    skipAssert = 0;
+    expect_assert_failure(quaternionToMatrix(&q, &bad));
+}
+
+static void test_quaternionFromAxisAngle(void** state) {
+    (void)state; /* unused */
+    axis3f_t axis = {1.0f / 3.0f, 2.0f / 3.0f, 2.0f / 3.0f};
+    quaternion_t q;
+    quaternionFromAxisAngle(&axis, 0.6981317f, &q); /* 40 deg */
+    assert_float_equal(q.q0, 0.9396926f, 1e-5);
+    assert_float_equal(q.q1, 0.1140067f, 1e-5);
+    assert_float_equal(q.q2, 0.2280134f, 1e-5);
+    assert_float_equal(q.q3, 0.2280134f, 1e-5);
+#ifdef AVOID_GIMBAL_LOCK
+    assert_float_equal(q.ea_pre.x, 0.0f, 1e-5);
+    assert_float_equal(q.ea_pre.y, 0.0f, 1e-5);
+    assert_float_equal(q.ea_pre.z, 0.0f, 1e-5);
+#endif
+    /* zero angle -> identity quaternion */
+    quaternion_t qi;
+    quaternionFromAxisAngle(&axis, 0.0f, &qi);
+    assert_float_equal(qi.q0, 1.0f, 1e-5);
+    assert_float_equal(qi.q1, 0.0f, 1e-5);
+    assert_float_equal(qi.q2, 0.0f, 1e-5);
+    assert_float_equal(qi.q3, 0.0f, 1e-5);
+}
+
 int main(void) {
     const struct CMUnitTest test_quaternion[] = {
         cmocka_unit_test(test_quaternionNorm), cmocka_unit_test(test_quaternionMult),    cmocka_unit_test(test_quaternionRotation),
         cmocka_unit_test(test_quaternionConj), cmocka_unit_test(test_quaternionToEuler),
+        cmocka_unit_test(test_quaternionToMatrix), cmocka_unit_test(test_quaternionFromAxisAngle),
     };
 
     return cmocka_run_group_tests(test_quaternion, NULL, NULL);

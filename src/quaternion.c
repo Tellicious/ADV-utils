@@ -34,6 +34,7 @@
 /* Includes ------------------------------------------------------------------*/
 
 #include "quaternion.h"
+#include "ADVUtilsAssert.h"
 #include "basicMath.h"
 
 /* Functions -----------------------------------------------------------------*/
@@ -161,4 +162,49 @@ void quaternionToEuler(quaternion_t* qr, axis3f_t* ea) {
     qr->ea_pre.y = ea->y;
     ea->z = atan2f(dq1q2 + dq0q3, q0q0 + q1q1 - q2q2 - q3q3);
 #endif
+}
+
+void quaternionToMatrix(const quaternion_t* q, matrix_t* result) {
+    ADVUTILS_ASSERT(result->rows == 3U);
+    ADVUTILS_ASSERT(result->cols == 3U);
+
+    float q0q0 = q->q0 * q->q0;
+    float q1q1 = q->q1 * q->q1;
+    float q2q2 = q->q2 * q->q2;
+    float q3q3 = q->q3 * q->q3;
+    float dq0 = 2.0f * q->q0;
+    float dq1 = 2.0f * q->q1;
+    float dq2 = 2.0f * q->q2;
+    float dq1q2 = dq1 * q->q2;
+    float dq1q3 = dq1 * q->q3;
+    float dq0q2 = dq0 * q->q2;
+    float dq0q3 = dq0 * q->q3;
+    float dq0q1 = dq0 * q->q1;
+    float dq2q3 = dq2 * q->q3;
+
+    ELEMP(result, 0, 0) = q0q0 + q1q1 - q2q2 - q3q3;
+    ELEMP(result, 0, 1) = dq1q2 - dq0q3;
+    ELEMP(result, 0, 2) = dq1q3 + dq0q2;
+    ELEMP(result, 1, 0) = dq1q2 + dq0q3;
+    ELEMP(result, 1, 1) = q0q0 - q1q1 + q2q2 - q3q3;
+    ELEMP(result, 1, 2) = dq2q3 - dq0q1;
+    ELEMP(result, 2, 0) = dq1q3 - dq0q2;
+    ELEMP(result, 2, 1) = dq2q3 + dq0q1;
+    ELEMP(result, 2, 2) = q0q0 - q1q1 - q2q2 + q3q3;
+}
+
+void quaternionFromAxisAngle(const axis3f_t* axis, float angle, quaternion_t* q) {
+    float halfAngle = 0.5f * angle;
+    float sinHalf = SIN(halfAngle);
+
+    q->q0 = COS(halfAngle);
+    q->q1 = sinHalf * axis->x;
+    q->q2 = sinHalf * axis->y;
+    q->q3 = sinHalf * axis->z;
+#ifdef AVOID_GIMBAL_LOCK
+    q->ea_pre.x = 0.0f;
+    q->ea_pre.y = 0.0f;
+    q->ea_pre.z = 0.0f;
+#endif
+    quaternionNorm(q);
 }
