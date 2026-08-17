@@ -17,6 +17,7 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
     set(CMAKE_C_STANDARD 11)
     set(CMAKE_C_STANDARD_REQUIRED ON)
     set(CMAKE_C_EXTENSIONS ON)
+    set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
     option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
     # Set user definitions
@@ -54,12 +55,12 @@ if (${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_CURRENT_SOURCE_DIR})
         ADVUTILS_FREE=test_free
         ADVUTILS_ASSERT_HEADER="cmocka_includes.h"
         ADVUTILS_UNIT_TESTS
-        LKHT_LIST_SIZE=2 
+        LKHT_LIST_SIZE=2U
         LKHT_HASHFUN=ADVUtils_testHash
-        LPHT_MIN_SIZE=2
-        LPHT_MAX_SIZE=20
-        LPHT_MIN_SATURATION=0.2
-        LPHT_MAX_SATURATION=0.7
+        LPHT_MIN_SIZE=2U
+        LPHT_MAX_SIZE=20U
+        LPHT_MIN_SATURATION=0.2f
+        LPHT_MAX_SATURATION=0.7f
         LPHT_HASHFUN=ADVUtils_testHash
     )
 endif()
