@@ -15,6 +15,7 @@ set(TESTS_LIST
     quaternion
     queue
     timer
+    vector3f
 )
 
 # Fetch CMocka library

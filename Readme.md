@@ -21,6 +21,7 @@
 - ***quaternion:*** quaternion operations, conversion to Euler angles and to active rotation matrix, and construction from axis-angle
 - ***queue:*** queue structure
 - ***timer:*** user-configurable timers
+- ***vector3f:*** 3-element vector operations (add, subtract, scale, dot, norm, normalize, cross)
 
 ## Library configuration:
 - User must define `ADVUTILS_USE_STATIC_ALLOCATION` and/or `ADVUTILS_USE_DYNAMIC_ALLOCATION` to select wheter to use static and/or dynamic memory management. `list`, `LPHashTable` and `LKHashTable` are available only with `ADVUTILS_USE_DYNAMIC_ALLOCATION`
@@ -99,3 +100,4 @@
 | quaternion  |     100% |
 | queue       |     100% |
 | timer       |     100% |
+| vector3f    |     100% |

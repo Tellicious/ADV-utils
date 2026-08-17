@@ -28,6 +28,7 @@ set(${libName}_src
     quaternion.c
     queue.c
     timer.c
+    vector3f.c
 )
 
 # Setup include directories
