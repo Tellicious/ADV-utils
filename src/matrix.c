@@ -419,7 +419,7 @@ void matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
     (void)matrixInit(&mult1, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
     matrixMult(&tran, lhs, &mult1);
-    LinSolveLU(&mult1, &tran, result);
+    LinSolveLUP(&mult1, &tran, result);
     (void)matrixDelete(&tran);
     (void)matrixDelete(&mult1);
     return;
@@ -441,7 +441,7 @@ void matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
     matrixInitStatic(&mult1, _mult1Data, lhs->cols, lhs->cols);
     matrixTrans(lhs, &tran);
     matrixMult(&tran, lhs, &mult1);
-    LinSolveLUStatic(&mult1, &tran, result);
+    LinSolveLUPStatic(&mult1, &tran, result);
     return;
 }
 

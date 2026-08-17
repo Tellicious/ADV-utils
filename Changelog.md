@@ -9,6 +9,7 @@
 - Added `LinSolveQR` / `LinSolveQRStatic` least-squares linear solvers based on QR
 
 **Improvements:**
+- Changed `matrixPseudoInv` / `matrixPseudoInvStatic` to use `LUP` linear solver to improve robustness
 - Changed `GaussNewton_Sens_Cal_9` / `GaussNewton_Sens_Cal_6` / `GaussNewton_Sens_Cal_9Static` / `GaussNewton_Sens_Cal_6Static` to use `QR` linear solver to improve performance 
   
 ## v1.26.1
