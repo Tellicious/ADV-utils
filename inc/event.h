@@ -91,6 +91,8 @@ typedef struct {
  * 
  * \retval          UTILS_STATUS_SUCCESS event is initialized
  * \retval          UTILS_STATUS_ERROR data was not allocated correctly
+ * 
+ * \note            The event handler is not reentrant; register and throw events from a single execution context
  */
 utilsStatus_t eventInit(event_t* event, eventType_t eventType, uint16_t size);
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */

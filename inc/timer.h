@@ -112,10 +112,12 @@ static inline void timerClear(userTimer_t* t) { t->eventCnt = 0; }
 /**
  * \brief           Process timer object
  *
+ * \attention       To be called on a regular basis to update timers
+ *
  * \param[in]       t: pointer to timer object
  * \param[in]       currentTick: value of current tick
- *
- * \attention       to be called on a regular basis to update timers
+ * 
+ * \note            Not reentrant. Drive from a single monotonic tick source; concurrent calls on the same object are unsafe
  */
 void timerProcess(userTimer_t* t, uint32_t currentTick);
 

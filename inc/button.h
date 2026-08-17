@@ -106,6 +106,8 @@ typedef struct {
  * \param[in]       resetTicks: number of ticks to reset pulse count. Use 400ms as a starting point. It must be greater than debounceTicks
  * \param[in]       longPressTicks: number of ticks that the button needs to be pressed (and then released) to detect long-press
  * \param[in]       veryLongPressTicks: number of ticks that the button needs to be pressed to detect very long-press
+ * 
+ * \note            Tick parameters are expressed in the same tick unit later passed to buttonGetStatus()
  */
 void buttonInit(button_t* button, buttonType_t type, uint32_t debounceTicks, uint32_t resetTicks, uint32_t longPressTicks, uint32_t veryLongPressTicks);
 
@@ -115,6 +117,8 @@ void buttonInit(button_t* button, buttonType_t type, uint32_t debounceTicks, uin
  * \param[in]       button: pointer to button object
  * \param[in]       status: current button status
  * \param[in]       ticks: current system ticks
+ * 
+ * \note            Not reentrant. Call from a single, fixed-rate context (main loop or one timer ISR); the debounce and press-timing logic assume a monotonic, evenly-spaced tick
  */
 void buttonEvent(button_t* button, buttonStatus_t status, uint32_t ticks);
 
