@@ -45,8 +45,14 @@
 
 /* Support functions ---------------------------------------------------------*/
 
+static uint8_t allocFail = 0;
+
+/* Result test */
+
 void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size) {
-    if (number_of_elements > 0) {
+    if (allocFail == 1) {
+        return NULL;
+    } else if (number_of_elements > 0) {
         return test_calloc(number_of_elements, size);
     } else {
         return NULL;
@@ -54,7 +60,9 @@ void* ADVUtils_testCalloc(const size_t number_of_elements, const size_t size) {
 }
 
 void* ADVUtils_testMalloc(const size_t size) {
-    if (size > 0) {
+    if (allocFail == 1) {
+        return NULL;
+    } else if (size > 0) {
         return test_malloc(size);
     } else {
         return NULL;
@@ -367,6 +375,11 @@ static void test_matrixDet(void** state) {
     assert_int_equal(matrixInit(&matrix, 4, 4), UTILS_STATUS_SUCCESS);
     float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
     memcpy(matrix.data, matrix_data, 16 * sizeof(float));
+    /* Allocation error */
+    allocFail = 1;
+    assert_int_equal(matrixDet(&matrix), 0);
+    allocFail = 0;
+    /* Result test */
     assert_float_equal(matrixDet(&matrix), -0.059641f, 1e-5);
     matrixDelete(&matrix);
     /* Check ill-conditioned matrix */
@@ -380,6 +393,7 @@ static void test_matrixDet(void** state) {
     matrixInit(&matrix, 4, 3);
     assert_float_equal(matrixDet(&matrix), 0, 1e-5);
     matrixDelete(&matrix);
+    /* Check buffer allocation failure */
 }
 
 static void test_matrixInversed(void** state) {
@@ -389,6 +403,11 @@ static void test_matrixInversed(void** state) {
     assert_int_equal(matrixInit(&result, 4, 4), UTILS_STATUS_SUCCESS);
     float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
     memcpy(matrix.data, matrix_data, 16 * sizeof(float));
+    /* Allocation error */
+    allocFail = 1;
+    assert_int_equal(matrixInversed(&matrix, &result), UTILS_STATUS_ERROR);
+    allocFail = 0;
+    /* Result test */
     assert_int_equal(matrixInversed(&matrix, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -2.467338, 1e-5);
     assert_float_equal(result.data[1], -1.266793, 1e-5);
@@ -425,6 +444,11 @@ static void test_matrixInversed_rob(void** state) {
     assert_int_equal(matrixInit(&result, 4, 4), UTILS_STATUS_SUCCESS);
     float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
     memcpy(matrix.data, matrix_data, 16 * sizeof(float));
+    /* Allocation error */
+    allocFail = 1;
+    assert_int_equal(matrixInversed_rob(&matrix, &result), UTILS_STATUS_ERROR);
+    allocFail = 0;
+    /* Result test */
     assert_int_equal(matrixInversed_rob(&matrix, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -2.467338, 1e-5);
     assert_float_equal(result.data[1], -1.266793, 1e-5);
@@ -462,13 +486,16 @@ static void test_matrixInversed_SPD(void** state) {
     float matrix_data[] = {0.5432, 0.3171, 0.3816, 0.4898, 0.0462, 0.4358, 0.6651, 0.4456, 0.8235, 0.1324, 0.7952, 0.6463, 0.6948, 0.9745, 0.1869, 0.4456};
     memcpy(matrix.data, matrix_data, 16 * sizeof(float));
     assert_int_equal(matrixInversed_SPD(&matrix, &result), UTILS_STATUS_ERROR);
-    for (uint8_t i = 0; i < 4; i++) {
-        for (uint8_t j = 0; j < 4; j++) {
-            assert_float_equal(result.data[i * 4 + j], (i == j) ? 1.0f : 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
-        }
+    for (uint8_t i = 0; i < 16; i++) {
+        assert_float_equal(result.data[i], 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
     }
     float matrix_data2[] = {2.5431, 0.8124, 0.6213, 0.4172, 0.8124, 2.2698, 0.5341, 0.7156, 0.6213, 0.5341, 2.8017, 0.3288, 0.4172, 0.7156, 0.3288, 2.0459};
     memcpy(matrix.data, matrix_data2, 16 * sizeof(float));
+    /* Allocation error */
+    allocFail = 1;
+    assert_int_equal(matrixInversed_SPD(&matrix, &result), UTILS_STATUS_ERROR);
+    allocFail = 0;
+    /* Result test */
     assert_int_equal(matrixInversed_SPD(&matrix, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], 0.460176, 1e-5);
     assert_float_equal(result.data[1], -0.136945, 1e-5);
@@ -499,6 +526,11 @@ static void test_matrixPseudoInv(void** state) {
     matrix.data[1] = 2.0f;
     matrix.data[2] = 3.0f;
     matrix.data[3] = 4.0f;
+    /* Allocation error */
+    allocFail = 1;
+    assert_int_equal(matrixPseudoInv(&matrix, &result), UTILS_STATUS_ERROR);
+    allocFail = 0;
+    /* Result test */
     assert_int_equal(matrixPseudoInv(&matrix, &result), UTILS_STATUS_SUCCESS);
     assert_float_equal(result.data[0], -2.0f, 1e-5);
     assert_float_equal(result.data[1], 1.0f, 1e-5);
@@ -602,10 +634,8 @@ static void test_matrixInversedStatic_SPD(void** state) {
     matrixInitStatic(&matrix, matrix_data, 4, 4);
     matrixInitStatic(&result, result_data, 4, 4);
     assert_int_equal(matrixInversedStatic_SPD(&matrix, &result), UTILS_STATUS_ERROR);
-    for (uint8_t i = 0; i < 4; i++) {
-        for (uint8_t j = 0; j < 4; j++) {
-            assert_float_equal(result.data[i * 4 + j], (i == j) ? 1.0f : 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
-        }
+    for (uint8_t i = 0; i < 16; i++) {
+        assert_float_equal(result.data[i], 0.0f, 1e-5); // Check graceful fail in case matrix is not SPD
     }
     float matrix_data2[] = {2.5431, 0.8124, 0.6213, 0.4172, 0.8124, 2.2698, 0.5341, 0.7156, 0.6213, 0.5341, 2.8017, 0.3288, 0.4172, 0.7156, 0.3288, 2.0459};
     memcpy(matrix.data, matrix_data2, 16 * sizeof(float));

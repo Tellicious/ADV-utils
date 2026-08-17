@@ -45,6 +45,19 @@
 #include "basicMath.h"
 #include "numMethods.h"
 
+/* Private Typedefs ----------------------------------------------------------*/
+typedef utilsStatus_t (*s_factor3_fn)(const matrix_t*, matrix_t*, matrix_t*);
+typedef int8_t (*s_lupFactor_fn)(const matrix_t*, matrix_t*, matrix_t*, matrix_t*);
+typedef utilsStatus_t (*s_linSolve_fn)(const matrix_t*, const matrix_t*, matrix_t*);
+
+/* Private Function Prototypes -----------------------------------------------*/
+static uint32_t s_matrixInversed_scratchWords(const matrix_t* lhs);
+static uint32_t s_matrixPseudoInv_scratchWords(const matrix_t* lhs);
+static uint32_t s_matrixDet_scratchWords(const matrix_t* matrix);
+static utilsStatus_t s_matrixInversed_impl(const matrix_t* lhs, matrix_t* result, matrixBuffer_t* buf, s_linSolve_fn solve);
+static utilsStatus_t s_matrixPseudoInv_impl(matrix_t* lhs, matrix_t* result, matrixBuffer_t* buf, s_linSolve_fn solve);
+static float s_matrixDet_impl(const matrix_t* matrix, matrixBuffer_t* buf, s_factor3_fn factor_lu, s_lupFactor_fn factor_lup);
+
 /* ==========================================Assignment============================================= */
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
@@ -75,6 +88,32 @@ void matrixInitStatic(matrix_t* matrix, float* data, uint8_t rows, uint8_t cols)
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
+
+#ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
+
+/* ------------------matrixBuffer Allocator----------------- */
+utilsStatus_t matrixBufferAllocate(matrixBuffer_t* buf, uint32_t words) {
+    /* cppcheck-suppress misra-c2012-11.5 ; deviation: generic container returns typed pointer from void* storage */
+    buf->base = ADVUTILS_MALLOC(words * sizeof(float));
+    if (buf->base == NULL) {
+        return UTILS_STATUS_ERROR;
+    }
+    buf->size = words;
+    buf->used = 0;
+    return UTILS_STATUS_SUCCESS;
+}
+
+#endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/* ----------Constructor with pre-allocated buffer---------- */
+void matrixInitInBuffer(matrix_t* matrix, matrixBuffer_t* buf, uint8_t rows, uint8_t cols) {
+    uint16_t n = (uint16_t)rows * (uint16_t)cols;
+    ADVUTILS_ASSERT((buf->used + n) <= buf->size);
+    matrix->data = &buf->base[buf->used];
+    matrix->rows = rows;
+    matrix->cols = cols;
+    buf->used += n;
+}
 
 /* ---------------------Identity Matrix---------------------- */
 void matrixIdentity(matrix_t* matrix) {
@@ -286,12 +325,13 @@ utilsStatus_t matrixInversed(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    matrix_t Eye;
-    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveLU(lhs, &Eye, result);
-    (void)matrixDelete(&Eye);
-    return status;
+    matrixBuffer_t buf;
+    if (matrixBufferAllocate(&buf, s_matrixInversed_scratchWords(lhs)) == UTILS_STATUS_ERROR) {
+        return UTILS_STATUS_ERROR;
+    }
+    utilsStatus_t retval = s_matrixInversed_impl(lhs, result, &buf, &LinSolveLU);
+    ADVUTILS_FREE(buf.base);
+    return retval;
 }
 
 /* -----------------Robust Inverse LUP------------------- */
@@ -299,28 +339,27 @@ utilsStatus_t matrixInversed_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    matrix_t Eye;
-    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveLUP(lhs, &Eye, result);
-    (void)matrixDelete(&Eye);
-    return status;
+    matrixBuffer_t buf;
+    if (matrixBufferAllocate(&buf, s_matrixInversed_scratchWords(lhs)) == UTILS_STATUS_ERROR) {
+        return UTILS_STATUS_ERROR;
+    }
+    utilsStatus_t retval = s_matrixInversed_impl(lhs, result, &buf, &LinSolveLUP);
+    ADVUTILS_FREE(buf.base);
+    return retval;
 }
 
+/* ---------------------SPD Inverse---------------------- */
 utilsStatus_t matrixInversed_SPD(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    matrix_t Eye;
-    (void)matrixInit(&Eye, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveCholesky(lhs, &Eye, result);
-    if (status == UTILS_STATUS_ERROR) {
-        /* Cholesky failed, matrix is not SPD */
-        matrixIdentity(result);
+    matrixBuffer_t buf;
+    if (matrixBufferAllocate(&buf, s_matrixInversed_scratchWords(lhs)) == UTILS_STATUS_ERROR) {
+        return UTILS_STATUS_ERROR;
     }
-    (void)matrixDelete(&Eye);
-    return status;
+    utilsStatus_t retval = s_matrixInversed_impl(lhs, result, &buf, &LinSolveCholesky);
+    ADVUTILS_FREE(buf.base);
+    return retval;
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -332,12 +371,10 @@ utilsStatus_t matrixInversedStatic(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    float _eyeData[lhs->rows * lhs->cols];
-    matrix_t Eye;
-    matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveLUStatic(lhs, &Eye, result);
-    return status;
+    uint32_t words = s_matrixInversed_scratchWords(lhs);
+    float base[words];
+    matrixBuffer_t buf = {base, words, 0};
+    return s_matrixInversed_impl(lhs, result, &buf, &LinSolveLUStatic);
 }
 
 /* --------------Static Robust Inverse LUP--------------- */
@@ -345,28 +382,21 @@ utilsStatus_t matrixInversedStatic_rob(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    float _eyeData[lhs->rows * lhs->cols];
-    matrix_t Eye;
-    matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveLUPStatic(lhs, &Eye, result);
-    return status;
+    uint32_t words = s_matrixInversed_scratchWords(lhs);
+    float base[words];
+    matrixBuffer_t buf = {base, words, 0};
+    return s_matrixInversed_impl(lhs, result, &buf, &LinSolveLUPStatic);
 }
 
+/* ---------------------SPD Inverse---------------------- */
 utilsStatus_t matrixInversedStatic_SPD(const matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(lhs->rows == lhs->cols);
     ADVUTILS_ASSERT(result->rows == lhs->rows);
     ADVUTILS_ASSERT(result->cols == lhs->cols);
-    float _eyeData[lhs->rows * lhs->cols];
-    matrix_t Eye;
-    matrixInitStatic(&Eye, _eyeData, lhs->rows, lhs->cols);
-    matrixIdentity(&Eye);
-    utilsStatus_t status = LinSolveCholeskyStatic(lhs, &Eye, result);
-    if (status == UTILS_STATUS_ERROR) {
-        /* Cholesky failed, matrix is not SPD */
-        matrixIdentity(result);
-    }
-    return status;
+    uint32_t words = s_matrixInversed_scratchWords(lhs);
+    float base[words];
+    matrixBuffer_t buf = {base, words, 0};
+    return s_matrixInversed_impl(lhs, result, &buf, &LinSolveCholeskyStatic);
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -415,16 +445,13 @@ void matrixNormalized(const matrix_t* lhs, matrix_t* result) {
 utilsStatus_t matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
-    matrix_t tran;
-    matrix_t mult1;
-    (void)matrixInit(&tran, lhs->cols, lhs->rows);
-    (void)matrixInit(&mult1, lhs->cols, lhs->cols);
-    matrixTrans(lhs, &tran);
-    matrixMult(&tran, lhs, &mult1);
-    utilsStatus_t status = LinSolveLUP(&mult1, &tran, result);
-    (void)matrixDelete(&tran);
-    (void)matrixDelete(&mult1);
-    return status;
+    matrixBuffer_t buf;
+    if (matrixBufferAllocate(&buf, s_matrixPseudoInv_scratchWords(lhs)) == UTILS_STATUS_ERROR) {
+        return UTILS_STATUS_ERROR;
+    }
+    utilsStatus_t retval = s_matrixPseudoInv_impl(lhs, result, &buf, &LinSolveLUP);
+    ADVUTILS_FREE(buf.base);
+    return retval;
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -435,16 +462,10 @@ utilsStatus_t matrixPseudoInv(matrix_t* lhs, matrix_t* result) {
 utilsStatus_t matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
     ADVUTILS_ASSERT(result->rows == lhs->cols);
     ADVUTILS_ASSERT(result->cols == lhs->rows);
-    float _tranData[lhs->cols * lhs->rows];
-    float _mult1Data[lhs->cols * lhs->cols];
-    matrix_t tran;
-    matrix_t mult1;
-    matrixInitStatic(&tran, _tranData, lhs->cols, lhs->rows);
-    matrixInitStatic(&mult1, _mult1Data, lhs->cols, lhs->cols);
-    matrixTrans(lhs, &tran);
-    matrixMult(&tran, lhs, &mult1);
-    utilsStatus_t status = LinSolveLUPStatic(&mult1, &tran, result);
-    return status;
+    uint32_t words = s_matrixPseudoInv_scratchWords(lhs);
+    float base[words];
+    matrixBuffer_t buf = {base, words, 0};
+    return s_matrixPseudoInv_impl(lhs, result, &buf, &LinSolveLUPStatic);
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -455,36 +476,13 @@ utilsStatus_t matrixPseudoInvStatic(matrix_t* lhs, matrix_t* result) {
 
 /* -----------Returns the determinant---------- */
 float matrixDet(const matrix_t* matrix) {
-    if (matrix->rows != matrix->cols) {
-        return 0.0f;
+    matrixBuffer_t buf;
+    if (matrixBufferAllocate(&buf, s_matrixDet_scratchWords(matrix)) == UTILS_STATUS_ERROR) {
+        return 0;
     }
-    matrix_t L;
-    matrix_t U;
-    matrix_t P;
-    (void)matrixInit(&L, matrix->rows, matrix->rows);
-    (void)matrixInit(&U, matrix->rows, matrix->rows);
-    (void)matrixInit(&P, matrix->rows, 1);
-    float determinant = 1.0f;
-
-    if (LU_Cormen(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (uint8_t i = 0; i < matrix->rows; i++) {
-            determinant *= ELEM(U, i, i);
-        }
-    }
-
-    else {
-        int8_t det_f = LUP_Cormen(matrix, &L, &U, &P);
-        for (uint8_t i = 0; i < matrix->rows; i++) {
-            determinant *= ELEM(U, i, i);
-        }
-        determinant *= (float)det_f;
-    }
-
-    (void)matrixDelete(&L);
-    (void)matrixDelete(&U);
-    (void)matrixDelete(&P);
-
-    return determinant;
+    float retval = s_matrixDet_impl(matrix, &buf, &LU_Cormen, &LUP_Cormen);
+    ADVUTILS_FREE(buf.base);
+    return retval;
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
@@ -493,34 +491,10 @@ float matrixDet(const matrix_t* matrix) {
 
 /* -----------Returns the determinant---------- */
 float matrixDetStatic(const matrix_t* matrix) {
-    if (matrix->rows != matrix->cols) {
-        return 0.0f;
-    }
-    float _LData[matrix->rows * matrix->rows];
-    float _UData[matrix->rows * matrix->rows];
-    float _PData[matrix->rows];
-    matrix_t L;
-    matrix_t U;
-    matrix_t P;
-    matrixInitStatic(&L, _LData, matrix->rows, matrix->rows);
-    matrixInitStatic(&U, _UData, matrix->rows, matrix->rows);
-    matrixInitStatic(&P, _PData, matrix->rows, 1);
-    float determinant = 1.0f;
-
-    if (LU_CormenStatic(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
-        for (uint8_t i = 0; i < matrix->rows; i++) {
-            determinant *= ELEM(U, i, i);
-        }
-    }
-
-    else {
-        int8_t det_f = LUP_CormenStatic(matrix, &L, &U, &P);
-        for (uint8_t i = 0; i < matrix->rows; i++) {
-            determinant *= ELEM(U, i, i);
-        }
-        determinant *= (float)det_f;
-    }
-    return determinant;
+    uint32_t words = s_matrixDet_scratchWords(matrix);
+    float base[words];
+    matrixBuffer_t buf = {base, words, 0};
+    return s_matrixDet_impl(matrix, &buf, &LU_CormenStatic, &LUP_CormenStatic);
 }
 
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
@@ -550,3 +524,109 @@ utilsStatus_t matrixDelete(matrix_t* matrix) {
 }
 
 #endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/* Private Functions ---------------------------------------------------------*/
+
+static uint32_t s_matrixInversed_scratchWords(const matrix_t* lhs) { return (uint32_t)(lhs->rows) * (lhs->cols); }
+
+static uint32_t s_matrixPseudoInv_scratchWords(const matrix_t* lhs) {
+    return ((uint32_t)(lhs->cols) * (uint32_t)(lhs->rows)) + ((uint32_t)(lhs->cols) * (uint32_t)(lhs->cols));
+}
+
+static uint32_t s_matrixDet_scratchWords(const matrix_t* matrix) {
+    return (((uint32_t)(matrix->rows) * (uint32_t)(matrix->rows)) + ((uint32_t)(matrix->rows) * (uint32_t)(matrix->rows))) + (uint32_t)(matrix->rows);
+}
+
+/**
+ * \brief           Allocation-agnostic core shared by matrixInversed() and matrixInversedStatic().
+ *
+ *                  All working matrices are supplied already initialized; no allocation is done here.
+ *
+ * \param[in]       lhs: pointer to lhs matrix object
+ * \param[out]      result: pointer to result matrix object
+ * \param[in]       Eye: pre-initialized scratch matrix, size [lhs->rows x lhs->cols]
+ * \param[in]       solve: pointer to the LinSolve routine (dynamic or static variant)
+ *
+ * \return          utilsStatus_t as returned by matrixInversed()
+ */
+static utilsStatus_t s_matrixInversed_impl(const matrix_t* lhs, matrix_t* result, matrixBuffer_t* buf, s_linSolve_fn solve) {
+    matrix_t Eye;
+    matrixInitInBuffer(&Eye, buf, lhs->rows, lhs->cols);
+
+    matrixIdentity(&Eye);
+    utilsStatus_t status = solve(lhs, &Eye, result);
+    if (status == UTILS_STATUS_ERROR) {
+        matrixZeros(result);
+    }
+
+    return status;
+}
+
+/**
+ * \brief           Allocation-agnostic core shared by matrixPseudoInv() and matrixPseudoInvStatic().
+ *
+ *                  All working matrices are supplied already initialized; no allocation is done here.
+ *
+ * \param[out]      lhs: pointer to lhs matrix object
+ * \param[out]      result: pointer to result matrix object
+ * \param[in]       tran: pre-initialized scratch matrix, size [lhs->cols x lhs->rows]
+ * \param[in]       mult1: pre-initialized scratch matrix, size [lhs->cols x lhs->cols]
+ * \param[in]       solve: pointer to the LinSolve routine (dynamic or static variant)
+ *
+ * \return          utilsStatus_t as returned by matrixPseudoInv()
+ */
+static utilsStatus_t s_matrixPseudoInv_impl(matrix_t* lhs, matrix_t* result, matrixBuffer_t* buf, s_linSolve_fn solve) {
+    matrix_t tran;
+    matrix_t mult1;
+    matrixInitInBuffer(&tran, buf, lhs->cols, lhs->rows);
+    matrixInitInBuffer(&mult1, buf, lhs->cols, lhs->cols);
+
+    matrixTrans(lhs, &tran);
+    matrixMult(&tran, lhs, &mult1);
+    utilsStatus_t status = solve(&mult1, &tran, result);
+    return status;
+}
+
+/**
+ * \brief           Allocation-agnostic core shared by matrixDet() and matrixDetStatic().
+ *
+ *                  All working matrices are supplied already initialized; no allocation is done here.
+ *
+ * \param[in]       matrix: pointer to matrix matrix object
+ * \param[in]       L: pre-initialized scratch matrix, size [matrix->rows x matrix->rows]
+ * \param[in]       U: pre-initialized scratch matrix, size [matrix->rows x matrix->rows]
+ * \param[in]       P: pre-initialized scratch matrix, size [matrix->rows x 1]
+ * \param[in]       factor_lu: pointer to the LU_Cormen routine (dynamic or static variant)
+ * \param[in]       factor_lup: pointer to the LUP_Cormen routine (dynamic or static variant)
+ *
+ * \return          determinant value (0 on non-square input)
+ */
+/* cppcheck-suppress funcArgNamesDifferentUnnamed ; false positive: declaration and definition name every parameter identically; cppcheck misreads the second typedef'd function-pointer parameter */
+static float s_matrixDet_impl(const matrix_t* matrix, matrixBuffer_t* buf, s_factor3_fn factor_lu, s_lupFactor_fn factor_lup) {
+    matrix_t L;
+    matrix_t U;
+    matrix_t P;
+    matrixInitInBuffer(&L, buf, matrix->rows, matrix->rows);
+    matrixInitInBuffer(&U, buf, matrix->rows, matrix->rows);
+    matrixInitInBuffer(&P, buf, matrix->rows, 1);
+
+    if (matrix->rows != matrix->cols) {
+        return 0.0f;
+    }
+    float determinant = 1.0f;
+
+    if (factor_lu(matrix, &L, &U) == UTILS_STATUS_SUCCESS) {
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
+        }
+    }
+
+    else {
+        int8_t det_f = factor_lup(matrix, &L, &U, &P);
+        for (uint8_t i = 0; i < matrix->rows; i++) {
+            determinant *= ELEM(U, i, i);
+        }
+        determinant *= (float)det_f;
+    }
+    return determinant;
+}

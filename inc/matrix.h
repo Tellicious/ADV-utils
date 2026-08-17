@@ -69,6 +69,18 @@ typedef struct {
     uint8_t cols; /**< Number of columns */
 } matrix_t;
 
+/**
+ * \brief           Linear scratch buffer used to sub-allocate working matrices
+ *
+ *                  A solver allocates one buffer - heap-backed for the dynamic API, a VLA for the
+ *                  static API - and carves its scratch matrices from it with matrixInitInBuffer().
+ */
+typedef struct {
+    float* base;   /**< Backing storage */
+    uint32_t size; /**< Capacity in floats */
+    uint32_t used; /**< Floats handed out so far */
+} matrixBuffer_t;
+
 /* Function prototypes -------------------------------------------------------*/
 
 #ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
@@ -96,6 +108,29 @@ utilsStatus_t matrixInit(matrix_t* matrix, uint8_t rows, uint8_t cols);
  */
 void matrixInitStatic(matrix_t* matrix, float* data, uint8_t rows, uint8_t cols);
 #endif /* ADVUTILS_USE_STATIC_ALLOCATION */
+
+#ifdef ADVUTILS_USE_DYNAMIC_ALLOCATION
+/**
+ * \brief           Create a scratch matrix backed by the next free region of a matrixBuffer
+ *
+ * \param[out]      buf: pointer to matrixBuffer object
+ * \param[in]       words: dimension of the scratch buffer to be allocated
+ * 
+ * \retval          UTILS_STATUS_SUCCESS if buffer is allocated succesfully
+ * \retval          UTILS_STATUS_ERROR if the buffer cannot be allocated
+ */
+utilsStatus_t matrixBufferAllocate(matrixBuffer_t* buf, uint32_t words);
+#endif /* ADVUTILS_USE_DYNAMIC_ALLOCATION */
+
+/**
+ * \brief           Create a scratch matrix backed by the next free region of a matrixBuffer
+ *
+ * \param[in]       matrix: pointer to matrix object
+ * \param[in]       buf: pointer to the backing scratch buffer
+ * \param[in]       rows: number of rows
+ * \param[in]       cols: number of columns
+ */
+void matrixInitInBuffer(matrix_t* matrix, matrixBuffer_t* buf, uint8_t rows, uint8_t cols);
 
 /**
  * \brief           Set the matrix as an identity matrix

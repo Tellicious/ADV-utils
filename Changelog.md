@@ -18,6 +18,7 @@
 - Float linear-algebra solvers now guard against non-finite (NaN/Inf) values: the `Cholesky`, `LU_Crout` and `LU_Cormen` factorizations (and their `Static` twins) reject non-finite pivots, and `LinSolveCholesky`, `LinSolveQR` and `QR_Householder` additionally validate their computed result/factors, returning `UTILS_STATUS_ERROR` instead of propagating NaN/Inf
 - `LinSolveLU`, `LinSolveLUP` and `LinSolveGauss` (and their `Static` twins) now return `utilsStatus_t` instead of `void`, reporting `UTILS_STATUS_ERROR` on a singular system or a non-finite (NaN/Inf) computed result; the underlying `LUP_Cormen` / `LUP_CormenStatic` factorizations additionally reject non-finite pivots
 - `matrixInversed`, `matrixInversed_rob`, `matrixInversed_SPD`, `matrixPseudoInv` and their `Static` twins now return `utilsStatus_t` instead of `void`, propagating the status of the underlying linear solver (existing call sites that ignore the return value are unaffected)
+- Refactored `matrix` and `numMethods` modules for improved maintenability
 - Documented the assertion model (debug vs. release, override hooks and example handlers) in the Readme
   
 ## v1.26.1
