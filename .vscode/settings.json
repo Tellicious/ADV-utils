@@ -1,0 +1,3 @@
+{
+    "cppcheck-official.arguments": "--project=ADV-Utils.cppcheck"
+}
