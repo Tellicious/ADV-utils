@@ -10,6 +10,7 @@
 - ***basicMath:*** math constants, conversion factors, bitwise operators, `fastSqrt`, `fastInvSqrt`, `fastSin` and `fastCos`
 - ***button:*** interrupt-based button object with debounce and multiple press types detection
 - ***event:*** callback-based event manager with support for functions with type `void(*)(void)` and `void(*)(void* val)`
+- ***fix16:*** Q16.16 fixed point scalar operations (add, subtract, multiply, divide, sqrt, abs, convert)
 - ***IIRFilters:*** simple discrete-time IIR filters, with on-the-fly conversion continuous -> discrete of derivative, integrator, leaky integrator, 2nd order low-pass, high-pass, band-pass and band-stop filters
 - ***list:*** linked list
 - ***LKHashTable:*** dynamic linked hash-table object (based on _list_)
@@ -42,12 +43,12 @@
 - Assertion model: when `DEBUG` is defined the library checks input parameters with `ADVUTILS_ASSERT`, whose built-in handler traps in an infinite loop; it is compiled out in release builds. To keep the checks active in release as well, define `ADVUTILS_USE_ASSERT_ALWAYS`. The handler is fully overridable, either by defining `ADVUTILS_ASSERT(x)` directly, or by defining `ADVUTILS_ASSERT_HEADER` to point at a header that declares your own assert. Two common override patterns:
     - Log and trap:
         ```c
-        #define ADVUTILS_ASSERT(x)                                       \
-            do {                                                         \
-                if (!(x)) {                                              \
+        #define ADVUTILS_ASSERT(x)                                        \
+            do {                                                          \
+                if (!(x)) {                                               \
                     printf("assert failed: %s:%d\n", __FILE__, __LINE__); \
-                    for (;;) { }                                         \
-                }                                                        \
+                    for (;;) { }                                          \
+                }                                                         \
             } while (0)
         ```
     - Forward to a user handler (e.g. a weak `ADVUtils_assertFailed` you can breakpoint or override at link time):
@@ -89,6 +90,7 @@
 | basicMath   |     100% |
 | button      |     100% |
 | event       |     100% |
+| fix16       |     100% |
 | IIRFilters  |     100% |
 | list        |     100% |
 | LKHashTable |     100% |

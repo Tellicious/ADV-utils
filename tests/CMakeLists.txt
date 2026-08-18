@@ -3,6 +3,7 @@ set(TESTS_LIST
     basicMath
     button
     event
+    fix16
     hashFunctions
     IIRFilters
     list

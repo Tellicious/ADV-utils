@@ -16,6 +16,7 @@ set(${libName}_src
     basicMath.c
     button.c
     event.c
+    fix16.c
     hashFunctions.c
     IIRFilters.c
     list.c

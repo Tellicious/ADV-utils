@@ -54,6 +54,16 @@ references in the `basicMath` test (`fastSin`/`fastCos`). Note: the analogous
 constants use `(uint32_t)1 << n`), because there the operand is provably
 non-negative.
 
+### Rule 10.1 — signed fixed-point (Q16.16) shift and scaling
+File: fix16.c — the saturating round (`fix16_satRoundQ32`), the post-multiply
+round (`fix16_mul`), the numerator pre-scale in `fix16_div`, and the
+integer<->Q16.16 conversions (`fix16_fromInt`, `fix16_toInt`) rely on signed
+(arithmetic) shifts of `int32_t`/`int64_t` operands to scale and round in the
+Q16.16 format. The operands are signed by construction and an arithmetic shift
+is the intended round-to-nearest / scaling operation; forcing unsigned essential
+types would change the rounding of negative values. Values are verified against
+golden references in the `fix16` test.
+
 ### Rule 19.2 — union type punning
 File: basicMath.c — `fastSqrt`/`fastInvSqrt` reinterpret a `float` and a 32-bit
 integer through a union. This is the well-known fast (inverse) square-root idiom;
