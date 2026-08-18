@@ -36,6 +36,9 @@ component_management:
         - component_id: event
           paths:
             - "**/event.*"
+        - component_id: fix16
+          paths:
+            - "**/fix16.*"
         - component_id: hashFunctions
           paths:
             - "**/hashFunctions.*"
@@ -72,3 +75,6 @@ component_management:
         - component_id: timer
           paths:
             - "**/timer.*"
+        - component_id: vector3f
+          paths:
+            - "**/vector3f.*"
