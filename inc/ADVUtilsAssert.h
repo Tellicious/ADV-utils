@@ -70,7 +70,7 @@ extern "C" {
 #if defined(DEBUG) || defined(ADVUTILS_USE_ASSERT_ALWAYS) || defined(DOXYGEN)
 #define ADVUTILS_ASSERT(x)                                                                                                                                     \
     do {                                                                                                                                                       \
-        if ((x) == 0) {                                                                                                                                        \
+        if ((x) == 0U) {                                                                                                                                       \
             for (;;) {                                                                                                                                         \
                 ;                                                                                                                                              \
             }                                                                                                                                                  \
