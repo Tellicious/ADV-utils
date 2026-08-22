@@ -52,10 +52,24 @@ extern "C" {
 /* Macros --------------------------------------------------------------------*/
 
 /** \brief Absolute value */
-#define ABS(value)                               (((value) >= 0) ? (value) : (-(value)))
+/** \brief Absolute value (float) */
+static inline float basicMathAbsF(float value) { return (value >= 0.0f) ? value : (-value); }
+
+/** \brief Absolute value (signed integer) */
+static inline int32_t basicMathAbsI(int32_t value) { return (value >= 0) ? value : (-value); }
+
+/** \brief Absolute value \hideinitializer */
+#define ABS(value) (_Generic((value), float: basicMathAbsF, default: basicMathAbsI)(value))
 
 /** \brief Get sign of value */
-#define SIGN(x)                                  (((x) >= 0) ? 1 : -1)
+/** \brief Get sign of value (float) */
+static inline int32_t basicMathSignF(float value) { return (value >= 0.0f) ? 1 : -1; }
+
+/** \brief Get sign of value (signed integer) */
+static inline int32_t basicMathSignI(int32_t value) { return (value >= 0) ? 1 : -1; }
+
+/** \brief Get sign of value \hideinitializer */
+#define SIGN(x)                                  (_Generic((x), float: basicMathSignF, default: basicMathSignI)(x))
 
 /** \brief Constrain value between low and high */
 #define CONSTRAIN(value, low, high)              ((value) < (low) ? (low) : ((value) > (high) ? (high) : (value)))
@@ -64,7 +78,34 @@ extern "C" {
 #define MAP(x, fromLow, fromHigh, toLow, toHigh) (((x) - (fromLow)) * ((toHigh) - (toLow)) / ((fromHigh) - (fromLow)) + (toLow))
 
 /** \brief Apply a deadband to value */
-#define DEADBAND(value, threshold)               ((ABS(value) <= (threshold)) ? 0 : (((value) > 0) ? ((value) - (threshold)) : ((value) + (threshold))))
+/** \brief Apply a deadband to value (float) */
+static inline float basicMathDeadbandF(float value, float threshold) {
+    float ret;
+    if (basicMathAbsF(value) <= threshold) {
+        ret = 0.0f;
+    } else if (value > 0.0f) {
+        ret = value - threshold;
+    } else {
+        ret = value + threshold;
+    }
+    return ret;
+}
+
+/** \brief Apply a deadband to value (signed integer) */
+static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
+    int32_t ret;
+    if (basicMathAbsI(value) <= threshold) {
+        ret = 0;
+    } else if (value > 0) {
+        ret = value - threshold;
+    } else {
+        ret = value + threshold;
+    }
+    return ret;
+}
+
+/** \brief Apply a deadband to value \hideinitializer */
+#define DEADBAND(value, threshold) (_Generic((value), float: basicMathDeadbandF, default: basicMathDeadbandI)((value), (threshold)))
 
 #ifdef __GNUC__
 /** \brief Get maximum between 2 values */
@@ -181,7 +222,7 @@ extern "C" {
 /** \brief Square root \hideinitializer */
 #define SQRT(x)    sqrtf(x)
 /** \brief Inverse square root (1/sqrt) \hideinitializer */
-#define INVSQRT(x) 1.0f / sqrtf(x)
+#define INVSQRT(x) (1.0f / sqrtf(x))
 /** \brief Tangent \hideinitializer */
 #define TAN(x)     tanf(x)
 #endif /* USE_FAST_MATH */

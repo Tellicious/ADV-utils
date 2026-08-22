@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.28.0
+
+**Improvements:**
+- Enhanced `basicMath` macros with type-specific implementations
+
 ## v1.27.0
 
 **New features:**

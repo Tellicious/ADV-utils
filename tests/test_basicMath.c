@@ -53,11 +53,16 @@ static void test_macros(void** state) {
     assert_int_equal(ABS(5), 5);
     assert_int_equal(ABS(0), 0);
     assert_float_equal(ABS(-3.5f), 3.5f, 1e-5);
+    assert_float_equal(ABS(3.5f), 3.5f, 1e-5);
+    assert_float_equal(ABS(0.0f), 0.0f, 1e-5);
 
     // Test SIGN macro
     assert_int_equal(SIGN(-5), -1);
     assert_int_equal(SIGN(5), 1);
     assert_int_equal(SIGN(0), 1);
+    assert_int_equal(SIGN(-10.0f), -1);
+    assert_int_equal(SIGN(10.0f), 1);
+    assert_int_equal(SIGN(0.0f), 1);
 
     // Test CONSTRAIN macro
     assert_int_equal(CONSTRAIN(5, 0, 10), 5);
@@ -75,6 +80,10 @@ static void test_macros(void** state) {
     assert_int_equal(DEADBAND(-5, 2), -3);
     assert_int_equal(DEADBAND(1, 2), 0);
     assert_int_equal(DEADBAND(2, 2), 0);
+    assert_float_equal(DEADBAND(3.5f, 2.0f), 1.5f, 1e-5);
+    assert_float_equal(DEADBAND(-3.5f, 2.0f), -1.5f, 1e-5);
+    assert_float_equal(DEADBAND(1.0f, 2.0f), 0.0f, 1e-5);
+    assert_float_equal(DEADBAND(2.0f, 2.0f), 0.0f, 1e-5);
 
     // Test MAX and MIN macros
     assert_int_equal(MAX(5, 10), 10);
