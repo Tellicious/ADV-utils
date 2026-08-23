@@ -50,7 +50,7 @@ jobs:
           exit ${rc}   # WARN_AS_ERROR=FAIL_ON_WARNINGS makes this fail the build on any warning
 
       - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: build/doc/html
 
