@@ -1,6 +1,6 @@
-## Minor `basicMath` improvement
+## Minor `PID` bugfix
 
-**Improvements:**
-- Enhanced `basicMath` macros with type-specific implementations
+**Bugfix:**
+- Extended `PID_reset` to clear also output value
   
 See [Changelog](Changelog.md)

@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.28.1
+
+**Bugfix:**
+- Extended `PID_reset` to clear also output value
+
 ## v1.28.0
 
 **Improvements:**

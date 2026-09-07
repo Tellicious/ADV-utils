@@ -48,8 +48,9 @@ void PID_init(PID_t* PID, float kpVal, float kiVal, float kdVal, float ndVal, fl
     PID->kd = (2.0f * kdVal * ndVal) / (2.0f + (ndVal * PID->dT));
     PID->kf = (2.0f - (ndVal * PID->dT)) / (2.0f + (ndVal * PID->dT));
     PID_setIntegralSaturation(PID, satMin, satMax);
-    PID->DuD = 0;
-    PID->DuI = 0;
+    PID->output = 0.0f;
+    PID->DuD = 0.0f;
+    PID->DuI = 0.0f;
     PID->derivMode = PID_DERIV_ON_ERROR;
 }
 

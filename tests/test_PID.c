@@ -68,6 +68,10 @@ static void test_PID_init(void** state) {
     assert_float_equal(pid.satMax, 10.0f, 1e-5);
     assert_float_equal(pid.kb, 0.5f * 0.5f * 1000.0f * 1e-3f, 1e-5);
     assert_float_equal(pid.kf, (2 - 1.0f * 1000.0f * 1e-3) / (2 + 1.0f * 1000.0f * 1e-3), 1e-5);
+    assert_float_equal(pid.output, 0.0f, 1e-5);
+    assert_float_equal(pid.DuD, 0.0f, 1e-5);
+    assert_float_equal(pid.DuI, 0.0f, 1e-5);
+    assert_int_equal(pid.derivMode, PID_DERIV_ON_ERROR);
 }
 
 static void test_PID_calc(void** state) {
@@ -299,9 +303,11 @@ static void test_PID_setGet(void** state) {
     PID_setKb(&pid, 2.6);
     assert_float_equal(pid.kb, 0.5 * 2.6 * 100 * 1e-3, 1e-5);
     /* Reset */
+    pid.output = 567.0f;
     pid.DuD = 123;
     pid.DuI = 344;
     PID_reset(&pid);
+    assert_float_equal(pid.output, 0.0f, 1e-5);
     assert_float_equal(pid.DuD, 0, 1e-5);
     assert_float_equal(pid.DuI, 0, 1e-5);
 }

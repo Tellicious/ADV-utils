@@ -268,6 +268,7 @@ static inline void PID_setIntegralSaturation(PID_t* PID, float satMin, float sat
  * \param[in]       PID: pointer to PID object
  */
 static inline void PID_reset(PID_t* PID) {
+    PID->output = 0.0f;
     PID->DuD = 0.0f;
     PID->DuI = 0.0f;
 }
