@@ -271,7 +271,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_PI
 /** \brief pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constPI M_PI
+#define constPI ((float)(M_PI))
 #else
 /** \brief pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -281,7 +281,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_PI_2
 /** \brief pi / 2 value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constPI_2 M_PI_2
+#define constPI_2 ((float)(M_PI_2))
 #else
 /** \brief pi / 2 value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -291,7 +291,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_TWOPI
 /** \brief 2 * pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constTWOPI M_TWOPI
+#define constTWOPI ((float)(M_TWOPI))
 #else
 /** \brief 2 * pi value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -305,7 +305,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_E
 /** \brief e value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constE M_E
+#define constE ((float)(M_E))
 #else
 /** \brief e value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -316,7 +316,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_SQRT2
 /** \brief sqrt(2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constSQRT2 M_SQRT2
+#define constSQRT2 ((float)(M_SQRT2))
 #else
 /** \brief sqrt(2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -326,7 +326,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_SQRT1_2
 /** \brief sqrt(1/2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constSQRT1_2 M_SQRT1_2
+#define constSQRT1_2 ((float)(M_SQRT1_2))
 #else
 /** \brief sqrt(1/2) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
@@ -337,7 +337,7 @@ static inline int32_t basicMathDeadbandI(int32_t value, int32_t threshold) {
 #ifdef M_SQRT3
 /** \brief sqrt(3) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */
-#define constSQRT3 M_SQRT3
+#define constSQRT3 ((float)(M_SQRT3))
 #else
 /** \brief sqrt(3) value */
 /* cppcheck-suppress misra-c2012-20.4 ; deviation: false positive - identifier is not a keyword */

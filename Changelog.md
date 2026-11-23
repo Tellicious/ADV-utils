@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.28.2
+
+**Bugfix:**
+- Added missing literals to `LPHashTable`
+- Fixed constants definition in `basicMath` to avoid double promotion
+- Updated VSCode settings
+
 ## v1.28.1
 
 **Bugfix:**

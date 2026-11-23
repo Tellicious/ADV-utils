@@ -46,7 +46,7 @@
 
 /* Minimum size of hash-table when resizing */
 #ifndef LPHT_MIN_SIZE
-#define LPHT_MIN_SIZE 5
+#define LPHT_MIN_SIZE 5U
 #endif /* LPHT_MIN_SIZE */
 
 /* Maximum size of hash-table when resizing */
@@ -56,12 +56,12 @@
 
 /* Minimum saturation of hash-table, that triggers a down-sizing */
 #ifndef LPHT_MIN_SATURATION
-#define LPHT_MIN_SATURATION 0.2
+#define LPHT_MIN_SATURATION 0.2f
 #endif /* LPHT_MIN_SATURATION */
 
 /* Maximum saturation of hash-table, that triggers an up-sizing */
 #ifndef LPHT_MAX_SATURATION
-#define LPHT_MAX_SATURATION 0.7
+#define LPHT_MAX_SATURATION 0.7f
 #endif /* LPHT_MAX_SATURATION */
 
 /* Hash function used by hash-table */
@@ -120,7 +120,7 @@ utilsStatus_t lpHashTablePut(lpHashTable_t* lpht, const char* key, const void* v
     }
 
     /* If length will exceed defined quota of current capacity, expand it. */
-    if (((((double)lpht->items + 1.0) >= ((double)lpht->size * LPHT_MAX_SATURATION))) && (lpht->resizable == LPHT_RESIZABLE)) {
+    if (((((float)lpht->items + 1.0f) >= ((float)lpht->size * LPHT_MAX_SATURATION))) && (lpht->resizable == LPHT_RESIZABLE)) {
         if (lpHashTableXpand(lpht, 1) == UTILS_STATUS_ERROR) {
             return UTILS_STATUS_ERROR;
         }

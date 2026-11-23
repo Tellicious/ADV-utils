@@ -1,6 +1,8 @@
-## Minor `PID` bugfix
+## Constants fix
 
 **Bugfix:**
-- Extended `PID_reset` to clear also output value
+- Added missing literals to `LPHashTable`
+- Fixed constants definition in `basicMath` to avoid double promotion
+- Updated VSCode settings
   
 See [Changelog](Changelog.md)
